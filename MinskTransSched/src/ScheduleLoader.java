@@ -45,17 +45,24 @@ public class ScheduleLoader
 	
 	void LoadSchedules() throws Exception
 	{
-		// load buses
+		// load scheds
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("scheds"));
 		short count = dis.readShort();
 		schedules = new Schedule[count];
+		int freeSchedule = 0;
 		for (int i = 0; i < count; i++)
 		{
-			schedules[i] = new Schedule();
-			Schedule sched = schedules[i]; 
+			short bus = dis.readShort();
+			short busStop = dis.readShort();
+			Schedule sched = FindSchedule(bus, busStop);
+			if(sched == null)
+			{
+				sched = new Schedule();
 
-			sched.bus = FindBus(dis.readShort());
-			sched.busStop = FindBusStop(dis.readShort());
+				sched.bus = FindBus(bus);
+				sched.busStop = FindBusStop(busStop);
+				schedules[freeSchedule++] = sched;
+			}
 			
 			short days = dis.readShort();
 			
@@ -97,6 +104,16 @@ public class ScheduleLoader
 		throw new Exception("Unknown bus stop: " + id);
 	}
 	
+	Schedule FindSchedule(short bus, short busStop)
+	{
+		for (int i = 0; i < schedules.length; i++)
+		{
+			if(schedules[i] != null && schedules[i].bus.id == bus && schedules[i].busStop.id == busStop)
+				return schedules[i];
+		}
+		return null;
+	}
+	
 	void LoadBusStops() throws IOException
 	{
 		// load buses
@@ -127,14 +144,14 @@ public class ScheduleLoader
 				// calc count of schedules for it
 				BusStop stop = busStops[bs];
 				int count = 0;
-				for (int s = 0; s < schedules.length; s++)
+				for (int s = 0; s < schedules.length && schedules[s] != null; s++)
 				{
-					if(schedules[s].busStop == stop)
+					if(schedules[s] != null && schedules[s].busStop == stop)
 						count++;
 				}
 				stop.schedules = new Schedule[count];
 				count = 0;
-				for (int s = 0; s < schedules.length; s++)
+				for (int s = 0; s < schedules.length && schedules[s] != null; s++)
 				{
 					if(schedules[s].busStop == stop)
 						stop.schedules[count++] = schedules[s];

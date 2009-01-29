@@ -255,7 +255,7 @@ public class ScheduleConverter
 				if(day.compareTo("w") == 0 || day.compareTo("W") == 0)
 					days |= (1 << 8);
 				else if(day.compareTo("h") == 0 || day.compareTo("H") == 0)
-					days |= 1;
+					days |= (1 << 9);
 				else
 					days |= (1 << (Integer.parseInt(day) - 1));
 			}
@@ -337,7 +337,6 @@ public class ScheduleConverter
 		dos.flush();
 		dos.close();
 	}
-
 
 	void WriteBusStops(String file) throws IOException
 	{
