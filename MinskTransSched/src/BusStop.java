@@ -1,6 +1,9 @@
 
 public class BusStop
 {
-	public String Name;
-	public BusSchedule[] Schedules;
+	public short id;
+	public String name;
+	public String officialName;
+	public String description;
+	public Schedule[] schedules;
 }

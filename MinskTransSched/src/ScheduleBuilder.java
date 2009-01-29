@@ -47,22 +47,22 @@ public class ScheduleBuilder
 		int endWindow = beginWindow + WindowSize;
 
 //		sb.append(cal.get(Calendar.SECOND) + "\n\n\n\n\n\n\n\n");
-		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + Station.Name);
+		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + Station.name);
 //		sb.append("\n\n\n\n\n\n\n\n");
-		sb.append("\nŒÍÌÓ: ");
+		sb.append("\n–û–∫–Ω–æ: ");
 		FormatTimeDiff(endWindow - beginWindow, sb);
 //		sb.append("\n\n\n\n\n\n\n\n");
 		sb.append(" [" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
 		sb.append("\n");
 //		sb.append("\n\n\n\n\n\n\n\n");
 		
-		BusSchedule[] busOnStation = Station.Schedules; 
+		Schedule[] busOnStation = Station.schedules; 
 		
 		for (int i = 0; i < busOnStation.length; i++)
 		{
 			boolean schedEmpty = true;
-			BusSchedule sched = busOnStation[i];
-			sb.append(sched.Bus.Name);
+			Schedule sched = busOnStation[i];
+			sb.append(sched.bus.Name);
 			sb.append(": ");
 			
 			short[] times = GetBusTimes(sched, cal);
@@ -93,21 +93,21 @@ public class ScheduleBuilder
 		return sb.toString();
 	}
 	
-	short[] GetBusTimes(BusSchedule sched, Calendar cal)
+	short[] GetBusTimes(Schedule sched, Calendar cal)
 	{
 		if(UserDayType == DAY_AUTO)
 		{
-			return sched.Times[cal.get(Calendar.DAY_OF_WEEK)];
+			return sched.GetTimes(cal.get(Calendar.DAY_OF_WEEK));
 		}
 		else if(UserDayType == DAY_HOLIDAY)
 		{
-			return sched.Times[BusSchedule.HOLIDAY];
+			return sched.GetTimes(Schedule.HOLIDAY);
 		}
 		else if(UserDayType == DAY_WORK)
 		{
-			return sched.Times[BusSchedule.WORKDAY];
+			return sched.GetTimes(Schedule.WORKDAY);
 		}
-		return sched.Times[BusSchedule.WORKDAY];
+		return sched.GetTimes(Schedule.WORKDAY);
 	}
 	
 	private void FormatTimeDiff(int diff, StringBuffer sb)
@@ -157,26 +157,26 @@ public class ScheduleBuilder
 			switch (cal.get(Calendar.DAY_OF_WEEK))
 			{
 			case 1:
-				return "¬Ò";
+				return "–í—Å";
 			case 2:
-				return "œÌ";
+				return "–ü–Ω";
 			case 3:
-				return "¬Ú";
+				return "–í—Ç";
 			case 4:
-				return "—";
+				return "–°—Ä";
 			case 5:
-				return "◊Ú";
+				return "–ß—Ç";
 			case 6:
-				return "œÚ";
+				return "–ü—Ç";
 			case 7:
-				return "—·";
+				return "–°–±";
 			}
 		}
 		
 		if(UserDayType == DAY_WORK)
-			return "¡Û‰";
+			return "–ë—É–¥";
 		if(UserDayType == DAY_HOLIDAY)
-			return "¬˚ı";
+			return "–í—ã—Ö";
 		
 		return "?";
 	}

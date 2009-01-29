@@ -1,7 +1,6 @@
 import java.io.*;
 import java.nio.charset.*;
-import java.util.Arrays;
-import java.util.Vector;
+import java.util.*;
 
 public class ScheduleConverter
 {
@@ -13,24 +12,28 @@ public class ScheduleConverter
 		new ScheduleConverter().Convert(args);
 	}
 	
+	Vector<Bus> buses = null;
+	Vector<BusStop> busStops = null;
+	Vector<Schedule> schedules = new Vector<Schedule>();
+
 	void Convert(String[] args)
 	{
-		if(args.length == 0)
-		{
-			ShowHelp();
-			return;
-		}
-
 		try{
-			Vector<ScheduleFile> sheduleFiles = new Vector<ScheduleFile>();
+			if(args.length == 0)
+			{
+				ShowHelp();
+				return;
+			}
+
+			String outDir = ".";
 
 			Charset c = Charset.forName("UTF-8");
 			
-			for (int i = 1; i < args.length; i++)
+			for (int i = 0; i < args.length; i++)
 			{
 				String arg = args[i];
 				
-				if(arg.startsWith("-c"))
+				if(arg.compareTo("-c") == 0)
 				{
 					i++;
 					if(i == args.length)
@@ -39,149 +42,185 @@ public class ScheduleConverter
 					continue;
 				}
 				
-				ScheduleFile sched = new ScheduleFile();
-				sched.fileCharset = c;
-				sched.fileName = arg;
-				sheduleFiles.add(sched);
+				if(arg.compareTo("-o") == 0)
+				{
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument -o not supplied with parameter.");
+					outDir = args[i];
+					continue;
+				}
+
+				if(buses == null)
+				{
+					buses = new Vector<Bus>();
+					CsvReader r = new CsvReader(arg, ';', c);
+					r.readHeaders();
+					while(r.readRecord())
+					{
+						Bus b = new Bus();
+						b.id = Short.parseShort(r.get("id"));
+						b.name = r.get("name");
+						b.description = r.get("description");
+						
+						buses.add(b);
+					}
+					System.out.println("Buses: " + arg);
+					continue;
+				}
+
+				if(busStops == null)
+				{
+					busStops = new Vector<BusStop>();
+					CsvReader r = new CsvReader(arg, ';', c);
+					r.readHeaders();
+					while(r.readRecord())
+					{
+						BusStop bs = new BusStop();
+						bs.id = Short.parseShort(r.get("id"));
+						bs.name = r.get("name");
+						bs.officialName = r.get("officialName");
+						bs.description = r.get("description");
+						
+						busStops.add(bs);
+					}
+					System.out.println("BusStops: " + arg);
+					continue;
+				}
+				
+				try
+				{
+					ParseScheduleFile(arg, c);
+					System.out.println("Schedule: " + arg);
+				}
+				catch(Exception ex)
+				{
+					throw new Exception("File " + arg + "\n" + ex.toString(), ex);
+				}
 			}
 			
-			Vector<BusSchedule> schedules = new Vector<BusSchedule>();
-			for (int i = 0; i < sheduleFiles.size(); i++)
-			{
-				ScheduleFile schedFile = sheduleFiles.get(i);
-				ReadRawStrings(schedFile);
-				System.out.println("Readed " + schedFile.fileName);
-				ParseScheduleFile(schedFile, schedules);
-			}
+			if(buses == null)
+				throw new Exception("Buses CSV not provided.");
 
-			// write schedules
-			OutputStream os = new FileOutputStream(args[0], false);
-			DataOutputStream dos = new DataOutputStream(os);
-			
-			for (int i = 0; i < schedules.size(); i++)
-			{
-				BusSchedule sched = schedules.get(i);
-				WriteSchedule(dos, sched);
-				System.out.println("Write " + sched.bus + " at " + sched.busStop + " DIR:" + sched.direction + " DAYS:" + sched.days);
-			}
+			if(busStops == null)
+				throw new Exception("Bus stops CSV not provided.");
 
-			dos.flush();
-			dos.close();
-			os.flush();
-			os.close();
+			// write 
+			WriteBuses(outDir + "/buses");
+			WriteBusStops(outDir + "/busStops");
+			WriteSchedules(outDir + "/scheds");
 		}
 		catch(Exception ex)
 		{
-			ShowHelp();
 			System.out.println("Exception: " + ex.getMessage());
 		}
 	}
 	
 	void ShowHelp()
 	{
-		System.out.println("Usage: <executable name> output_file file1 file2 ...");
+		System.out.println("Usage: <executable> <busstops.csv> <buses.csv> sched_file1 sched_file2 ...");
 	}
 	
-	void ReadRawStrings(ScheduleFile sched) throws IOException
+	Vector<String> ReadAllStrings(String file, Charset c) throws IOException
 	{
 		BufferedReader br = new BufferedReader(
-				new InputStreamReader(
-						new FileInputStream(sched.fileName),
-						sched.fileCharset));
+				new InputStreamReader(new FileInputStream(file), c));
 		
-		sched.rawStrings = new Vector<String>();
+		Vector<String> ret = new Vector<String>();
 		while(true)
 		{
 			String line = br.readLine();
 			if(line == null)
 				break;
 			
-			sched.rawStrings.add(line);
+			ret.add(line);
 		}
+		return ret;
 	}
 	
-	void ParseScheduleFile(ScheduleFile schedFile, Vector<BusSchedule> schedules) throws Exception
+	void ParseScheduleFile(String file, Charset c) throws Exception
 	{
-		String busName = null;
-		String busStopName = null;
-		Short days = 256;	// work days by default
-		Short direction = 0;
-		String firstBusStop = "";
-		String lastBusStop = "";
+		short bus = -1;
+		short busStop = -1;
+		short days = 0x100;	// work days by default
 
-		for (int lineNo = 0; lineNo < schedFile.rawStrings.size(); lineNo++)
+		LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(file), c));
+		String line;
+		while((line = lnr.readLine()) != null)
 		{
 			try{
-				String s = schedFile.rawStrings.elementAt(lineNo);
-				s = s.replaceAll("\\s+", " ").trim();
-				if(s.length() == 0)
+				line = line.replaceAll("\\s+", " ").trim();
+				if(line.length() == 0)
 					continue;
 				
-				if(s.startsWith("\\busstop"))
+				if(line.startsWith("\\busstop"))
 				{
-					if(s.matches("\\\\busstop\\{[fF]\\}.+"))
-						direction = 1;
-					else if(s.matches("\\\\busstop\\{[bB]\\}.+"))
-						direction = -1;
-					else
-						direction = 0;
-					busStopName = s.replaceAll("^\\\\\\S+\\s+", "").trim();
+					String busStopName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					BusStop bs = FindBusStop(busStopName);
+					busStop = bs.id;
 					continue;
 				}
-				if(s.startsWith("\\bus"))
+				if(line.startsWith("\\bus"))
 				{
-					busName = s.replaceAll("^\\\\\\S+\\s+", "").trim();
+					String busName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					Bus b = FindBus(busName);
+					bus = b.id;
 					continue;
 				}
-				if(s.startsWith("\\days"))
+				if(line.startsWith("\\days"))
 				{
-					days = ParseDays(s.replaceAll("^\\\\\\S+\\s+", "").trim());
+					days = ParseDays(line.replaceAll("^\\\\\\S+\\s+", "").trim());
 					continue;
 				}
-				if(s.startsWith("\\first"))
-				{
-					firstBusStop = s.replaceAll("^\\\\\\S+\\s+", "").trim();
-					continue;
-				}
-				if(s.startsWith("\\last"))
-				{
-					lastBusStop = s.replaceAll("^\\\\\\S+\\s+", "").trim();
-					continue;
-				}
-				
-				if(busName == null)
+
+				if(bus == -1)
 					throw new Exception("No bus specified");
 
-				if(busStopName == null)
+				if(busStop == -1)
 					throw new Exception("No bus stop specified");
 				
-				BusSchedule sched = FindBusSched(schedules, busName, busStopName, direction, days);
-				sched.firstBusStop = firstBusStop;
-				sched.lastBusStop = lastBusStop;
-				ParseTimeLine(sched, s);
+				Schedule sched = FindSchedule(schedules, bus, busStop, days);
+				ParseTimeLine(sched, line);
 			}
 			catch(Exception ex)
 			{
-				throw new Exception("Error in " + schedFile.fileName + ":" + lineNo + "\n" + ex.getMessage(), ex);
+				int lineNo = lnr.getLineNumber();
+				throw new Exception("Error in " + file + ":" + lineNo + "\n" + ex.getMessage(), ex);
 			}
 		}
 	}
 	
-	BusSchedule FindBusSched(Vector<BusSchedule> schedules, String bus, String busStop, Short direction, Short days)
+	Bus FindBus(String busName) throws Exception
+	{
+		for (int i = 0; i < buses.size(); i++)
+		{
+			if(busName.compareTo(buses.get(i).name) == 0)
+				return buses.get(i);
+		}
+		throw new Exception("Can't find bus '" + busName + "'");
+	}
+	
+	BusStop FindBusStop(String busStopName) throws Exception
+	{
+		for (int i = 0; i < busStops.size(); i++)
+		{
+			if(busStopName.compareTo(busStops.get(i).name) == 0)
+				return busStops.get(i);
+		}
+		throw new Exception("Can't find bus stop '" + busStopName + "'");
+	}
+	
+	Schedule FindSchedule(Vector<Schedule> schedules, short bus, short busStop, short days)
 	{
 		for (int i = 0; i < schedules.size(); i++)
 		{
-			BusSchedule sched = schedules.elementAt(i); 
-			if(bus.compareTo(sched.bus) == 0 
-					&& busStop.compareTo(sched.busStop) == 0 
-					&& sched.direction == direction
-					&& sched.days == days)
+			Schedule sched = schedules.elementAt(i); 
+			if(bus == sched.bus && busStop == sched.busStop && sched.days == days)
 				return sched;
 		}
-		BusSchedule sched = new BusSchedule();
+		Schedule sched = new Schedule();
 		sched.bus = bus;
 		sched.busStop = busStop;
-		sched.direction = direction;
 		sched.days = days;
 		schedules.add(sched);
 		return sched;
@@ -236,7 +275,7 @@ public class ScheduleConverter
 		throw new Exception("Incorrect direction: " + s);
 	}
 	
-	void ParseTimeLine(BusSchedule sched, String s) throws Exception
+	void ParseTimeLine(Schedule sched, String s) throws Exception
 	{
 		String[] strTimes = s
 			.replaceAll("\\s+|,|;|/", " ")
@@ -276,34 +315,88 @@ public class ScheduleConverter
 		}
 	}
 
-	void WriteSchedule(DataOutputStream dos, BusSchedule sched) throws IOException
+	void WriteBuses(String file) throws IOException
 	{
 		// format:
-		// bus: modified UTF-8
-		// busStop: modified UTF-8
-		// firstBusStop: modified UTF-8
-		// lastBusStop: modified UTF-8
-		// days: short. (bit field, bit 0 - holiday, 1 - sunday ... bit 6 - saturday, bit 7 - workday)
-		// direction: short
+		// bus count: short
+		//
+		// bus id: short
+		// name: UTF-8
+		// description: UTF-8
+		// ...
+		
+		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
+		dos.writeShort((short)buses.size());
+		for (int i = 0; i < buses.size(); i++)
+		{
+			Bus bus = buses.get(i);
+			dos.writeShort(bus.id);
+			dos.writeUTF(bus.name);
+			dos.writeUTF(bus.description);
+		}
+		dos.flush();
+		dos.close();
+	}
+
+
+	void WriteBusStops(String file) throws IOException
+	{
+		// format:
+		// busStop count: short
+		//
+		// id: short
+		// name: UTF-8
+		// official name: UTF-8
+		// description: UTF-8
+		// ...
+		
+		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
+		dos.writeShort((short)busStops.size());
+		for (int i = 0; i < busStops.size(); i++)
+		{
+			BusStop busStop = busStops.get(i);
+			dos.writeShort(busStop.id);
+			dos.writeUTF(busStop.name);
+			dos.writeUTF(busStop.officialName);
+			dos.writeUTF(busStop.description);
+		}
+		dos.flush();
+		dos.close();
+	}
+
+	void WriteSchedules(String file) throws IOException
+	{
+		// format:
+		// schedules count: short
+		//
+		// bus id: short
+		// busStop id: short
+		// days: short. (bit flags: bit 0 - not used, bit  1 - Sunday ... bit 7 - Saturday, bit 8 - workday, bit 9 - holiday)
 		// times count: short
 		// times: short[]
-		// ... next schedule
+		// ...
 		
-		dos.writeUTF(sched.bus);
-		dos.writeUTF(sched.busStop);
+		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
+		dos.writeShort((short)schedules.size());
 
-		dos.writeUTF(sched.firstBusStop);
-		dos.writeUTF(sched.lastBusStop);
-
-		dos.writeShort(sched.days);
-		dos.writeShort(sched.direction);
-		
-		dos.writeShort((short)sched.times.size());
-		
-		for (int i = 0; i < sched.times.size(); i++)
+		for (int i = 0; i < schedules.size(); i++)
 		{
-			dos.writeShort(sched.times.get(i));
+			Schedule sched = schedules.get(i);
+
+			dos.writeShort(sched.bus);
+			dos.writeShort(sched.busStop);
+			dos.writeShort(sched.days);
+			
+			dos.writeShort((short)sched.times.size());
+			
+			for (int j = 0; j < sched.times.size(); j++)
+			{
+				dos.writeShort(sched.times.get(j));
+			}
 		}
+
+		dos.flush();
+		dos.close();
 	}
 }
 

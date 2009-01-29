@@ -1,190 +1,150 @@
 import java.io.*;
 import java.util.Calendar;
-import java.util.Vector;
 
 public class ScheduleLoader
 {
-	public BusStop[] Stops;
+	public BusStop[] busStops;
+	Bus[] buses;
+	Schedule[] schedules;
 	
 	void Debug(String x)
 	{
-		Stops = new BusStop[] { new BusStop() };
+		busStops = new BusStop[] { new BusStop() };
 		
-		Stops[0].Name = x;
-		Stops[0].Schedules = new BusSchedule[] {};
+		busStops[0].name = x;
+		busStops[0].schedules = new Schedule[] {};
+	}
+	
+	void LoadBuses() throws IOException
+	{
+		// load buses
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("buses"));
+		short count = dis.readShort();
+		buses = new Bus[count];
+		for (int i = 0; i < count; i++)
+		{
+			buses[i] = new Bus();
+			buses[i].id = dis.readShort();
+			buses[i].Name = dis.readUTF();
+			buses[i].description = dis.readUTF();
+		}
+		dis.close();
+	}
+	
+	static final int[] dayBitNumbers = {
+		Schedule.WORKDAY,
+		Calendar.MONDAY,
+		Calendar.TUESDAY,
+		Calendar.WEDNESDAY,
+		Calendar.THURSDAY,
+		Calendar.FRIDAY,
+		Schedule.HOLIDAY,
+		Calendar.SUNDAY,
+		Calendar.SATURDAY
+	};
+	
+	void LoadSchedules() throws Exception
+	{
+		// load buses
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("scheds"));
+		short count = dis.readShort();
+		schedules = new Schedule[count];
+		for (int i = 0; i < count; i++)
+		{
+			schedules[i] = new Schedule();
+			Schedule sched = schedules[i]; 
+
+			sched.bus = FindBus(dis.readShort());
+			sched.busStop = FindBusStop(dis.readShort());
+			
+			short days = dis.readShort();
+			
+			short[] times = new short[dis.readShort()];
+			for (int t = 0; t < times.length; t++)
+			{
+				times[t] = dis.readShort();
+			}
+
+			for (int bitIndex = 0; bitIndex < dayBitNumbers.length; bitIndex++)
+			{
+				int bit = dayBitNumbers[bitIndex];
+				short mask = (short)(1 << bit);
+				if((days & mask) == mask)
+					sched.setTimes(bit, times);
+			}
+			sched.NormalizeDays();
+		}
+		dis.close();
 	}
 
+	Bus FindBus(short id) throws Exception
+	{
+		for (int i = 0; i < buses.length; i++)
+		{
+			if(buses[i].id == id)
+				return buses[i];
+		}
+		throw new Exception("Unknown bus: " + id);
+	}
+	
+	BusStop FindBusStop(short id) throws Exception
+	{
+		for (int i = 0; i < busStops.length; i++)
+		{
+			if(busStops[i].id == id)
+				return busStops[i];
+		}
+		throw new Exception("Unknown bus stop: " + id);
+	}
+	
+	void LoadBusStops() throws IOException
+	{
+		// load buses
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("busStops"));
+		short count = dis.readShort();
+		busStops = new BusStop[count];
+		for (int i = 0; i < count; i++)
+		{
+			busStops[i] = new BusStop();
+			busStops[i].id = dis.readShort();
+			busStops[i].name = dis.readUTF();
+			busStops[i].officialName = dis.readUTF();
+			busStops[i].description = dis.readUTF();
+		}
+		dis.close();
+	}
+	
 	public void Load()
 	{
 		try{
-			DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("scheds"));
+			LoadBuses();
+			LoadBusStops();
+			LoadSchedules();
 
-			try
+			// link scheds to busstops
+			for (int bs = 0; bs < busStops.length; bs++)
 			{
-				while(true)
+				// calc count of schedules for it
+				BusStop stop = busStops[bs];
+				int count = 0;
+				for (int s = 0; s < schedules.length; s++)
 				{
-					String bus = dis.readUTF();
-					String busStop = dis.readUTF();
-					String firstBusStop = dis.readUTF();
-					String lastBusStop = dis.readUTF();
-					short days = dis.readShort();
-					short direction = dis.readShort();
-					
-					if(direction == -1)
-						busStop = busStop + "_B";
-
-					if(direction == 1)
-						busStop = busStop + "_F";
-
-					short[] times = new short[dis.readShort()];
-					for (int i = 0; i < times.length; i++)
-					{
-						times[i] = dis.readShort();
-					}
-					
-					AddSchedule(bus, busStop, days, times);
+					if(schedules[s].busStop == stop)
+						count++;
 				}
-			}
-			catch(EOFException eof)
-			{
-			}
-
-			Stops = new BusStop[stopsCache.size()];
-			for (int i = 0; i < stopsCache.size(); i++)
-			{
-				Stops[i] = (BusStop)stopsCache.elementAt(i);
-			}
-
-			// analyze times
-			for (int s = 0; s < Stops.length; s++)
-			{
-				BusStop stop = Stops[s];
-				for (int i = 0; i < stop.Schedules.length; i++)
+				stop.schedules = new Schedule[count];
+				count = 0;
+				for (int s = 0; s < schedules.length; s++)
 				{
-					BusSchedule sched = stop.Schedules[i];
-
-					int[] workdayIndexes = new int[] { 
-							BusSchedule.WORKDAY,
-							Calendar.MONDAY,
-							Calendar.TUESDAY,
-							Calendar.WEDNESDAY,
-							Calendar.THURSDAY,
-							Calendar.FRIDAY};
-
-					int[] holidayIndexes = new int[] { 
-							BusSchedule.HOLIDAY,
-							Calendar.SUNDAY,
-							Calendar.SATURDAY};
-					
-					// guess workday times
-					short[] workTimes = new short[] {};
-					for (int j = 0; j < workdayIndexes.length; j++)
-					{
-						if(sched.Times[workdayIndexes[j]] != null)
-						{
-							workTimes = sched.Times[workdayIndexes[j]];
-							break;
-						}
-					}
-					// guess holiday times
-					short[] holidayTimes = new short[0];
-					for (int j = 0; j < holidayIndexes.length; j++)
-					{
-						if(sched.Times[holidayIndexes[j]] != null)
-						{
-							holidayTimes = sched.Times[holidayIndexes[j]];
-							break;
-						}
-					}
-					
-					// fill empty workdays
-					for (int j = 0; j < workdayIndexes.length; j++)
-					{
-						if(sched.Times[workdayIndexes[j]] == null)
-							sched.Times[workdayIndexes[j]] = workTimes;
-					}
-
-					// fill empty holidays
-					for (int j = 0; j < holidayIndexes.length; j++)
-					{
-						if(sched.Times[holidayIndexes[j]] == null)
-							sched.Times[holidayIndexes[j]] = holidayTimes;
-					}
+					if(schedules[s].busStop == stop)
+						stop.schedules[count++] = schedules[s];
 				}
 			}
 		}
 		catch(Exception ex)
 		{
 			Debug(ex.getMessage());
-		}
-	}
-	
-	Vector busesCache = new Vector();
-	Vector stopsCache = new Vector();
-
-	BusInfo FindBusInfo(String name)
-	{
-		for (int i = 0; i < busesCache.size(); i++)
-		{
-			BusInfo bi = (BusInfo)busesCache.elementAt(i);
-			if(bi.Name.compareTo(name) == 0)
-				return bi;
-		}
-		BusInfo bi = new BusInfo();
-		bi.Name = name;
-		busesCache.addElement(bi);
-		return bi;
-	}
-	
-	BusStop FindBusStop(String name)
-	{
-		for (int i = 0; i < stopsCache.size(); i++)
-		{
-			BusStop stop = (BusStop)stopsCache.elementAt(i);
-			if(stop.Name.compareTo(name) == 0)
-				return stop;
-		}
-		BusStop stop = new BusStop();
-		stop.Name = name;
-		stopsCache.addElement(stop);
-		return stop;
-	}
-	
-	BusSchedule FindSchedule(BusStop stop, BusInfo bus)
-	{
-		if(stop.Schedules == null)
-		{
-			BusSchedule sched = new BusSchedule();
-			sched.Bus = bus;
-			stop.Schedules = new BusSchedule[] {sched};
-			return sched;
-		}
-		for (int i = 0; i < stop.Schedules.length; i++)
-		{
-			BusSchedule sched = stop.Schedules[i];
-			if(sched.Bus.Name.compareTo(bus.Name) == 0)
-				return sched;
-		}
-		BusSchedule sched = new BusSchedule();
-		sched.Bus = bus;
-		BusSchedule[] oldScheds = stop.Schedules; 
-		stop.Schedules = new BusSchedule[oldScheds.length + 1];
-		for (int i = 0; i < oldScheds.length; i++)
-			stop.Schedules[i] = oldScheds[i];			
-		stop.Schedules[oldScheds.length] = sched;			
-		return sched;
-	}
-
-	void AddSchedule(String bus, String busStop, short days, short[] times)
-	{
-		BusInfo bi = FindBusInfo(bus);
-		BusStop stop = FindBusStop(busStop);
-		BusSchedule sched = FindSchedule(stop, bi);
-		for (int i = 0; i < 9; i++)
-		{
-			int bit = (1 << i);
-			if((days & bit) == bit)
-				sched.Times[i] = times;
+			ex.printStackTrace();
 		}
 	}
 }

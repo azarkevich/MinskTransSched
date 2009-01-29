@@ -39,7 +39,7 @@ public class SchedulerCanvas extends Canvas
 		m_SchedulesLoader.Load();
 		
 		m_ScheduleBuilder = new ScheduleBuilder();
-		m_ScheduleBuilder.Station = m_SchedulesLoader.Stops[m_CurrentSchedule];
+		m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
 		RefreshScheduleText();
 		
 		m_RefreshTimer = new Timer();
@@ -51,9 +51,10 @@ public class SchedulerCanvas extends Canvas
 		RefreshScheduleText(true);
 	}
 	
-	int m_FontFace = Font.FACE_SYSTEM;
+	int m_FontFace = Font.FACE_PROPORTIONAL;
 	int m_FontStyle = Font.STYLE_PLAIN;
-	
+	int m_FontSize = Font.SIZE_SMALL;
+
 	public void paint(Graphics g)
 	{
 		if (m_MultiLineText == null)
@@ -109,7 +110,6 @@ public class SchedulerCanvas extends Canvas
 		OnKeyEvent(keyCode, true);
 	}
 	
-	private int m_FontSize = Font.SIZE_SMALL;
 	private void OnKeyEvent(int keyCode, boolean repeated)
 	{
 		/*
@@ -124,13 +124,13 @@ public class SchedulerCanvas extends Canvas
 		switch (keyCode)
 		{
 		case KEY_NUM1:
-			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_SchedulesLoader.Stops.length;
-			m_ScheduleBuilder.Station = m_SchedulesLoader.Stops[m_CurrentSchedule];
+			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_SchedulesLoader.busStops.length;
+			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 		case KEY_NUM2:
-			m_CurrentSchedule = (m_CurrentSchedule + m_SchedulesLoader.Stops.length - 1) % m_SchedulesLoader.Stops.length;
-			m_ScheduleBuilder.Station = m_SchedulesLoader.Stops[m_CurrentSchedule];
+			m_CurrentSchedule = (m_CurrentSchedule + m_SchedulesLoader.busStops.length - 1) % m_SchedulesLoader.busStops.length;
+			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 
@@ -152,7 +152,7 @@ public class SchedulerCanvas extends Canvas
 			
 		case KEY_NUM6:
 			m_CurrentSchedule = 0;
-			m_ScheduleBuilder.Station = m_SchedulesLoader.Stops[m_CurrentSchedule];
+			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
 			m_ScheduleBuilder.WindowShift = ScheduleBuilder.DEFAULT_WINDOW_SHIFT;
 			m_ScheduleBuilder.WindowSize = ScheduleBuilder.DEFAULT_WINDOW_SIZE;
 			m_FontSize = Font.SIZE_SMALL;
@@ -191,18 +191,18 @@ public class SchedulerCanvas extends Canvas
 			return;
 			
 		case KEY_STAR:
-			SetText("Помощь\n" + 
-					"Up/Down - сдвинуть на одну линиюn\n" +
-					"Left/Right - сдвинуть на один экран\n" +
-					"1/2 - предыдущая/следующая остановка\n" +
-					"3 - выходной/рабочий день\n" +
-					"4/5 - уменьшить/увеличить окно на 10 мин.\n" +
-					"6 - сбросить настройки\n" +
-					"7/8 - уменьшить/увеличить сдвиг окна на 10 мин.\n" +
-					"9 - Сменить стиль шрифта\n" +
-					"# - изменить шрифт\n" +
-					"0 - сменить шрифт\n" +
-					"* - помощь\n" +
+			SetText("пїЅпїЅпїЅпїЅпїЅпїЅ\n" + 
+					"Up/Down - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅn\n" +
+					"Left/Right - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n" +
+					"1/2 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n" +
+					"3 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n" +
+					"4/5 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ 10 пїЅпїЅпїЅ.\n" +
+					"6 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n" +
+					"7/8 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ 10 пїЅпїЅпїЅ.\n" +
+					"9 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n" +
+					"# - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n" +
+					"0 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n" +
+					"* - пїЅпїЅпїЅпїЅпїЅпїЅ\n" +
 					"\n" +
 					"\n" +
 					"\n" +
