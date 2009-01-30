@@ -51,8 +51,6 @@ public class SchedulerCanvas extends Canvas
 		RefreshScheduleText(true);
 	}
 	
-	int m_FontFace = Font.FACE_PROPORTIONAL;
-	int m_FontStyle = Font.STYLE_PLAIN;
 	int m_FontSize = Font.SIZE_SMALL;
 
 	public void paint(Graphics g)
@@ -68,7 +66,7 @@ public class SchedulerCanvas extends Canvas
 			m_RefreshSchedule = false;
 			m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 					5,
-					m_FontSize, m_FontStyle, m_FontFace,
+					m_FontSize, Font.STYLE_PLAIN, Font.FACE_PROPORTIONAL,
 					g, m_Text);
 			m_MultiLineText.Top = m_Top;
 		}
@@ -124,12 +122,12 @@ public class SchedulerCanvas extends Canvas
 		switch (keyCode)
 		{
 		case KEY_NUM1:
-			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_SchedulesLoader.busStops.length;
+			m_CurrentSchedule = (m_CurrentSchedule + m_SchedulesLoader.busStops.length - 1) % m_SchedulesLoader.busStops.length;
 			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 		case KEY_NUM2:
-			m_CurrentSchedule = (m_CurrentSchedule + m_SchedulesLoader.busStops.length - 1) % m_SchedulesLoader.busStops.length;
+			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_SchedulesLoader.busStops.length;
 			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
@@ -156,8 +154,6 @@ public class SchedulerCanvas extends Canvas
 			m_ScheduleBuilder.WindowShift = ScheduleBuilder.DEFAULT_WINDOW_SHIFT;
 			m_ScheduleBuilder.WindowSize = ScheduleBuilder.DEFAULT_WINDOW_SIZE;
 			m_FontSize = Font.SIZE_SMALL;
-			m_FontStyle = Font.STYLE_PLAIN;
-			m_FontFace = Font.FACE_SYSTEM;
 			m_MultiLineText = null;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			RefreshScheduleText();
@@ -173,43 +169,23 @@ public class SchedulerCanvas extends Canvas
 			return;
 			
 		case KEY_NUM9:
-			if(m_FontStyle == Font.STYLE_BOLD)
-				m_FontStyle = Font.STYLE_PLAIN;
-			else
-				m_FontStyle = Font.STYLE_BOLD;
 			RefreshScheduleText();
 			return;
 		case KEY_NUM0:
-			if(m_FontFace == Font.FACE_MONOSPACE)
-				m_FontFace = Font.FACE_PROPORTIONAL;
-			else if(m_FontFace == Font.FACE_PROPORTIONAL)
-				m_FontFace = Font.FACE_SYSTEM;
-			else
-				m_FontFace = Font.FACE_MONOSPACE;
-				
 			RefreshScheduleText();
 			return;
 			
 		case KEY_STAR:
-			SetText("������\n" + 
-					"Up/Down - �������� �� ���� �����n\n" +
-					"Left/Right - �������� �� ���� �����\n" +
-					"1/2 - ����������/��������� ���������\n" +
-					"3 - ��������/������� ����\n" +
-					"4/5 - ���������/��������� ���� �� 10 ���.\n" +
-					"6 - �������� ���������\n" +
-					"7/8 - ���������/��������� ����� ���� �� 10 ���.\n" +
-					"9 - ������� ����� ������\n" +
-					"# - �������� �����\n" +
-					"0 - ������� �����\n" +
-					"* - ������\n" +
-					"\n" +
-					"\n" +
-					"\n" +
-					"\n" +
-					"\n" +
-					"\n" +
-					"\n"
+			SetText( 
+					"Up/Down текст вверх/вниз\n" +
+					"Left/Right - текст вверх/вниз построчно\n" +
+					"1/2 - предыдущая/следующая остановка\n" +
+					"3   - выходной/рабочий день\n" +
+					"4/5 - уменьшить/увеличить размер окна\n" +
+					"6   - сбросить настройки\n" +
+					"7/8 - уменьшить/увеличить сдвиг окна\n" +
+					"#   - изменить размер шрифта\n" +
+					"*   - помощь\n"
 					);
 			return;
 		case KEY_POUND:

@@ -59,7 +59,7 @@ public class ScheduleConverter
 					while(r.readRecord())
 					{
 						Bus b = new Bus();
-						b.id = Short.parseShort(r.get("id"));
+						b.id = (short)buses.size();
 						b.name = r.get("name");
 						b.description = r.get("description");
 						
@@ -77,7 +77,7 @@ public class ScheduleConverter
 					while(r.readRecord())
 					{
 						BusStop bs = new BusStop();
-						bs.id = Short.parseShort(r.get("id"));
+						bs.id = (short)busStops.size();
 						bs.name = r.get("name");
 						bs.officialName = r.get("officialName");
 						bs.description = r.get("description");
@@ -105,6 +105,83 @@ public class ScheduleConverter
 			if(busStops == null)
 				throw new Exception("Bus stops CSV not provided.");
 
+			// remove unused busstops && check duplicates
+			for (int i = 0; i < busStops.size(); i++)
+			{
+				BusStop bs = busStops.get(i);
+				int idsCount = 0;
+				int namesCount = 0;
+				for (int j = 0; j < busStops.size(); j++)
+				{
+					BusStop bsO = busStops.get(j);
+					if(bs.id == bsO.id)
+						idsCount++;
+					if(bs.name.compareTo(bsO.name) == 0)
+						namesCount++;
+				}
+				
+				if(idsCount > 1)
+					throw new Exception("Bus Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by ID");
+
+				if(namesCount > 1)
+					throw new Exception("Bus Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by Name");
+
+				boolean used = false;
+				for (int j = 0; j < schedules.size(); j++)
+				{
+					if(schedules.get(j).busStop == bs.id)
+					{
+						used = true;
+						break;
+					}
+				}
+				if(!used)
+				{
+					busStops.remove(i);
+					i--;
+				}
+			}
+			
+			// remove unused buses && check duplicates
+			for (int i = 0; i < buses.size(); i++)
+			{
+				Bus b = buses.get(i);
+				int idsCount = 0;
+				int namesCount = 0;
+				for (int j = 0; j < buses.size(); j++)
+				{
+					Bus bO = buses.get(j);
+					if(b.id == bO.id)
+						idsCount++;
+					if(b.name.compareTo(bO.name) == 0)
+						namesCount++;
+				}
+				
+				if(idsCount > 1)
+					throw new Exception("Bus Stop ID:" + b.id + ", Name:" + b.name + " duplicated by ID");
+
+				if(namesCount > 1)
+					throw new Exception("Bus Stop ID:" + b.id + ", Name:" + b.name + " duplicated by Name");
+
+				boolean used = false;
+				for (int j = 0; j < schedules.size(); j++)
+				{
+					if(schedules.get(j).bus == b.id)
+					{
+						used = true;
+						break;
+					}
+				}
+				if(!used)
+				{
+					buses.remove(i);
+					i--;
+				}
+			}
+			
+			//sort schedules by busStops then by bus
+			Collections.sort(schedules);
+			
 			// write 
 			WriteBuses(outDir + "/buses");
 			WriteBusStops(outDir + "/busStops");
@@ -385,6 +462,8 @@ public class ScheduleConverter
 			dos.writeShort(sched.bus);
 			dos.writeShort(sched.busStop);
 			dos.writeShort(sched.days);
+			
+			//System.out.println(sched.busStop + "/" + sched.bus);
 			
 			dos.writeShort((short)sched.times.size());
 			
