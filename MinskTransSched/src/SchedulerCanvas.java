@@ -169,6 +169,7 @@ public class SchedulerCanvas extends Canvas
 			return;
 			
 		case KEY_NUM9:
+			m_ScheduleBuilder.showDescription = !m_ScheduleBuilder.showDescription;
 			RefreshScheduleText();
 			return;
 		case KEY_NUM0:
@@ -184,6 +185,7 @@ public class SchedulerCanvas extends Canvas
 					"4/5 - уменьшить/увеличить размер окна\n" +
 					"6   - сбросить настройки\n" +
 					"7/8 - уменьшить/увеличить сдвиг окна\n" +
+					"9   - переключить описания остановок\n" +
 					"#   - изменить размер шрифта\n" +
 					"*   - помощь\n"
 					);

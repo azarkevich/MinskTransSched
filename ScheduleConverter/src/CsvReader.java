@@ -1424,10 +1424,10 @@ public class CsvReader {
 	public int getIndex(String headerName) throws IOException {
 		checkClosed();
 
-		Object indexValue = headersHolder.IndexByName.get(headerName);
+		Integer indexValue = headersHolder.IndexByName.get(headerName);
 
 		if (indexValue != null) {
-			return ((Integer) indexValue).intValue();
+			return indexValue;
 		} else {
 			return -1;
 		}
@@ -1729,12 +1729,12 @@ public class CsvReader {
 
 		public int Length;
 
-		public HashMap IndexByName;
+		public HashMap<String, Integer> IndexByName;
 
 		public HeadersHolder() {
 			Headers = null;
 			Length = 0;
-			IndexByName = new HashMap();
+			IndexByName = new HashMap<String, Integer>();
 		}
 	}
 

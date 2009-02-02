@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Calendar;
 
 public class ScheduleLoader
 {
@@ -25,27 +24,15 @@ public class ScheduleLoader
 		{
 			buses[i] = new Bus();
 			buses[i].id = dis.readShort();
-			buses[i].Name = dis.readUTF();
+			buses[i].name = dis.readUTF();
 			buses[i].description = dis.readUTF();
 		}
 		dis.close();
 	}
 	
-	static final int[] dayBitNumbers = {
-		Calendar.SUNDAY,
-		Calendar.MONDAY,
-		Calendar.TUESDAY,
-		Calendar.WEDNESDAY,
-		Calendar.THURSDAY,
-		Calendar.FRIDAY,
-		Calendar.SATURDAY,
-		Schedule.WORKDAY,
-		Schedule.HOLIDAY
-	};
-	
 	void LoadSchedules() throws Exception
 	{
-		// load scheds
+		// load 'scheds'
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("scheds"));
 		short count = dis.readShort();
 		schedules = new Schedule[count];
@@ -64,7 +51,7 @@ public class ScheduleLoader
 				schedules[freeSchedule++] = sched;
 			}
 			
-			short days = dis.readShort();
+			int day = dis.readByte();
 			
 			short[] times = new short[dis.readShort()];
 			for (int t = 0; t < times.length; t++)
@@ -72,15 +59,7 @@ public class ScheduleLoader
 				times[t] = dis.readShort();
 			}
 
-			for (int bitIndex = 0; bitIndex < dayBitNumbers.length; bitIndex++)
-			{
-				int bit = dayBitNumbers[bitIndex];
-				short mask = (short)(1 << bit);
-				if((days & mask) == mask)
-				{
-					sched.setTimes(bit, times);
-				}
-			}
+			sched.setTimes(day, times);
 		}
 		dis.close();
 	}
@@ -126,7 +105,6 @@ public class ScheduleLoader
 			busStops[i] = new BusStop();
 			busStops[i].id = dis.readShort();
 			busStops[i].name = dis.readUTF();
-			busStops[i].officialName = dis.readUTF();
 			busStops[i].description = dis.readUTF();
 		}
 		dis.close();
@@ -146,7 +124,7 @@ public class ScheduleLoader
 					schedules[s].NormalizeDays();
 				}
 			}
-
+			
 			// link scheds to busstops
 			for (int bs = 0; bs < busStops.length; bs++)
 			{

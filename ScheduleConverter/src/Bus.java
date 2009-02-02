@@ -1,7 +1,7 @@
 
 public class Bus
 {
-	short id;
+	int id;
 	String name;
 	String description;
 }

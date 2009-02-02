@@ -2,6 +2,9 @@ import java.util.Vector;
 
 public class Schedule implements Comparable<Schedule>
 {
+	public static final int WORKDAY = 8;
+	public static final int HOLIDAY = 9;
+
 	public int compareTo(Schedule o)
 	{
 		if(busStop > o.busStop)
@@ -15,8 +18,8 @@ public class Schedule implements Comparable<Schedule>
 		
 		return 0;
 	}
-	public short bus;
-	public short busStop;
-	public short days;
-	public Vector<Short> times = new Vector<Short>(50);
+	public int bus;
+	public int busStop;
+	public int day;
+	public Vector<Integer> times = new Vector<Integer>(50);
 }

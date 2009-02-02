@@ -22,7 +22,7 @@ public class ScheduleBuilder
 	
 	private String FormatXTime(int xTime, String sep)
 	{
-		int hi = xTime / 60;
+		int hi = (xTime / 60) % 24;
 		int lo = xTime % 60;
 		return FormatNum(hi) + sep + FormatNum(lo);
 	}
@@ -32,6 +32,8 @@ public class ScheduleBuilder
 	{
 		return Calendar.getInstance(TimeZone.getDefault());
 	}
+	
+	public boolean showDescription = false;
 
 	public String GetScheduleText()
 	{
@@ -48,6 +50,8 @@ public class ScheduleBuilder
 
 //		sb.append(cal.get(Calendar.SECOND) + "\n\n\n\n\n\n\n\n");
 		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + Station.name);
+		if(showDescription)
+			sb.append("\n" + Station.description);
 //		sb.append("\n\n\n\n\n\n\n\n");
 		sb.append("\nОкно: ");
 		FormatTimeDiff(endWindow - beginWindow, sb);
@@ -56,13 +60,13 @@ public class ScheduleBuilder
 		sb.append("\n");
 //		sb.append("\n\n\n\n\n\n\n\n");
 		
-		Schedule[] busOnStation = Station.schedules; 
+		Schedule[] busOnStation = Station.schedules;
 		
 		for (int i = 0; i < busOnStation.length; i++)
 		{
 			boolean schedEmpty = true;
 			Schedule sched = busOnStation[i];
-			sb.append(sched.bus.Name);
+			sb.append(sched.bus.name);
 			sb.append(": ");
 			
 			short[] times = GetBusTimes(sched, cal);
@@ -117,9 +121,9 @@ public class ScheduleBuilder
 			sb.append("-");
 			diff = -diff;
 		}
-		int diffHi = diff / 60;
-		if(diffHi > 0)
-			sb.append(diffHi + "h");
+		int hi = diff / 60;
+		if(hi > 0)
+			sb.append(hi + "h");
 		sb.append(FormatNum(diff % 60) + "m");
 	}
 	

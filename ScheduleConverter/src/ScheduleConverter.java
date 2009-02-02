@@ -2,6 +2,8 @@ import java.io.*;
 import java.nio.charset.*;
 import java.util.*;
 
+import sun.org.mozilla.javascript.internal.EcmaError;
+
 public class ScheduleConverter
 {
 	/**
@@ -25,7 +27,8 @@ public class ScheduleConverter
 				return;
 			}
 
-			String outDir = ".";
+			String outDir = null;
+			Vector<Schedule> calcShift = null;
 
 			Charset c = Charset.forName("UTF-8");
 			
@@ -42,6 +45,29 @@ public class ScheduleConverter
 					continue;
 				}
 				
+				if(arg.compareTo("--calc-shift") == 0)
+				{
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument --calc-shift not supplied with parameter.");
+					String[] params = args[i].split(";");
+					if(params.length < 4)
+						throw new Exception("Argument for --calc-shift shall contains 4 or more parts.");
+					
+					Bus b = FindBus(params[0]);
+					int calcDay = ParseDay(params[1]);
+					calcShift = new Vector<Schedule>();
+					for (int j = 2; j < params.length; j++)
+					{
+						BusStop bs = FindBusStop(params[j]);
+						
+						Schedule sched = FindSchedule(schedules, b.id, bs.id, calcDay);
+						calcShift.add(sched);
+					}
+					
+					continue;
+				}
+
 				if(arg.compareTo("-o") == 0)
 				{
 					i++;
@@ -179,13 +205,90 @@ public class ScheduleConverter
 				}
 			}
 			
+			// fix 'overnight' times: 23.20, 23.55, 0.10 now are 1400, 1435, 10 
+			// but should be 1400, 1435, 1450 (0.10 is are same day, but line over 24 hours... 24.10)
+			for (int schedIndex = 0; schedIndex < schedules.size(); schedIndex++)
+			{
+				Schedule sched = schedules.get(schedIndex);
+				boolean alreadyFixed = false;
+				for (int i = 1; i < sched.times.size(); i++)
+				{
+					// check if need change fixer
+					int curTime = sched.times.get(i);
+					int prevTime = sched.times.get(i - 1);
+					if(curTime < prevTime)
+					{
+						if(alreadyFixed)
+							throw new Exception("Times already fixed!");
+						alreadyFixed = true;
+						// fix all next times:
+						for (int j = i; j < sched.times.size(); j++)
+						{
+							sched.times.set(j, sched.times.get(j) + 24*60);
+						}
+					}
+				}
+			}
+			
 			//sort schedules by busStops then by bus
 			Collections.sort(schedules);
 			
-			// write 
-			WriteBuses(outDir + "/buses");
-			WriteBusStops(outDir + "/busStops");
-			WriteSchedules(outDir + "/scheds");
+			System.out.println("DATA VALID.");
+
+			if(outDir != null)
+			{
+				// write 
+				WriteBuses(outDir + "/buses");
+				WriteBusStops(outDir + "/busStops");
+				WriteSchedules(outDir + "/scheds");
+				System.out.println("DATA STORED.");
+			}
+			
+			if(calcShift != null)
+			{
+				Schedule eth = calcShift.get(0);
+				for (int i = 1; i < calcShift.size(); i++)
+				{
+					Schedule cmp = calcShift.get(i);
+					
+					System.out.println(FindBusStop(eth.busStop).name + " - " + FindBusStop(cmp.busStop).name);
+
+					if(eth.times.size() == 0 || cmp.times.size() == 0)
+					{
+						System.out.println("\tempty schedule.");
+						continue;
+					}
+
+					if(eth.times.size() != cmp.times.size())
+						System.out.println("\tdifferent times count: " + eth.times.size() + " vs. " + cmp.times.size());
+					
+					boolean commonShiftValid = true;
+					int commonShift = 0;
+					for (int j = 0; j < eth.times.size() && j < cmp.times.size(); j++)
+					{
+						int curTime1 = eth.times.get(j);
+						int curTime2 = cmp.times.get(j);
+						int curShift = curTime2 - curTime1;
+						
+						if(j == 0)
+							commonShift = curShift;
+						else if(commonShift != curShift)
+							commonShiftValid = false;
+
+						String s = String.format("\t%02d:%02d[%04d] (%02d:%02d)[%04d]: %+02d",
+								curTime1 / 60, curTime1 % 60, curTime1,
+								curTime2 / 60, curTime2 % 60, curTime2,
+								curShift
+								);
+						System.out.println(s);
+					}
+					
+					if(commonShiftValid)
+						System.out.println("	common shift:" + commonShift);
+					else
+						System.out.println("	common shift: invalid");
+				}
+			}
 		}
 		catch(Exception ex)
 		{
@@ -217,9 +320,9 @@ public class ScheduleConverter
 	
 	void ParseScheduleFile(String file, Charset c) throws Exception
 	{
-		short bus = -1;
-		short busStop = -1;
-		short days = 0x100;	// work days by default
+		int bus = -1;
+		int busStop = -1;
+		int day = -1;	// work days by default
 
 		LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(file), c));
 		String line;
@@ -229,34 +332,76 @@ public class ScheduleConverter
 				line = line.replaceAll("\\s+", " ").trim();
 				if(line.length() == 0)
 					continue;
+
+				if(line.startsWith("#"))
+					continue;
 				
 				if(line.startsWith("\\busstop"))
 				{
+					// reset day
+					day = -1;
+					
 					String busStopName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
 					BusStop bs = FindBusStop(busStopName);
 					busStop = bs.id;
 					continue;
 				}
+				
 				if(line.startsWith("\\bus"))
 				{
+					// reset busStop & day
+					busStop = -1;
+					day = -1;
+					
 					String busName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
 					Bus b = FindBus(busName);
 					bus = b.id;
 					continue;
 				}
-				if(line.startsWith("\\days"))
+				
+				if(line.startsWith("\\day"))
 				{
-					days = ParseDays(line.replaceAll("^\\\\\\S+\\s+", "").trim());
+					day = ParseDay(line.replaceAll("^\\\\\\S+\\s+", "").trim());
 					continue;
 				}
+				
+				if(day == -1)
+					throw new Exception("No day specified");
 
 				if(bus == -1)
 					throw new Exception("No bus specified");
 
 				if(busStop == -1)
 					throw new Exception("No bus stop specified");
+
+				if(line.startsWith("\\copy"))
+				{
+					String busStopName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					BusStop bsCopy = FindBusStop(busStopName);
+					Schedule src = FindSchedule(schedules, bus, bsCopy.id, day);
+					Schedule dst = FindSchedule(schedules, bus, busStop, day);
+					for (int i = 0; i < src.times.size(); i++)
+					{
+						dst.times.add(src.times.get(i));
+					}
+					continue;
+				}
+
+				if(line.startsWith("\\shift"))
+				{
+					short shift = Short.parseShort(line.replaceAll("^\\\\\\S+\\s+", "").trim()); 
+					Schedule sched = FindSchedule(schedules, bus, busStop, day);
+					for (int i = 0; i < sched.times.size(); i++)
+					{
+						int newTime = sched.times.get(i) + shift;
+						if(newTime < 0)
+							throw new Exception("Neative time when shifting");
+						sched.times.set(i, newTime);
+					}
+					continue;
+				}
 				
-				Schedule sched = FindSchedule(schedules, bus, busStop, days);
+				Schedule sched = FindSchedule(schedules, bus, busStop, day);
 				ParseTimeLine(sched, line);
 			}
 			catch(Exception ex)
@@ -287,58 +432,40 @@ public class ScheduleConverter
 		throw new Exception("Can't find bus stop '" + busStopName + "'");
 	}
 	
-	Schedule FindSchedule(Vector<Schedule> schedules, short bus, short busStop, short days)
+	BusStop FindBusStop(int busStopId) throws Exception
+	{
+		for (int i = 0; i < busStops.size(); i++)
+		{
+			if(busStopId == busStops.get(i).id)
+				return busStops.get(i);
+		}
+		throw new Exception("Can't find bus stop #" + busStopId);
+	}
+	
+	Schedule FindSchedule(Vector<Schedule> schedules, int bus, int busStop, int day)
 	{
 		for (int i = 0; i < schedules.size(); i++)
 		{
 			Schedule sched = schedules.elementAt(i); 
-			if(bus == sched.bus && busStop == sched.busStop && sched.days == days)
+			if(bus == sched.bus && busStop == sched.busStop && sched.day == day)
 				return sched;
 		}
 		Schedule sched = new Schedule();
 		sched.bus = bus;
 		sched.busStop = busStop;
-		sched.days = days;
+		sched.day = day;
 		schedules.add(sched);
 		return sched;
 	}
 	
-	Short ParseDays(String s) throws Exception
+	Short ParseDay(String s) throws Exception
 	{
-		String[] daysArray = s
-			.replaceAll("\\s*-\\s*", "-")
-			.replaceAll("\\s+|,|;|/", " ")
-			.replaceAll("\\s+", " ")
-			.split(" ");
-		
-		Short days = 0;
-		for (int i = 0; i < daysArray.length; i++)
-		{
-			String day = daysArray[i];
-			// day range?
-			if(day.contains("-"))
-			{
-				String dayRange[] = day.split("-");
-				if(dayRange.length != 2)
-					throw new Exception("Incorrect day range: " + day);
-				
-				for (int d = Integer.parseInt(dayRange[0]); d <= Integer.parseInt(dayRange[1]); d++)
-				{
-					days |= (1 << (d - 1));
-				}
-			}
-			else
-			{
-				if(day.compareTo("w") == 0 || day.compareTo("W") == 0)
-					days |= (1 << 8);
-				else if(day.compareTo("h") == 0 || day.compareTo("H") == 0)
-					days |= (1 << 9);
-				else
-					days |= (1 << (Integer.parseInt(day) - 1));
-			}
-		}
-		
-		return days;
+		if(s.compareTo("w") == 0 || s.compareTo("W") == 0)
+			return Schedule.WORKDAY;
+		else if(s.compareTo("h") == 0 || s.compareTo("H") == 0)
+			return Schedule.HOLIDAY;
+
+		return Short.parseShort(s);
 	}
 	
 	Short ParseDirection(String s) throws Exception
@@ -388,7 +515,7 @@ public class ScheduleConverter
 			if(hour > 23 || hour < 0 || minute > 59 || minute < 0)
 				throw new Exception("Invalid time: " + time);
 			
-			sched.times.add((short)(hour*60 + minute));
+			sched.times.add(hour*60 + minute);
 		}
 	}
 
@@ -422,7 +549,6 @@ public class ScheduleConverter
 		//
 		// id: short
 		// name: UTF-8
-		// official name: UTF-8
 		// description: UTF-8
 		// ...
 		
@@ -433,25 +559,16 @@ public class ScheduleConverter
 			BusStop busStop = busStops.get(i);
 			dos.writeShort(busStop.id);
 			dos.writeUTF(busStop.name);
-			dos.writeUTF(busStop.officialName);
 			dos.writeUTF(busStop.description);
 		}
 		dos.flush();
 		dos.close();
 	}
 	
-	String DaysToString(short days)
+	String DayToString(short day)
 	{
 		String[] daysStr = new String[] { "", "Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Раб", "Вых" };
-		
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < daysStr.length; i++)
-		{
-			short bit = (short)(1 << i);
-			if((days & bit) == bit)
-				sb.append(daysStr[i] + " ");
-		}
-		return sb.toString();
+		return daysStr[day];
 	}
 
 	void WriteSchedules(String file) throws IOException
@@ -461,7 +578,7 @@ public class ScheduleConverter
 		//
 		// bus id: short
 		// busStop id: short
-		// days: short. (bit flags: bit 0 - not used, bit  1 - Sunday ... bit 7 - Saturday, bit 8 - workday, bit 9 - holiday)
+		// day: byte. (bit flags: bit 0 - not used, bit  1 - Sunday ... bit 7 - Saturday, bit 8 - workday, bit 9 - holiday)
 		// times count: short
 		// times: short[]
 		// ...
@@ -475,11 +592,11 @@ public class ScheduleConverter
 
 			dos.writeShort(sched.bus);
 			dos.writeShort(sched.busStop);
-			dos.writeShort(sched.days);
+			dos.writeByte(sched.day);
 			
-			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DaysToString(sched.days));
+			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DayToString(sched.day));
 			
-			dos.writeShort((short)sched.times.size());
+			dos.writeShort(sched.times.size());
 			
 			for (int j = 0; j < sched.times.size(); j++)
 			{

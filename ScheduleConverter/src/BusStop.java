@@ -1,7 +1,7 @@
 
 public class BusStop
 {
-	short id;
+	int id;
 	String name;
 	String officialName;
 	String description;
