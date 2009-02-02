@@ -85,7 +85,7 @@ public class ScheduleConverter
 						Bus b = new Bus();
 						b.id = (short)buses.size();
 						b.name = r.get("name");
-						b.description = r.get("description");
+						b.route = r.get("route");
 						
 						buses.add(b);
 					}
@@ -315,7 +315,7 @@ public class ScheduleConverter
 		}
 		return ret;
 	}
-	
+
 	void ParseScheduleFile(String file, Charset c) throws Exception
 	{
 		int bus = -1;
@@ -363,14 +363,53 @@ public class ScheduleConverter
 					continue;
 				}
 				
-				if(day == -1)
-					throw new Exception("No day specified");
-
 				if(bus == -1)
 					throw new Exception("No bus specified");
 
+				if(line.startsWith("\\derive"))
+				{
+					String s = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					String vals[] = s.split(";");
+					
+					// dst_busstop;src_busstop;timeshift;days
+					
+					busStop = FindBusStop(vals[0]).id;
+					BusStop srcBusStop = FindBusStop(vals[1]);
+					int shift = Integer.parseInt(vals[2]);
+					String[] days = vals[3].split(" ");
+					
+					for (int d = 0; d < days.length; d++)
+					{
+						day = ParseDay(days[d]);
+						Schedule src = FindSchedule(schedules, bus, srcBusStop.id, day);
+						Schedule dst = new Schedule();
+						dst.bus = bus;
+						dst.busStop = busStop;
+						dst.day = day;
+						dst.from = srcBusStop.name + " + " + shift + "m";
+						dst.times = src.times;
+						schedules.add(dst);
+					}
+
+					// reset busstop and day
+					busStop = -1;
+					day = -1;
+					
+					continue;
+				}
+
 				if(busStop == -1)
 					throw new Exception("No bus stop specified");
+
+				if(line.startsWith("\\from"))
+				{
+					Schedule sched = FindSchedule(schedules, bus, busStop, day);
+					sched.from = line.replaceAll("^\\\\\\S+\\s+", "").trim(); 
+					continue;
+				}
+
+				if(day == -1)
+					throw new Exception("No day specified");
 
 				if(line.startsWith("\\copy"))
 				{
@@ -524,7 +563,7 @@ public class ScheduleConverter
 		//
 		// bus id: short
 		// name: UTF-8
-		// description: UTF-8
+		// route: UTF-8
 		// ...
 		
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
@@ -534,7 +573,7 @@ public class ScheduleConverter
 			Bus bus = buses.get(i);
 			dos.writeShort(bus.id);
 			dos.writeUTF(bus.name);
-			dos.writeUTF(bus.description);
+			dos.writeUTF(bus.route);
 		}
 		dos.flush();
 		dos.close();
@@ -571,16 +610,6 @@ public class ScheduleConverter
 
 	void WriteSchedules(String file) throws IOException
 	{
-		// format:
-		// schedules count: short
-		//
-		// bus id: short
-		// busStop id: short
-		// day: byte. (bit flags: bit 0 - not used, bit  1 - Sunday ... bit 7 - Saturday, bit 8 - workday, bit 9 - holiday)
-		// times count: short
-		// times: short[]
-		// ...
-		
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
 		dos.writeShort((short)schedules.size());
 
@@ -591,6 +620,7 @@ public class ScheduleConverter
 			dos.writeShort(sched.bus);
 			dos.writeShort(sched.busStop);
 			dos.writeByte(sched.day);
+			dos.writeUTF(sched.from);
 			
 			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DayToString(sched.day));
 			

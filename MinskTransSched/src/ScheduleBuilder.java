@@ -48,17 +48,13 @@ public class ScheduleBuilder
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
-//		sb.append(cal.get(Calendar.SECOND) + "\n\n\n\n\n\n\n\n");
 		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + Station.name);
 		if(showDescription)
 			sb.append("\n" + Station.description);
-//		sb.append("\n\n\n\n\n\n\n\n");
 		sb.append("\nОкно: ");
 		FormatTimeDiff(endWindow - beginWindow, sb);
-//		sb.append("\n\n\n\n\n\n\n\n");
 		sb.append(" [" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
 		sb.append("\n");
-//		sb.append("\n\n\n\n\n\n\n\n");
 		
 		Schedule[] busOnStation = Station.schedules;
 		
@@ -68,8 +64,27 @@ public class ScheduleBuilder
 			Schedule sched = busOnStation[i];
 			sb.append(sched.bus.name);
 			sb.append(": ");
+			boolean needLF = false;
+			if(showDescription)
+			{
+				if(sched.bus.route.compareTo("") != 0)
+				{
+					sb.append("\nМаршр.:");
+					sb.append(sched.bus.route);
+					needLF = true;
+				}
+				String desc = GetSchedDesc(sched, cal);
+				if(desc.compareTo("") != 0)
+				{
+					sb.append("\nРасп.:");
+					sb.append(desc);
+					needLF = true;
+				}
+			}
+			if(needLF)
+				sb.append("\n");
 			
-			short[] times = GetBusTimes(sched, cal);
+			short[] times = GetSchedTimes(sched, cal);
 			for (int j = 0; j < times.length; j++)
 			{
 				if(times[j] < beginWindow)
@@ -91,27 +106,45 @@ public class ScheduleBuilder
 					break;
 				}
 			}
-			sb.append("\n\n");
+			sb.append("\n");
+			sb.append("\n");
 		}
 		
 		return sb.toString();
 	}
 	
-	short[] GetBusTimes(Schedule sched, Calendar cal)
+	short[] GetSchedTimes(Schedule sched, Calendar cal)
 	{
 		if(UserDayType == DAY_AUTO)
 		{
-			return sched.GetTimes(cal.get(Calendar.DAY_OF_WEEK));
+			return sched.getTimes(cal.get(Calendar.DAY_OF_WEEK));
 		}
 		else if(UserDayType == DAY_HOLIDAY)
 		{
-			return sched.GetTimes(Schedule.HOLIDAY);
+			return sched.getTimes(Schedule.HOLIDAY);
 		}
 		else if(UserDayType == DAY_WORK)
 		{
-			return sched.GetTimes(Schedule.WORKDAY);
+			return sched.getTimes(Schedule.WORKDAY);
 		}
-		return sched.GetTimes(Schedule.WORKDAY);
+		return sched.getTimes(Schedule.WORKDAY);
+	}
+	
+	String GetSchedDesc(Schedule sched, Calendar cal)
+	{
+		if(UserDayType == DAY_AUTO)
+		{
+			return sched.getFrom(cal.get(Calendar.DAY_OF_WEEK));
+		}
+		else if(UserDayType == DAY_HOLIDAY)
+		{
+			return sched.getFrom(Schedule.HOLIDAY);
+		}
+		else if(UserDayType == DAY_WORK)
+		{
+			return sched.getFrom(Schedule.WORKDAY);
+		}
+		return sched.getFrom(Schedule.WORKDAY);
 	}
 	
 	private void FormatTimeDiff(int diff, StringBuffer sb)

@@ -8,17 +8,28 @@ public class Schedule
 
 	// indexes according to Calendar.SUNDAY ... Calendar.SATURDAY, 8 for work days, 9 for holidays 
 	short[][] m_times = new short[9][];
+	String[] m_from = new String[9];
 	
-	public short[] GetTimes(int day)
+	public short[] getTimes(int day)
 	{
 		return m_times[day - 1];
 	}
-	
+
 	public void setTimes(int day, short[] times)
 	{
 		m_times[day - 1] = times;
 	}
 	
+	public String getFrom(int day)
+	{
+		return m_from[day - 1];
+	}
+	
+	public void setFrom(int day, String desc)
+	{
+		m_from[day - 1] = desc;
+	}
+
 	static final int[] workdayIndexes = new int[] { 
 		Schedule.WORKDAY - 1,
 		Calendar.MONDAY - 1,
@@ -38,21 +49,26 @@ public class Schedule
 	{
 		// guess workday times
 		short[] workTimes = new short[] {};
+		String workFrom = "";
 		for (int i = 0; i < workdayIndexes.length; i++)
 		{
 			if(m_times[workdayIndexes[i]] != null)
 			{
 				workTimes = m_times[workdayIndexes[i]];
+				workFrom = m_from[workdayIndexes[i]];
 				break;
 			}
 		}
+		
 		// guess holiday times
 		short[] holidayTimes = new short[0];
+		String holidayFrom = "";
 		for (int i = 0; i < holidayIndexes.length; i++)
 		{
 			if(m_times[holidayIndexes[i]] != null)
 			{
 				holidayTimes = m_times[holidayIndexes[i]];
+				holidayFrom = m_from[holidayIndexes[i]];
 				break;
 			}
 		}
@@ -61,14 +77,26 @@ public class Schedule
 		for (int i = 0; i < workdayIndexes.length; i++)
 		{
 			if(m_times[workdayIndexes[i]] == null)
+			{
 				m_times[workdayIndexes[i]] = workTimes;
+			}
+			if(m_from[workdayIndexes[i]] == null)
+			{
+				m_from[workdayIndexes[i]] = workFrom; 
+			}
 		}
 
 		// fill empty holidays
 		for (int i = 0; i < holidayIndexes.length; i++)
 		{
 			if(m_times[holidayIndexes[i]] == null)
+			{
 				m_times[holidayIndexes[i]] = holidayTimes;
+			}
+			if(m_from[holidayIndexes[i]] == null)
+			{
+				m_from[holidayIndexes[i]] = holidayFrom; 
+			}
 		}
 	}
 	

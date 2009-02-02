@@ -21,5 +21,6 @@ public class Schedule implements Comparable<Schedule>
 	public int bus;
 	public int busStop;
 	public int day;
+	public String from = "";
 	public Vector<Integer> times = new Vector<Integer>(50);
 }

@@ -25,7 +25,7 @@ public class ScheduleLoader
 			buses[i] = new Bus();
 			buses[i].id = dis.readShort();
 			buses[i].name = dis.readUTF();
-			buses[i].description = dis.readUTF();
+			buses[i].route = dis.readUTF();
 		}
 		dis.close();
 	}
@@ -39,8 +39,19 @@ public class ScheduleLoader
 		int freeSchedule = 0;
 		for (int i = 0; i < count; i++)
 		{
+			// read data
 			short bus = dis.readShort();
 			short busStop = dis.readShort();
+			int day = dis.readByte();
+			String from = dis.readUTF();
+			int timesCount = dis.readShort();
+			short[] times = new short[timesCount];
+			for (int t = 0; t < times.length; t++)
+			{
+				times[t] = dis.readShort();
+			}
+			
+			// parse
 			Schedule sched = FindSchedule(bus, busStop);
 			if(sched == null)
 			{
@@ -51,14 +62,7 @@ public class ScheduleLoader
 				schedules[freeSchedule++] = sched;
 			}
 			
-			int day = dis.readByte();
-			
-			short[] times = new short[dis.readShort()];
-			for (int t = 0; t < times.length; t++)
-			{
-				times[t] = dis.readShort();
-			}
-
+			sched.setFrom(day, from);
 			sched.setTimes(day, times);
 		}
 		dis.close();
