@@ -439,6 +439,20 @@ public class ScheduleConverter
 		dos.flush();
 		dos.close();
 	}
+	
+	String DaysToString(short days)
+	{
+		String[] daysStr = new String[] { "", "Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Раб", "Вых" };
+		
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < daysStr.length; i++)
+		{
+			short bit = (short)(1 << i);
+			if((days & bit) == bit)
+				sb.append(daysStr[i] + " ");
+		}
+		return sb.toString();
+	}
 
 	void WriteSchedules(String file) throws IOException
 	{
@@ -463,7 +477,7 @@ public class ScheduleConverter
 			dos.writeShort(sched.busStop);
 			dos.writeShort(sched.days);
 			
-			//System.out.println(sched.busStop + "/" + sched.bus);
+			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DaysToString(sched.days));
 			
 			dos.writeShort((short)sched.times.size());
 			

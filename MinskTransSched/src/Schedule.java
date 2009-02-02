@@ -32,43 +32,43 @@ public class Schedule
 			Schedule.HOLIDAY - 1,
 			Calendar.SUNDAY - 1,
 			Calendar.SATURDAY - 1
-			};
+		};
 
-	public void NormalizeDays()
+	public void NormalizeDays() throws Exception
 	{
 		// guess workday times
 		short[] workTimes = new short[] {};
-		for (int j = 0; j < workdayIndexes.length; j++)
+		for (int i = 0; i < workdayIndexes.length; i++)
 		{
-			if(m_times[workdayIndexes[j]] != null)
+			if(m_times[workdayIndexes[i]] != null)
 			{
-				workTimes = m_times[workdayIndexes[j]];
+				workTimes = m_times[workdayIndexes[i]];
 				break;
 			}
 		}
 		// guess holiday times
 		short[] holidayTimes = new short[0];
-		for (int j = 0; j < holidayIndexes.length; j++)
+		for (int i = 0; i < holidayIndexes.length; i++)
 		{
-			if(m_times[holidayIndexes[j]] != null)
+			if(m_times[holidayIndexes[i]] != null)
 			{
-				holidayTimes = m_times[holidayIndexes[j]];
+				holidayTimes = m_times[holidayIndexes[i]];
 				break;
 			}
 		}
 		
 		// fill empty workdays
-		for (int j = 0; j < workdayIndexes.length; j++)
+		for (int i = 0; i < workdayIndexes.length; i++)
 		{
-			if(m_times[workdayIndexes[j]] == null)
-				m_times[workdayIndexes[j]] = workTimes;
+			if(m_times[workdayIndexes[i]] == null)
+				m_times[workdayIndexes[i]] = workTimes;
 		}
 
 		// fill empty holidays
-		for (int j = 0; j < holidayIndexes.length; j++)
+		for (int i = 0; i < holidayIndexes.length; i++)
 		{
-			if(m_times[holidayIndexes[j]] == null)
-				m_times[holidayIndexes[j]] = holidayTimes;
+			if(m_times[holidayIndexes[i]] == null)
+				m_times[holidayIndexes[i]] = holidayTimes;
 		}
 	}
 	

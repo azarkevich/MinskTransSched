@@ -14,7 +14,7 @@ public class SchedulerCanvas extends Canvas
 
 	private ScheduleBuilder m_ScheduleBuilder;
 	
-	private int m_CurrentSchedule = 0; 
+	private int m_CurrentSchedule = 0;
 	private ScheduleLoader m_SchedulesLoader;
 	
 	Timer m_RefreshTimer;

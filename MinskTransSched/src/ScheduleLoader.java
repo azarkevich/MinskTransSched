@@ -32,15 +32,15 @@ public class ScheduleLoader
 	}
 	
 	static final int[] dayBitNumbers = {
-		Schedule.WORKDAY,
+		Calendar.SUNDAY,
 		Calendar.MONDAY,
 		Calendar.TUESDAY,
 		Calendar.WEDNESDAY,
 		Calendar.THURSDAY,
 		Calendar.FRIDAY,
-		Schedule.HOLIDAY,
-		Calendar.SUNDAY,
-		Calendar.SATURDAY
+		Calendar.SATURDAY,
+		Schedule.WORKDAY,
+		Schedule.HOLIDAY
 	};
 	
 	void LoadSchedules() throws Exception
@@ -77,9 +77,10 @@ public class ScheduleLoader
 				int bit = dayBitNumbers[bitIndex];
 				short mask = (short)(1 << bit);
 				if((days & mask) == mask)
+				{
 					sched.setTimes(bit, times);
+				}
 			}
-			sched.NormalizeDays();
 		}
 		dis.close();
 	}
@@ -138,6 +139,14 @@ public class ScheduleLoader
 			LoadBusStops();
 			LoadSchedules();
 
+			for (int s = 0; s < schedules.length; s++)
+			{
+				if(schedules[s] != null)
+				{
+					schedules[s].NormalizeDays();
+				}
+			}
+
 			// link scheds to busstops
 			for (int bs = 0; bs < busStops.length; bs++)
 			{
@@ -154,7 +163,9 @@ public class ScheduleLoader
 				for (int s = 0; s < schedules.length && schedules[s] != null; s++)
 				{
 					if(schedules[s].busStop == stop)
+					{
 						stop.schedules[count++] = schedules[s];
+					}
 				}
 			}
 		}
