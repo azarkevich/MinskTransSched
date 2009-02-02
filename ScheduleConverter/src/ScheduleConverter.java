@@ -2,8 +2,6 @@ import java.io.*;
 import java.nio.charset.*;
 import java.util.*;
 
-import sun.org.mozilla.javascript.internal.EcmaError;
-
 public class ScheduleConverter
 {
 	/**
