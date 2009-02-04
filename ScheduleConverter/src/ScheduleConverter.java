@@ -387,7 +387,11 @@ public class ScheduleConverter
 						dst.busStop = busStop;
 						dst.day = day;
 						dst.from = srcBusStop.name + " + " + shift + "m";
-						dst.times = src.times;
+						dst.times = new Vector<Integer>();
+						for (int t = 0; t < src.times.size(); t++)
+						{
+							dst.times.add(src.times.get(t) + shift);
+						}
 						schedules.add(dst);
 					}
 
