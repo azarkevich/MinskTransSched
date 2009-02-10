@@ -1,6 +1,6 @@
 #/bin/bash
 
-VER=$(sed -r -n -e '/MIDlet-Version:/p' MinskTransSched/BusSchedule.jad | sed -r -e 's/MIDlet-Version: //')
+VER=$(sed -r -n -e '/MIDlet-Version:/p' MinskTransSched/MinskTransSched.jad | sed -r -e 's/MIDlet-Version: //')
 rm -fR build
 svn export . build
 cd build
