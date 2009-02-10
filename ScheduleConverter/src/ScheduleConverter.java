@@ -83,7 +83,7 @@ public class ScheduleConverter
 					while(r.readRecord())
 					{
 						Bus b = new Bus();
-						b.id = (short)buses.size();
+						b.id = Integer.parseInt(r.get("id"));
 						b.name = r.get("name");
 						b.route = r.get("route");
 						
@@ -101,7 +101,7 @@ public class ScheduleConverter
 					while(r.readRecord())
 					{
 						BusStop bs = new BusStop();
-						bs.id = (short)busStops.size();
+						bs.id = Integer.parseInt(r.get("id"));
 						bs.name = r.get("name");
 						bs.officialName = r.get("officialName");
 						bs.description = r.get("description");

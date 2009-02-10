@@ -3,6 +3,6 @@ MIDlet-Icon: icon.png
 MIDlet-Jar-URL: MinskTransSched.jar
 MIDlet-Name: MinskTransSched
 MIDlet-Vendor: Sergey Azarkevich
-MIDlet-Version: 1.3.44
+MIDlet-Version: 1.3.45
 MicroEdition-Configuration: CLDC-1.1
 MicroEdition-Profile: MIDP-2.0

@@ -48,7 +48,7 @@ public class ScheduleBuilder
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
-		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + Station.name);
+		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + (Station.bookmarked ? "* " : "") + Station.name);
 		if(showDescription)
 			sb.append("\n" + Station.description);
 		sb.append("\nОкно: ");

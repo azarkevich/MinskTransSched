@@ -1,37 +1,32 @@
-import javax.microedition.lcdui.Choice;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Display;
-import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.List;
-import javax.microedition.midlet.MIDlet;
-import javax.microedition.midlet.MIDletStateChangeException;
+import javax.microedition.lcdui.*;
+import javax.microedition.midlet.*;
+import javax.microedition.rms.*;
 
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
 	public BusStop[] busStops;
 	
 	final static Command cmdExit = new Command("Выход", Command.EXIT, 2);
-	final static Command cmdBookMarks = new Command("Закладки", Command.SCREEN, 1);
-	final static Command cmdAllBusStops = new Command("Остановки", Command.SCREEN, 2);
+	final static Command cmdShowBookMarks = new Command("Закладки", Command.SCREEN, 1);
+	final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
 	final static Command cmdSelectBusStop = new Command("Выбрать", Command.OK, 1);
+	final static Command cmdSelectBookmark = new Command("Выбрать", Command.OK, 1);
 	
 	SchedulerCanvas scheduleBoard;
-	//List bookmarks;
+	List bookmarks;
 	List allBusStops;
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == cmdBookMarks)
+		if(cmd == cmdShowBookMarks)
 		{
-//			bookmarks.setSelectedIndex(scheduleBoard.getBusStation(), true);
-//			Display.getDisplay(this).setCurrent(bookmarks);
+			Display.getDisplay(this).setCurrent(getBookmarks());
 		}
 		else if(cmd == cmdExit)
 		{
 			destroyApp(true);
 		}
-		else if(cmd == cmdAllBusStops)
+		else if(cmd == cmdShowAllBusStops)
 		{
 			allBusStops.setSelectedIndex(scheduleBoard.getBusStation(), true);
 			Display.getDisplay(this).setCurrent(allBusStops);
@@ -40,6 +35,23 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 			scheduleBoard.setBusStation(((List)d).getSelectedIndex());
 			Display.getDisplay(this).setCurrent(scheduleBoard);
+		}
+		else if(cmd == cmdSelectBookmark)
+		{
+			int bookmarkIndex = ((List)d).getSelectedIndex();
+			for (int i = 0; i < busStops.length; i++)
+			{
+				if(busStops[i].bookmarked)
+				{
+					if(bookmarkIndex == 0)
+					{
+						scheduleBoard.setBusStation(i);
+						Display.getDisplay(this).setCurrent(scheduleBoard);
+						break;
+					}
+					bookmarkIndex--;
+				}
+			}
 		}
 	}
 	
@@ -55,6 +67,61 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	protected void pauseApp()
 	{
 	}
+	
+	void loadBookmarks()
+	{
+		try{
+			RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
+//			System.out.println("RecCount:" + bmBusStops.getNumRecords());
+//			System.out.println("NextRecID:" + bmBusStops.getNextRecordID());
+			for(int i=0;i<bmBusStops.getNextRecordID();i++)
+			{
+				int recId = i + 1;
+				try{
+					byte[] rec = bmBusStops.getRecord(recId);
+					if(rec.length != 3)
+					{
+						bmBusStops.deleteRecord(recId);
+						i--;
+						continue;
+					}
+	
+					int id = rec[1] * 256 + rec[2];
+					for (int b = 0; b < busStops.length; b++)
+					{
+						if(busStops[b].id == id)
+						{
+							busStops[b].bookmarked = (rec[0] == 1);
+							busStops[b].bookmarkRecord = recId;
+							break;
+						}
+					}
+				}
+				catch(InvalidRecordIDException ex)
+				{
+					//System.out.println("Exception:" + ex.toString() + "\nRecordIndex:" + i + ", RecordID:" + recId);
+				}
+			}
+			bmBusStops.closeRecordStore();
+		}
+		catch(Exception ex)
+		{
+			//System.out.println("Exception:" + ex.toString());
+		}
+	}
+	
+	Displayable getBookmarks()
+	{
+		for (int i = 0; i < busStops.length; i++)
+		{
+			if(busStops[i].bookmarked)
+				bookmarks.append (busStops[i].name, null);
+		}
+		if(bookmarks.size() == 0)
+			return allBusStops;
+		
+		return bookmarks;
+	}
 
 	protected void startApp() throws MIDletStateChangeException
 	{
@@ -67,33 +134,25 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		scheduleBoard = new SchedulerCanvas(this);
 		scheduleBoard.setCommandListener(this);
 		scheduleBoard.addCommand(cmdExit);
-		scheduleBoard.addCommand(cmdBookMarks);
-		scheduleBoard.addCommand(cmdAllBusStops);
+		scheduleBoard.addCommand(cmdShowBookMarks);
+		scheduleBoard.addCommand(cmdShowAllBusStops);
 
 		allBusStops = new List("Остановки", Choice.IMPLICIT);
 		allBusStops.setCommandListener(this);
 		allBusStops.setSelectCommand(cmdSelectBusStop);
 		allBusStops.addCommand(cmdExit);
 		
-//		bookmarks = new List("Закладки", Choice.IMPLICIT);
-//		bookmarks.setCommandListener(this);
-//		bookmarks.setSelectCommand(cmdSelectBusStop);
-//		bookmarks.addCommand(cmdExit);
-		
 		for (int i = 0; i < busStops.length; i++)
 		{
-//			bookmarks.append (busStops[i].name, null);
 			allBusStops.append (busStops[i].name, null);
 		}
+		
+		bookmarks = new List("Закладки", Choice.IMPLICIT);
+		bookmarks.setCommandListener(this);
+		bookmarks.setSelectCommand(cmdSelectBookmark);
+		bookmarks.addCommand(cmdExit);
 
-		Display.getDisplay(this).setCurrent(allBusStops);
-//		Display.getDisplay(this).setCurrent(bookmarks);
-/*
-		Alert helloAlert = new Alert("Testing", "Hello, world!", null, AlertType.INFO);
-	    helloAlert.setTimeout(Alert.FOREVER);
-	    helloAlert.addCommand(cmdExit);
-	    helloAlert.setCommandListener(this);
-	    Display.getDisplay(this).setCurrent(helloAlert);
-*/	    
+		loadBookmarks();
+		Display.getDisplay(this).setCurrent(getBookmarks());
 	}
 }

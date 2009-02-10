@@ -4,6 +4,7 @@ import java.util.TimerTask;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
+import javax.microedition.rms.RecordStore;
 
 public class SchedulerCanvas extends Canvas
 {
@@ -185,6 +186,29 @@ public class SchedulerCanvas extends Canvas
 			RefreshScheduleText();
 			return;
 		case KEY_NUM0:
+			try{
+				if(m_ScheduleBuilder.Station != null)
+				{
+					m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
+
+					RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
+					byte[] rec = new byte[3];
+					rec[0] = (byte)(m_ScheduleBuilder.Station.bookmarked ? 1 : 0);
+					rec[1] = (byte)(m_ScheduleBuilder.Station.id / 256);
+					rec[2] = (byte)(m_ScheduleBuilder.Station.id % 256);
+					if(m_ScheduleBuilder.Station.bookmarkRecord != -1)
+						bmBusStops.setRecord(m_ScheduleBuilder.Station.bookmarkRecord, rec, 0, rec.length);
+					else
+						m_ScheduleBuilder.Station.bookmarkRecord = bmBusStops.addRecord(rec, 0, rec.length);
+					
+					bmBusStops.closeRecordStore();
+				}
+			}
+			catch(Exception ex)
+			{
+				// restore
+				m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
+			}
 			RefreshScheduleText();
 			return;
 			
@@ -198,6 +222,7 @@ public class SchedulerCanvas extends Canvas
 					"6   - сбросить настройки\n" +
 					"7/8 - уменьшить/увеличить сдвиг окна\n" +
 					"9   - переключить описания остановок\n" +
+					"0   - отметить остановку\n" +
 					"#   - изменить размер шрифта\n" +
 					"*   - помощь\n"
 					);
