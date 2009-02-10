@@ -112,6 +112,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	
 	Displayable getBookmarks()
 	{
+		bookmarks.deleteAll();
 		for (int i = 0; i < busStops.length; i++)
 		{
 			if(busStops[i].bookmarked)
