@@ -10,5 +10,5 @@ cd ..
 rm -fR build/*
 
 mv MinskTransSched_v$VER.src.* build/
-cp MinskTransSched/deployed/BusSchedule.jad build/BusSchedule_v$VER.jad
-cp MinskTransSched/deployed/BusSchedule.jar build/BusSchedule_v$VER.jar
+cp MinskTransSched/deployed/MinskTransSched.jad build/BusSchedule_v$VER.jad
+cp MinskTransSched/deployed/MinskTransSched.jar build/BusSchedule_v$VER.jar

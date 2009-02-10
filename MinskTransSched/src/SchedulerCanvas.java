@@ -15,7 +15,6 @@ public class SchedulerCanvas extends Canvas
 	private ScheduleBuilder m_ScheduleBuilder;
 	
 	private int m_CurrentSchedule = 0;
-	private ScheduleLoader m_SchedulesLoader;
 	
 	Timer m_RefreshTimer;
 	
@@ -32,14 +31,27 @@ public class SchedulerCanvas extends Canvas
 			m_refreshee.Refresh();
 		}
 	}
-
-	public SchedulerCanvas()
+	
+	private MinskTransSchedMidlet m_MIDlet;
+	
+	public void setBusStation(int index)
 	{
-		m_SchedulesLoader = new ScheduleLoader();
-		m_SchedulesLoader.Load();
+		m_CurrentSchedule = index;
+		m_ScheduleBuilder.Station = m_MIDlet.busStops[index];
+		Refresh();
+	}
+	
+	public int getBusStation()
+	{
+		return m_CurrentSchedule;
+	}
+
+	public SchedulerCanvas(MinskTransSchedMidlet m)
+	{
+		m_MIDlet = m;
 		
 		m_ScheduleBuilder = new ScheduleBuilder();
-		m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
+		m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
 		RefreshScheduleText();
 		
 		m_RefreshTimer = new Timer();
@@ -91,7 +103,7 @@ public class SchedulerCanvas extends Canvas
 	
 	private void RefreshScheduleText(boolean savePosition)
 	{
-		if(savePosition)
+		if(savePosition && m_MultiLineText != null)
 			m_Top = m_MultiLineText.Top;
 		else
 			m_Top = 0;
@@ -122,13 +134,13 @@ public class SchedulerCanvas extends Canvas
 		switch (keyCode)
 		{
 		case KEY_NUM1:
-			m_CurrentSchedule = (m_CurrentSchedule + m_SchedulesLoader.busStops.length - 1) % m_SchedulesLoader.busStops.length;
-			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
+			m_CurrentSchedule = (m_CurrentSchedule + m_MIDlet.busStops.length - 1) % m_MIDlet.busStops.length;
+			m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 		case KEY_NUM2:
-			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_SchedulesLoader.busStops.length;
-			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
+			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_MIDlet.busStops.length;
+			m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 
@@ -150,7 +162,7 @@ public class SchedulerCanvas extends Canvas
 			
 		case KEY_NUM6:
 			m_CurrentSchedule = 0;
-			m_ScheduleBuilder.Station = m_SchedulesLoader.busStops[m_CurrentSchedule];
+			m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
 			m_ScheduleBuilder.WindowShift = ScheduleBuilder.DEFAULT_WINDOW_SHIFT;
 			m_ScheduleBuilder.WindowSize = ScheduleBuilder.DEFAULT_WINDOW_SIZE;
 			m_FontSize = Font.SIZE_SMALL;
@@ -205,22 +217,22 @@ public class SchedulerCanvas extends Canvas
 
 		if(m_MultiLineText != null)
 		{
-			if (keyCode == getKeyCode(UP))
+			if (keyCode == getKeyCode(Canvas.UP))
 			{
 				m_MultiLineText.MoveUp();
 				repaint();
 			}
-			else if (keyCode == getKeyCode(DOWN))
+			else if (keyCode == getKeyCode(Canvas.DOWN))
 			{
 				m_MultiLineText.MoveDown();
 				repaint();
 			}
-			else if (keyCode == getKeyCode(LEFT))
+			else if (keyCode == getKeyCode(Canvas.LEFT))
 			{
 				m_MultiLineText.PageUp();
 				repaint();
 			}
-			else if (keyCode == getKeyCode(RIGHT))
+			else if (keyCode == getKeyCode(Canvas.RIGHT))
 			{
 				m_MultiLineText.PageDown();
 				repaint();
