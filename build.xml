@@ -1,0 +1,66 @@
+<project name="MinskTransSched" default="build" basedir=".">
+
+	<property file="build.properties" />
+
+	<path id="project.classpath">
+		<pathelement location="svnjavahl.jar" /> 
+		<pathelement location="svnant.jar" />
+		<pathelement location="svnClientAdapter.jar" />
+	</path>
+  
+	<taskdef name="svn" classpathref="project.classpath"
+		    classname="org.tigris.subversion.svnant.SvnTask" />
+
+	<target name="build" depends="-initialize">
+			<buildnumber/>
+
+			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
+                         match="MIDlet-Version:.*"
+                         replace="MIDlet-Version: ${app.version}.${build.number}"
+                         byline="true"/>
+                         
+                         
+                         
+			
+			<ant antfile="build.xml" target="jar" dir="MinskTransSched" />
+			
+			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${build.number}.jad" />
+			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${build.number}.jar" />
+			
+			<antcall target="make-sources" />
+			<antcall target="-clean-tmp" />
+	</target>
+
+	<target name="-initialize" description="Initializes the build environment">
+		<echo message="Initializing build environment..." />
+		
+		<!-- Create the build directories -->
+		<mkdir dir="${path.build}" />
+		<mkdir dir="${path.build.output}" />
+	</target>
+
+	<target name="make-sources" description="Make bzip2/zip archive of sources">
+
+		<delete dir="${path.build}" />
+		
+		<svn>
+			<export srcPath="." destPath="${path.build}" />
+		</svn>
+	
+		<tar destfile="${path.build.output}/${midlet.file.name}.tar" basedir="${path.build}" />
+		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${build.number}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
+		<zip destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${build.number}.src.zip" basedir="${path.build}"/>
+
+		<delete file="${path.build.output}/${midlet.file.name}.tar"/>
+	</target>
+
+	<target name="clean" description="Clean" depends="-clean-tmp">
+		<delete dir="${path.build.output}" />
+		<ant antfile="build.xml" target="clean" dir="MinskTransSched" />
+	</target>
+
+	<target name="-clean-tmp">
+		<delete dir="${path.build}" />
+	</target>
+
+</project>
