@@ -8,6 +8,8 @@ import javax.microedition.rms.RecordStore;
 
 public class SchedulerCanvas extends Canvas
 {
+	BusStop[] busStops = null;
+	
 	MultiLineText m_MultiLineText;
 	int savedViewportTop;
 
@@ -16,13 +18,29 @@ public class SchedulerCanvas extends Canvas
 	int m_CurrentSchedule = 0;
 	
 	Timer m_RefreshTimer;
+
+	int foreColorR = 0;
+	int foreColorG = 255;
+	int foreColorB = 0;
 	
-	private MinskTransSchedMidlet m_MIDlet;
+	public void setForeColor(int r, int g, int b)
+	{
+		foreColorR = r;
+		foreColorG = g;
+		foreColorB = b;
+	}
 	
 	public void setBusStation(int index)
 	{
 		m_CurrentSchedule = index;
-		m_ScheduleBuilder.Station = m_MIDlet.busStops[index];
+		m_ScheduleBuilder.Station = busStops[index];
+		RefreshScheduleText();
+	}
+	
+	public void setBusStops(BusStop[] stops)
+	{
+		busStops = stops;
+		m_CurrentSchedule = 0;
 		RefreshScheduleText();
 	}
 	
@@ -31,12 +49,12 @@ public class SchedulerCanvas extends Canvas
 		return m_CurrentSchedule;
 	}
 
-	public SchedulerCanvas(MinskTransSchedMidlet m)
+	public SchedulerCanvas(BusStop[] stops)
 	{
-		m_MIDlet = m;
+		busStops = stops;
 		
 		m_ScheduleBuilder = new ScheduleBuilder();
-		m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
+		m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 		
 		TimerTask tt = new TimerTask()
 		{
@@ -62,7 +80,7 @@ public class SchedulerCanvas extends Canvas
 
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.setColor(0, 255, 0);
+		g.setColor(foreColorR, foreColorG, foreColorB);
 		m_MultiLineText.DrawMultStr(g);
 	}
 	
@@ -111,13 +129,13 @@ public class SchedulerCanvas extends Canvas
 		switch (keyCode)
 		{
 		case KEY_NUM1:
-			m_CurrentSchedule = (m_CurrentSchedule + m_MIDlet.busStops.length - 1) % m_MIDlet.busStops.length;
-			m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
+			m_CurrentSchedule = (m_CurrentSchedule + busStops.length - 1) % busStops.length;
+			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 		case KEY_NUM2:
-			m_CurrentSchedule = (m_CurrentSchedule + 1) % m_MIDlet.busStops.length;
-			m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
+			m_CurrentSchedule = (m_CurrentSchedule + 1) % busStops.length;
+			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 			RefreshScheduleText();
 			return;
 
@@ -139,7 +157,7 @@ public class SchedulerCanvas extends Canvas
 			
 		case KEY_NUM6:
 			m_CurrentSchedule = 0;
-			m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
+			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 			m_ScheduleBuilder.WindowShift = ScheduleBuilder.DEFAULT_WINDOW_SHIFT;
 			m_ScheduleBuilder.WindowSize = ScheduleBuilder.DEFAULT_WINDOW_SIZE;
 			m_FontSize = Font.SIZE_SMALL;

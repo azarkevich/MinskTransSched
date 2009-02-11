@@ -57,26 +57,38 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		}
 		else if(cmd == cmdSelectBusStop)
 		{
+			scheduleBoard.setBusStops(busStops);
 			scheduleBoard.setBusStation(((List)d).getSelectedIndex());
+			scheduleBoard.setForeColor(255, 255, 255);
 			Display.getDisplay(this).setCurrent(scheduleBoard);
 		}
 		else if(cmd == cmdSelectBookmark)
 		{
-			int bookmarkIndex = ((List)d).getSelectedIndex();
-			for (int i = 0; i < busStops.length; i++)
-			{
-				if(busStops[i].bookmarked)
-				{
-					if(bookmarkIndex == 0)
-					{
-						scheduleBoard.setBusStation(i);
-						Display.getDisplay(this).setCurrent(scheduleBoard);
-						break;
-					}
-					bookmarkIndex--;
-				}
-			}
+			BusStop[] bmBusStops = GetBookmarkedBusStops();
+			scheduleBoard.setBusStops(bmBusStops);
+			scheduleBoard.setBusStation(((List)d).getSelectedIndex());
+			scheduleBoard.setForeColor(0, 255, 0);
+			Display.getDisplay(this).setCurrent(scheduleBoard);
 		}
+	}
+	
+	public BusStop[] GetBookmarkedBusStops()
+	{
+		BusStop[] ret = null;
+		int count = 0;
+		for (int i = 0; i < busStops.length; i++)
+		{
+			if(busStops[i].bookmarked)
+				count++;
+		}
+		ret = new BusStop[count];
+		int index = 0;
+		for (int i = 0; i < busStops.length; i++)
+		{
+			if(busStops[i].bookmarked)
+				ret[index++] = busStops[i];
+		}
+		return ret;
 	}
 	
 	public MinskTransSchedMidlet()
@@ -156,7 +168,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 		busStops = loader.busStops;
 		
-		scheduleBoard = new SchedulerCanvas(this);
+		scheduleBoard = new SchedulerCanvas(busStops);
 		scheduleBoard.setCommandListener(this);
 		scheduleBoard.addCommand(cmdExit);
 		scheduleBoard.addCommand(cmdShowBookMarks);
@@ -166,7 +178,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		allBusStops = new List("Остановки", Choice.IMPLICIT);
 		allBusStops.setCommandListener(this);
 		allBusStops.setSelectCommand(cmdSelectBusStop);
-		allBusStops.addCommand(cmdExit);
+		allBusStops.addCommand(cmdShowBookMarks);
+		allBusStops.addCommand(cmdMainHelpPage);
 		
 		for (int i = 0; i < busStops.length; i++)
 		{
@@ -176,7 +189,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		bookmarks = new List("Закладки", Choice.IMPLICIT);
 		bookmarks.setCommandListener(this);
 		bookmarks.setSelectCommand(cmdSelectBookmark);
-		bookmarks.addCommand(cmdExit);
+		bookmarks.addCommand(cmdShowAllBusStops);
+		bookmarks.addCommand(cmdMainHelpPage);
 
 		loadBookmarks();
 		Display.getDisplay(this).setCurrent(getBookmarks());
