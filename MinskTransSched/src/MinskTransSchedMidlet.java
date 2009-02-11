@@ -14,21 +14,9 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
 	
 	SchedulerCanvas scheduleBoard;
+	HelpCanvas helpCanvas;
 	List bookmarks;
 	List allBusStops;
-	Alert helpMainPage;
-
-	final static String helpText = "Up/Down - текст вверх/вниз\n" +
-		"Left/Right - текст вверх/вниз построчно\n" +
-		"1/2 - предыдущая/следующая остановка\n" +
-		"3   - выходной/рабочий день\n" +
-		"4/5 - уменьшить/увеличить размер окна\n" +
-		"6   - сбросить настройки\n" +
-		"7/8 - уменьшить/увеличить сдвиг окна\n" +
-		"9   - переключить описания остановок\n" +
-		"0   - отметить остановку\n" +
-		"#   - изменить размер шрифта\n" +
-		"*   - ";
 
 	public void commandAction(Command cmd, Displayable d)
 	{
@@ -38,13 +26,16 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		}
 		else if(cmd == cmdMainHelpPage)
 		{
-			if(helpMainPage == null)
+			if(helpCanvas == null)
 			{
-				helpMainPage = new Alert("Помощь", helpText, null, AlertType.INFO);
-				helpMainPage.setTimeout(Alert.FOREVER);
+				helpCanvas = new HelpCanvas();
+				helpCanvas.setCommandListener(this);
+				helpCanvas.addCommand(cmdShowAllBusStops);
+				helpCanvas.addCommand(cmdShowBookMarks);
+				helpCanvas.addCommand(cmdExit);
 			}
 			
-			Display.getDisplay(this).setCurrent(helpMainPage);
+			Display.getDisplay(this).setCurrent(helpCanvas);
 		}
 		else if(cmd == cmdExit)
 		{
