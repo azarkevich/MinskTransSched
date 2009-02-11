@@ -11,16 +11,40 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
 	final static Command cmdSelectBusStop = new Command("Выбрать", Command.OK, 1);
 	final static Command cmdSelectBookmark = new Command("Выбрать", Command.OK, 1);
+	final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
 	
 	SchedulerCanvas scheduleBoard;
 	List bookmarks;
 	List allBusStops;
-	
+	Alert helpMainPage;
+
+	final static String helpText = "Up/Down - текст вверх/вниз\n" +
+		"Left/Right - текст вверх/вниз построчно\n" +
+		"1/2 - предыдущая/следующая остановка\n" +
+		"3   - выходной/рабочий день\n" +
+		"4/5 - уменьшить/увеличить размер окна\n" +
+		"6   - сбросить настройки\n" +
+		"7/8 - уменьшить/увеличить сдвиг окна\n" +
+		"9   - переключить описания остановок\n" +
+		"0   - отметить остановку\n" +
+		"#   - изменить размер шрифта\n" +
+		"*   - ";
+
 	public void commandAction(Command cmd, Displayable d)
 	{
 		if(cmd == cmdShowBookMarks)
 		{
 			Display.getDisplay(this).setCurrent(getBookmarks());
+		}
+		else if(cmd == cmdMainHelpPage)
+		{
+			if(helpMainPage == null)
+			{
+				helpMainPage = new Alert("Помощь", helpText, null, AlertType.INFO);
+				helpMainPage.setTimeout(Alert.FOREVER);
+			}
+			
+			Display.getDisplay(this).setCurrent(helpMainPage);
 		}
 		else if(cmd == cmdExit)
 		{
@@ -137,7 +161,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		scheduleBoard.addCommand(cmdExit);
 		scheduleBoard.addCommand(cmdShowBookMarks);
 		scheduleBoard.addCommand(cmdShowAllBusStops);
-
+		scheduleBoard.addCommand(cmdMainHelpPage);
+		
 		allBusStops = new List("Остановки", Choice.IMPLICIT);
 		allBusStops.setCommandListener(this);
 		allBusStops.setSelectCommand(cmdSelectBusStop);

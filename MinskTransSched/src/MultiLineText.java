@@ -3,109 +3,94 @@ import javax.microedition.lcdui.*;
 
 public class MultiLineText
 {
-	public int Top;         //Положение верхнего края текста
-	private int x,y,w,h,fsz,fst,fty;    //Размер ограничивающего прямоугольника;
-	private int hStr;       //Высота строки
-	private int dy;         //Шаг при прокрутке текста
-	private int textheight; //Общая высота текста
-	private Vector vecLines;    
-	private int gx,gy,gw,gh; //Исходная область
+	public int viewportTop;
+	int regionX;
+	int regionY;
+	int regionWidth;
+	int regionHeight;
+	int lineHeight;
+	int textheight;
+	Vector vecLines;    
 
 	public void  MoveDown()
 	{
-		if (textheight>h)
+		if (textheight>regionHeight)
 		{            
-			Top=Top-dy;
-			if (h-Top>textheight) {Top=h-textheight;}
+			viewportTop=viewportTop - lineHeight;
+			if (regionHeight-viewportTop>textheight)
+				viewportTop=regionHeight - textheight;
 		}
 	}
 
 	public void MoveUp()
 	{
-		if (textheight>h)
+		if (textheight>regionHeight)
 		{
-			Top=Top+dy;
-			if (Top>0){Top=0;}
+			viewportTop=viewportTop + lineHeight;
+			if (viewportTop>0)
+				viewportTop=0;
 		}
 
 	}
 
 	public void PageUp()
 	{
-		if (textheight>h)
+		if (textheight>regionHeight)
 		{
-			Top=Top+h;
-			if (Top>0){Top=0;} 
+			viewportTop=viewportTop+regionHeight;
+			if (viewportTop>0){viewportTop=0;} 
 		}
 
 	}
 
 	public void PageDown()
 	{
-		if (textheight>h)
+		if (textheight>regionHeight)
 		{
-			Top=Top-h;
-			if (h-Top>textheight)
+			viewportTop=viewportTop-regionHeight;
+			if (regionHeight-viewportTop>textheight)
 			{
-				Top=h-textheight;
+				viewportTop=regionHeight-textheight;
 			}
 		}         
 	}
 
-	public void SetTextPar(
-			int x, 
-			int y,
-			int width,
-			int height,
-			int dy,
-			int FontSize,
-			int FontStyle,
-			int FontType,
-			Graphics g,
-			String parText
-	)
+	Font font = null;
+	
+	public void SetTextPar(int x, int y, int width, int height, Font f, String s)
 	{
-		this.x=x;
-		this.y=y;
-		this.w=width;
-		this.h=height;
-		this.dy=dy;
-		this.fsz=FontSize;
-		this.fst=FontStyle;
-		this.fty=FontType;
-		gx=g.getClipX();
-		gy=g.getClipY();
-		gw=g.getClipWidth();
-		gh=g.getClipHeight();
-		g.setFont(Font.getFont(fty, fst, fsz));
-		//Разбиваем строку на массив строк
+		regionX=x;
+		regionY=y;
+		regionWidth=width;
+		regionHeight=height;
+		font = f;
 		vecLines = new Vector(1);
-		hStr=g.getFont().getHeight();
-		Top=0;
+		lineHeight = font.getHeight();
+		viewportTop=0;
 
 		int parBegin = 0;
 		while(true)
 		{
-			int parEnd = parText.indexOf("\n", parBegin);
+			int parEnd = s.indexOf("\n", parBegin);
 			
 			if(parEnd == -1)
 			{
-				SplitString(g, parText.substring(parBegin));
+				SplitString(font, s.substring(parBegin));
 				break;
 			}
 			
-			SplitString(g, parText.substring(parBegin, parEnd));
+			SplitString(font, s.substring(parBegin, parEnd));
 			parBegin = parEnd + 1;
 		}
 		
-		textheight=vecLines.size()*hStr;
+		textheight=vecLines.size() * lineHeight;
 	}
 	
-	void SplitString(Graphics g, String parText)
+	void SplitString(Font f, String parText)
 	{
 		boolean isexit = true;
-		int i0=0,i=0,in=0,j,jw=0;   //Смещение от начала строки
-		int imax=parText.length();   //Длина строки
+		int i0=0,i=0,in=0,j,jw=0;
+		int imax=parText.length();
 		while (isexit)
 		{
 			i = parText.indexOf(" ", i0 + 1);
@@ -115,34 +100,31 @@ public class MultiLineText
 				isexit=false;
 			}
 
-			j=g.getFont().stringWidth(parText.substring(i0,i));
-			if (jw+j<w)
+			j=f.stringWidth(parText.substring(i0,i));
+			if (jw+j<regionWidth)
 			{
-				//Слово умещается
 				jw=jw+j;
 				i0=i;
 			}
 			else 
 			{
-				//Слово не умещается
 				vecLines.addElement(parText.substring(in,i0));                
 				in=i0+1;
 				jw=j;
-				if (j>w)
+				if (j>regionWidth)
 				{
-					//Слово полностью не умещается в строке
 					i=i0;
-					while (jw>w)
+					while (jw>regionWidth)
 					{
 						j=0;  
-						while (j<w)
+						while (j<regionWidth)
 						{
 							i=i+1;
-							j=g.getFont().stringWidth(parText.substring(in,i));
+							j=f.stringWidth(parText.substring(in,i));
 
 						}
 						i=i-1;
-						j=g.getFont().stringWidth(parText.substring(in,i));
+						j=f.stringWidth(parText.substring(in,i));
 						vecLines.addElement(parText.substring(in,i));
 						jw=jw-j;
 						i0=i;                
@@ -160,21 +142,33 @@ public class MultiLineText
 	}
 
 	public void DrawMultStr(Graphics g)
-	{       
-		int y1;       
-		g.setClip(x, y, w, h);
-		y1=Top;
-		g.setFont(Font.getFont(fty, fst, fsz));
+	{
+		// save clip & font
+		int clipX = g.getClipX();
+		int clipY = g.getClipY();
+		int clipWidth = g.getClipWidth();
+		int clipHeight = g.getClipHeight();
+	
+		Font f = g.getFont();
+
+		// set new font & clip
+		g.setFont(font);
+		g.setClip(regionX, regionY, regionWidth, regionHeight);
+		
+		int y1=viewportTop;
 		for (int i=0;i<vecLines.size();i++)
 		{                
-			if ((y1+hStr)>0)
+			if ((y1 + lineHeight)>0)
 			{
-				g.drawString(vecLines.elementAt(i).toString(), x+1, y+y1, Graphics.LEFT|Graphics.TOP);           
+				g.drawString((String)vecLines.elementAt(i), regionX + 1, regionY + y1, Graphics.LEFT | Graphics.TOP);           
 			}
-			y1=y1+hStr; 
-			if (y1>h)
+			y1=y1 + lineHeight; 
+			if (y1>regionHeight)
 				break;
 		}
-		g.setClip(gx, gy, gw, gh);
+		
+		// restore clip & font
+		g.setClip(clipX, clipY, clipWidth, clipHeight);
+		g.setFont(f);
 	}
 }

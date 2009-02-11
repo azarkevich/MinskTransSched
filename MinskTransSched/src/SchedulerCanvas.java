@@ -8,30 +8,14 @@ import javax.microedition.rms.RecordStore;
 
 public class SchedulerCanvas extends Canvas
 {
-	private MultiLineText m_MultiLineText;
-	private int m_Top;
-	private boolean m_RefreshSchedule;
-	private String m_Text;
+	MultiLineText m_MultiLineText;
+	int savedViewportTop;
 
-	private ScheduleBuilder m_ScheduleBuilder;
+	ScheduleBuilder m_ScheduleBuilder;
 	
-	private int m_CurrentSchedule = 0;
+	int m_CurrentSchedule = 0;
 	
 	Timer m_RefreshTimer;
-	
-	public class RefresherTask extends TimerTask
-	{
-		public RefresherTask(SchedulerCanvas refreshee)
-		{
-			m_refreshee = refreshee; 
-		}
-
-		SchedulerCanvas m_refreshee;
-		public void run()
-		{
-			m_refreshee.Refresh();
-		}
-	}
 	
 	private MinskTransSchedMidlet m_MIDlet;
 	
@@ -39,7 +23,7 @@ public class SchedulerCanvas extends Canvas
 	{
 		m_CurrentSchedule = index;
 		m_ScheduleBuilder.Station = m_MIDlet.busStops[index];
-		Refresh();
+		RefreshScheduleText();
 	}
 	
 	public int getBusStation()
@@ -53,48 +37,33 @@ public class SchedulerCanvas extends Canvas
 		
 		m_ScheduleBuilder = new ScheduleBuilder();
 		m_ScheduleBuilder.Station = m_MIDlet.busStops[m_CurrentSchedule];
-		RefreshScheduleText();
 		
+		TimerTask tt = new TimerTask()
+		{
+			public void run()
+			{
+				RefreshScheduleText(true);
+			}
+		};
 		m_RefreshTimer = new Timer();
-		m_RefreshTimer.schedule(new RefresherTask(this), 10*1000, 10*1000);
-	}
-	
-	public void Refresh()
-	{
-		RefreshScheduleText(true);
+		m_RefreshTimer.schedule(tt, 10*1000, 10*1000);
+
+		m_MultiLineText = new MultiLineText();
+
+		RefreshScheduleText();
 	}
 	
 	int m_FontSize = Font.SIZE_SMALL;
 
 	public void paint(Graphics g)
 	{
-		if (m_MultiLineText == null)
-		{
-			m_MultiLineText = new MultiLineText();
-			m_RefreshSchedule = true;
-		}
+		if(m_MultiLineText == null)
+			return;
 
-		if(m_RefreshSchedule)
-		{
-			m_RefreshSchedule = false;
-			m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
-					5,
-					m_FontSize, Font.STYLE_PLAIN, Font.FACE_PROPORTIONAL,
-					g, m_Text);
-			m_MultiLineText.Top = m_Top;
-		}
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.setColor(0, 255, 0);         
+		g.setColor(0, 255, 0);
 		m_MultiLineText.DrawMultStr(g);
-	}
-	
-	private void SetText(String text)
-	{
-		m_Top = 0;
-		m_Text = text;
-		m_RefreshSchedule = true;
-		repaint();
 	}
 	
 	private void RefreshScheduleText()
@@ -105,10 +74,17 @@ public class SchedulerCanvas extends Canvas
 	private void RefreshScheduleText(boolean savePosition)
 	{
 		if(savePosition && m_MultiLineText != null)
-			m_Top = m_MultiLineText.Top;
+			savedViewportTop = m_MultiLineText.viewportTop;
 		else
-			m_Top = 0;
-		SetText(m_ScheduleBuilder.GetScheduleText());
+			savedViewportTop = 0;
+
+		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
+				Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, m_FontSize),
+				m_ScheduleBuilder.GetScheduleText());
+		
+		m_MultiLineText.viewportTop = savedViewportTop;
+
+		repaint();
 	}
 
 	protected void keyPressed(int keyCode)
@@ -213,20 +189,9 @@ public class SchedulerCanvas extends Canvas
 			return;
 			
 		case KEY_STAR:
-			SetText( 
-					"Up/Down текст вверх/вниз\n" +
-					"Left/Right - текст вверх/вниз построчно\n" +
-					"1/2 - предыдущая/следующая остановка\n" +
-					"3   - выходной/рабочий день\n" +
-					"4/5 - уменьшить/увеличить размер окна\n" +
-					"6   - сбросить настройки\n" +
-					"7/8 - уменьшить/увеличить сдвиг окна\n" +
-					"9   - переключить описания остановок\n" +
-					"0   - отметить остановку\n" +
-					"#   - изменить размер шрифта\n" +
-					"*   - помощь\n"
-					);
+			RefreshScheduleText();
 			return;
+
 		case KEY_POUND:
 			if(m_FontSize == Font.SIZE_SMALL)
 				m_FontSize = Font.SIZE_MEDIUM;
