@@ -6,7 +6,10 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
 
-public class SchedulerCanvas extends Canvas
+import options.OptionsListener;
+import options.Window;
+
+public class SchedulerCanvas extends Canvas implements OptionsListener
 {
 	BusStop[] busStops = null;
 	
@@ -145,33 +148,32 @@ public class SchedulerCanvas extends Canvas
 			return;
 			
 		case KEY_NUM4:
-			m_ScheduleBuilder.WindowSize -= 10;
+			m_ScheduleBuilder.WindowSize -= Window.defWindowSizeStep;
 			if(m_ScheduleBuilder.WindowSize < 0)
 				m_ScheduleBuilder.WindowSize = 0;
 			RefreshScheduleText();
 			return;
 		case KEY_NUM5:
-			m_ScheduleBuilder.WindowSize += 10;
+			m_ScheduleBuilder.WindowSize += Window.defWindowSizeStep;
 			RefreshScheduleText();
 			return;
 			
 		case KEY_NUM6:
 			m_CurrentSchedule = 0;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			m_ScheduleBuilder.WindowShift = ScheduleBuilder.DEFAULT_WINDOW_SHIFT;
-			m_ScheduleBuilder.WindowSize = ScheduleBuilder.DEFAULT_WINDOW_SIZE;
+			m_ScheduleBuilder.WindowShift = Window.defWindowShift;
+			m_ScheduleBuilder.WindowSize = Window.defWindowSize;
 			m_FontSize = Font.SIZE_SMALL;
-			m_MultiLineText = null;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			RefreshScheduleText();
 			return;
 			
 		case KEY_NUM7:
-			m_ScheduleBuilder.WindowShift -= 10;
+			m_ScheduleBuilder.WindowShift -= Window.defWindowShiftStep;
 			RefreshScheduleText();
 			return;
 		case KEY_NUM8:
-			m_ScheduleBuilder.WindowShift += 10;
+			m_ScheduleBuilder.WindowShift += Window.defWindowShiftStep;
 			RefreshScheduleText();
 			return;
 			
@@ -246,5 +248,12 @@ public class SchedulerCanvas extends Canvas
 				repaint();
 			}
 		}
+	}
+
+	public void OptionsUpdated()
+	{
+		m_ScheduleBuilder.WindowShift = Window.defWindowShift;
+		m_ScheduleBuilder.WindowSize = Window.defWindowSize;
+		RefreshScheduleText(true);
 	}
 }

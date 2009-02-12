@@ -1,6 +1,10 @@
+import java.util.Stack;
 import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
+
+import options.OptionsStoreManager;
+import options.OptionsVisualizer;
 
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
@@ -12,7 +16,12 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	final static Command cmdSelectBusStop = new Command("Выбрать", Command.OK, 1);
 	final static Command cmdSelectBookmark = new Command("Выбрать", Command.OK, 1);
 	final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
+	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
 	
+	Stack displayableStack = new Stack(); 
+	final static Command cmdOptSaveCommand = new Command("Сохранить", Command.OK, 1);
+	final static Command cmdOptCancelCommand = new Command("Отмена", Command.BACK, 1);
+
 	SchedulerCanvas scheduleBoard;
 	HelpCanvas helpCanvas;
 	List bookmarks;
@@ -33,6 +42,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				helpCanvas.addCommand(cmdShowAllBusStops);
 				helpCanvas.addCommand(cmdShowBookMarks);
 				helpCanvas.addCommand(cmdExit);
+				helpCanvas.addCommand(cmdOptions);
 			}
 			
 			Display.getDisplay(this).setCurrent(helpCanvas);
@@ -60,6 +70,38 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			scheduleBoard.setBusStation(((List)d).getSelectedIndex());
 			scheduleBoard.setForeColor(0, 255, 0);
 			Display.getDisplay(this).setCurrent(scheduleBoard);
+		}
+		else if(cmd == cmdOptions)
+		{
+			Display display = Display.getDisplay(this);
+			displayableStack.push(display.getCurrent());
+			
+			options.Window opt = new options.Window();
+			opt.addCommand(cmdOptSaveCommand);
+			opt.addCommand(cmdOptCancelCommand);
+			opt.setCommandListener(this);
+
+			display.setCurrent(opt);
+		}
+		else if(cmd == cmdOptCancelCommand || cmd == cmdOptSaveCommand)
+		{
+			Display display = Display.getDisplay(this);
+			if(displayableStack.empty())
+			{
+				display.setCurrent(getBookmarks());
+			}
+			else
+			{
+				display.setCurrent((Displayable)displayableStack.pop());
+			}
+
+			if(cmd == cmdOptSaveCommand)
+			{
+				((OptionsVisualizer)d).SaveSettingsFromControls(); 
+				OptionsStoreManager.SaveSettings();
+				
+				scheduleBoard.OptionsUpdated();
+			}
 		}
 	}
 	
@@ -153,6 +195,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 	protected void startApp() throws MIDletStateChangeException
 	{
+		OptionsStoreManager.ReadSettings();
+
 	    // load data
 		ScheduleLoader loader = new ScheduleLoader();
 		loader.Load();
@@ -165,12 +209,14 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		scheduleBoard.addCommand(cmdShowBookMarks);
 		scheduleBoard.addCommand(cmdShowAllBusStops);
 		scheduleBoard.addCommand(cmdMainHelpPage);
+		scheduleBoard.addCommand(cmdOptions);
 		
 		allBusStops = new List("Остановки", Choice.IMPLICIT);
 		allBusStops.setCommandListener(this);
 		allBusStops.setSelectCommand(cmdSelectBusStop);
 		allBusStops.addCommand(cmdShowBookMarks);
 		allBusStops.addCommand(cmdMainHelpPage);
+		allBusStops.addCommand(cmdOptions);
 		
 		for (int i = 0; i < busStops.length; i++)
 		{
@@ -182,6 +228,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		bookmarks.setSelectCommand(cmdSelectBookmark);
 		bookmarks.addCommand(cmdShowAllBusStops);
 		bookmarks.addCommand(cmdMainHelpPage);
+		bookmarks.addCommand(cmdOptions);
 
 		loadBookmarks();
 		Display.getDisplay(this).setCurrent(getBookmarks());

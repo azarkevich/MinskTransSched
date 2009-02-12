@@ -1,6 +1,8 @@
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import options.Window;
+
 public class ScheduleBuilder
 {
 	public static String join(String[] s, String delimiter) {
@@ -52,8 +54,21 @@ public class ScheduleBuilder
 		if(showDescription)
 			sb.append("\n" + Station.description);
 		sb.append("\nОкно: ");
+		if(showDescription)
+			sb.append("Размер:");
 		FormatTimeDiff(endWindow - beginWindow, sb);
-		sb.append(" [" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
+
+		sb.append("; ");
+		if(showDescription)
+			sb.append("Сдвиг:");
+		if(WindowShift > 0)
+			sb.append("+");
+		FormatTimeDiff(WindowShift, sb);
+		
+		sb.append(" ");
+		if(showDescription)
+			sb.append("Диапазон:");
+		sb.append("[" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
 		sb.append("\n");
 		
 		Schedule[] busOnStation = Station.schedules;
@@ -175,12 +190,8 @@ public class ScheduleBuilder
 	public static final int DAY_WORK = 1;
 	public static final int DAY_HOLIDAY = 2;
 
-	// in minutes
-	public static final int DEFAULT_WINDOW_SIZE = 30;
-	public static final int DEFAULT_WINDOW_SHIFT = -5;
-
-	public int WindowSize = DEFAULT_WINDOW_SIZE;
-	public int WindowShift = DEFAULT_WINDOW_SHIFT;
+	public int WindowSize = Window.defWindowSize;
+	public int WindowShift = Window.defWindowShift;
 	
 	public BusStop Station;
 	
