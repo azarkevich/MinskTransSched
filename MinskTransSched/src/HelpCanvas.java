@@ -45,4 +45,41 @@ public class HelpCanvas extends Canvas
 		g.setColor(foreColorR, foreColorG, foreColorB);
 		m_MultiLineText.DrawMultStr(g);
 	}
+
+	protected void keyPressed(int keyCode)
+	{
+		OnKeyEvent(keyCode, false);
+	}
+	
+	protected void keyRepeated(int keyCode)
+	{
+		OnKeyEvent(keyCode, true);
+	}
+	
+	private void OnKeyEvent(int keyCode, boolean repeated)
+	{
+		if(m_MultiLineText != null)
+		{
+			if (keyCode == getKeyCode(Canvas.UP))
+			{
+				m_MultiLineText.MoveUp();
+				repaint();
+			}
+			else if (keyCode == getKeyCode(Canvas.DOWN))
+			{
+				m_MultiLineText.MoveDown();
+				repaint();
+			}
+			else if (keyCode == getKeyCode(Canvas.LEFT))
+			{
+				m_MultiLineText.PageUp();
+				repaint();
+			}
+			else if (keyCode == getKeyCode(Canvas.RIGHT))
+			{
+				m_MultiLineText.PageDown();
+				repaint();
+			}
+		}
+	}
 }
