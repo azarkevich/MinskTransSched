@@ -12,20 +12,21 @@
 		    classname="org.tigris.subversion.svnant.SvnTask" />
 
 	<target name="build" depends="-initialize">
-			<buildnumber/>
+			<svn>
+				<wcVersion path="${basedir}" />
+			</svn>
+			<echo message="" />
 
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="MIDlet-Version:.*"
-                         replace="MIDlet-Version: ${app.version}.${build.number}"
+                         replace="MIDlet-Version: ${app.version}.${revision.max}"
                          byline="true"/>
-                         
-                         
                          
 			
 			<ant antfile="build.xml" target="jar" dir="MinskTransSched" />
 			
-			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${build.number}.jad" />
-			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${build.number}.jar" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.jad" />
+			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.jar" />
 			
 			<antcall target="make-sources" />
 			<antcall target="-clean-tmp" />
@@ -48,8 +49,8 @@
 		</svn>
 	
 		<tar destfile="${path.build.output}/${midlet.file.name}.tar" basedir="${path.build}" />
-		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${build.number}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
-		<zip destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${build.number}.src.zip" basedir="${path.build}"/>
+		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
+		<zip destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.src.zip" basedir="${path.build}"/>
 
 		<delete file="${path.build.output}/${midlet.file.name}.tar"/>
 	</target>
@@ -62,5 +63,4 @@
 	<target name="-clean-tmp">
 		<delete dir="${path.build}" />
 	</target>
-
 </project>
