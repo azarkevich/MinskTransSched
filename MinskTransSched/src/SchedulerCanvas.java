@@ -6,8 +6,8 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
 
+import options.Options;
 import options.OptionsListener;
-import options.Window;
 
 public class SchedulerCanvas extends Canvas implements OptionsListener
 {
@@ -148,21 +148,21 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			return;
 			
 		case KEY_NUM4:
-			m_ScheduleBuilder.WindowSize -= Window.defWindowSizeStep;
+			m_ScheduleBuilder.WindowSize -= Options.defWindowSizeStep;
 			if(m_ScheduleBuilder.WindowSize < 0)
 				m_ScheduleBuilder.WindowSize = 0;
 			RefreshScheduleText();
 			return;
 		case KEY_NUM5:
-			m_ScheduleBuilder.WindowSize += Window.defWindowSizeStep;
+			m_ScheduleBuilder.WindowSize += Options.defWindowSizeStep;
 			RefreshScheduleText();
 			return;
 			
 		case KEY_NUM6:
 			m_CurrentSchedule = 0;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			m_ScheduleBuilder.WindowShift = Window.defWindowShift;
-			m_ScheduleBuilder.WindowSize = Window.defWindowSize;
+			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
+			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
 			m_FontSize = Font.SIZE_SMALL;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			m_ScheduleBuilder.showFull = false;
@@ -170,11 +170,11 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			return;
 			
 		case KEY_NUM7:
-			m_ScheduleBuilder.WindowShift -= Window.defWindowShiftStep;
+			m_ScheduleBuilder.WindowShift -= Options.defWindowShiftStep;
 			RefreshScheduleText();
 			return;
 		case KEY_NUM8:
-			m_ScheduleBuilder.WindowShift += Window.defWindowShiftStep;
+			m_ScheduleBuilder.WindowShift += Options.defWindowShiftStep;
 			RefreshScheduleText();
 			return;
 			
@@ -254,8 +254,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 	public void OptionsUpdated()
 	{
-		m_ScheduleBuilder.WindowShift = Window.defWindowShift;
-		m_ScheduleBuilder.WindowSize = Window.defWindowSize;
+		m_ScheduleBuilder.WindowShift = Options.defWindowShift;
+		m_ScheduleBuilder.WindowSize = Options.defWindowSize;
 		RefreshScheduleText(true);
 	}
 }

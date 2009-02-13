@@ -4,55 +4,56 @@ import javax.microedition.lcdui.*;
 
 public class Window extends Form implements OptionsVisualizer
 {
-	public static int defWindowSize = 30;
-	public static int defWindowShift = -5;
-	public static int defWindowSizeStep = 10;
-	public static int defWindowShiftStep = 10;
-
 	TextField tfDefWindowSize = null;
 	TextField tfDefWindowShift = null;
 	TextField tfDefWindowSizeStep = null;
 	TextField tfDefWindowShiftStep = null;
 	
-//	ChoiceGroup investmentChoice = null;
-	//String choices[] = { "Stock", "Fund" };
-	//investmentChoice = new ChoiceGroup("Type", Choice.EXCLUSIVE, choices, null);
-	//append(investmentChoice);
+	ChoiceGroup startupScreen = null;
 
 	public Window()
 	{
-		super("Настройки окна расписания");
+		super("Настройки");
 		
-		//lastDisplayable = 
+		append(new StringItem("Настройки", "Окно расписания, мин."));
 		
-		tfDefWindowSize = new TextField("Размер (мин.)", "", 6, TextField.DECIMAL);
+		tfDefWindowSize = new TextField("Размер", "", 6, TextField.DECIMAL);
 		append(tfDefWindowSize);
 
-		tfDefWindowShift = new TextField("Сдвиг (мин.)", "", 6, TextField.DECIMAL);
+		tfDefWindowShift = new TextField("Сдвиг", "", 6, TextField.DECIMAL);
 		append(tfDefWindowShift);
 		
-		tfDefWindowSizeStep = new TextField("Шаг размера (мин.)", "", 6, TextField.DECIMAL);
+		tfDefWindowSizeStep = new TextField("Шаг размера", "", 6, TextField.DECIMAL);
 		append(tfDefWindowSizeStep);
 
-		tfDefWindowShiftStep = new TextField("Шаг сдвига (мин.)", "", 6, TextField.DECIMAL);
+		tfDefWindowShiftStep = new TextField("Шаг сдвига", "", 6, TextField.DECIMAL);
 		append(tfDefWindowShiftStep);
 		
+		append(new StringItem("Настройки", "Стартовый экран"));
+
+		String choices[] = { "Список favorites", "Список всех остановок", "Расписание favorites", "Расписание всех остановок" };
+		startupScreen = new ChoiceGroup(null, Choice.EXCLUSIVE, choices, null);
+		append(startupScreen);
+
 		ReadSettingToControls();
 	}
 
 	public void ReadSettingToControls()
 	{
-		tfDefWindowSize.setString("" + defWindowSize);
-		tfDefWindowSizeStep.setString("" + defWindowSizeStep);
-		tfDefWindowShift.setString("" + defWindowShift);
-		tfDefWindowShiftStep.setString("" + defWindowShiftStep);
+		tfDefWindowSize.setString("" + Options.defWindowSize);
+		tfDefWindowSizeStep.setString("" + Options.defWindowSizeStep);
+		tfDefWindowShift.setString("" + Options.defWindowShift);
+		tfDefWindowShiftStep.setString("" + Options.defWindowShiftStep);
+		
+		startupScreen.setSelectedIndex(Options.startupScreen, true);
 	}
 
 	public void SaveSettingsFromControls()
 	{
-		defWindowSize = Integer.parseInt(tfDefWindowSize.getString());
-		defWindowShift = Integer.parseInt(tfDefWindowShift.getString());
-		defWindowSizeStep = Integer.parseInt(tfDefWindowSizeStep.getString());
-		defWindowShiftStep = Integer.parseInt(tfDefWindowShiftStep.getString());
+		Options.defWindowSize = Integer.parseInt(tfDefWindowSize.getString());
+		Options.defWindowShift = Integer.parseInt(tfDefWindowShift.getString());
+		Options.defWindowSizeStep = Integer.parseInt(tfDefWindowSizeStep.getString());
+		Options.defWindowShiftStep = Integer.parseInt(tfDefWindowShiftStep.getString());
+		Options.startupScreen = (byte)startupScreen.getSelectedIndex();
 	}
 }

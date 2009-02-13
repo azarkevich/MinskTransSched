@@ -17,11 +17,12 @@ public class OptionsStoreManager
 
 				ByteArrayInputStream bais = new ByteArrayInputStream(rec);
 				DataInputStream dis = new DataInputStream(bais);
-				Window.defWindowSize = dis.readShort();
-				System.out.println("WindowSize: " + Window.defWindowSize);
-				Window.defWindowShift = dis.readShort();
-				Window.defWindowSizeStep = dis.readShort();
-				Window.defWindowShiftStep = dis.readShort();
+				Options.defWindowSize = dis.readShort();
+				System.out.println("WindowSize: " + Options.defWindowSize);
+				Options.defWindowShift = dis.readShort();
+				Options.defWindowSizeStep = dis.readShort();
+				Options.defWindowShiftStep = dis.readShort();
+				Options.startupScreen = dis.readByte();
 			}
 			catch(InvalidRecordIDException ex)
 			{
@@ -50,10 +51,11 @@ public class OptionsStoreManager
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
 				DataOutputStream dos = new DataOutputStream(baos);
 
-				dos.writeShort(Window.defWindowSize);
-				dos.writeShort(Window.defWindowShift);
-				dos.writeShort(Window.defWindowSizeStep);
-				dos.writeShort(Window.defWindowShiftStep);
+				dos.writeShort(Options.defWindowSize);
+				dos.writeShort(Options.defWindowShift);
+				dos.writeShort(Options.defWindowSizeStep);
+				dos.writeShort(Options.defWindowShiftStep);
+				dos.writeByte(Options.startupScreen);
 				dos.flush();
 
 				byte[] rec = baos.toByteArray();

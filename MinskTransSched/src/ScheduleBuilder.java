@@ -1,7 +1,7 @@
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import options.Window;
+import options.Options;
 
 public class ScheduleBuilder
 {
@@ -199,8 +199,8 @@ public class ScheduleBuilder
 	public static final int DAY_WORK = 1;
 	public static final int DAY_HOLIDAY = 2;
 
-	public int WindowSize = Window.defWindowSize;
-	public int WindowShift = Window.defWindowShift;
+	public int WindowSize = Options.defWindowSize;
+	public int WindowShift = Options.defWindowShift;
 	
 	public BusStop Station;
 	

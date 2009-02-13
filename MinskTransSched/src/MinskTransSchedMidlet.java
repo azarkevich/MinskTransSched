@@ -3,6 +3,7 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
+import options.Options;
 import options.OptionsStoreManager;
 import options.OptionsVisualizer;
 
@@ -58,18 +59,11 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		}
 		else if(cmd == cmdSelectBusStop)
 		{
-			scheduleBoard.setBusStops(busStops);
-			scheduleBoard.setBusStation(((List)d).getSelectedIndex());
-			scheduleBoard.setForeColor(255, 255, 255);
-			Display.getDisplay(this).setCurrent(scheduleBoard);
+			showAllBusStopsSchedule(((List)d).getSelectedIndex());
 		}
 		else if(cmd == cmdSelectBookmark)
 		{
-			BusStop[] bmBusStops = GetBookmarkedBusStops();
-			scheduleBoard.setBusStops(bmBusStops);
-			scheduleBoard.setBusStation(((List)d).getSelectedIndex());
-			scheduleBoard.setForeColor(0, 255, 0);
-			Display.getDisplay(this).setCurrent(scheduleBoard);
+			showBookmarkSchedule(((List)d).getSelectedIndex());
 		}
 		else if(cmd == cmdOptions)
 		{
@@ -103,6 +97,23 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				scheduleBoard.OptionsUpdated();
 			}
 		}
+	}
+	
+	void showAllBusStopsSchedule(int sel)
+	{
+		scheduleBoard.setBusStops(busStops);
+		scheduleBoard.setBusStation(sel);
+		scheduleBoard.setForeColor(255, 255, 255);
+		Display.getDisplay(this).setCurrent(scheduleBoard);
+	}
+
+	void showBookmarkSchedule(int sel)
+	{
+		BusStop[] bmBusStops = GetBookmarkedBusStops();
+		scheduleBoard.setBusStops(bmBusStops);
+		scheduleBoard.setBusStation(sel);
+		scheduleBoard.setForeColor(0, 255, 0);
+		Display.getDisplay(this).setCurrent(scheduleBoard);
 	}
 	
 	public BusStop[] GetBookmarkedBusStops()
@@ -231,6 +242,23 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		bookmarks.addCommand(cmdOptions);
 
 		loadBookmarks();
-		Display.getDisplay(this).setCurrent(getBookmarks());
+		
+		switch (Options.startupScreen)
+		{
+		default:
+		case Options.BOOKMARK_SCREEN:
+			Display.getDisplay(this).setCurrent(getBookmarks());
+			break;
+		case Options.BOOKMARKS_SCHED:
+			showBookmarkSchedule(0);
+			//Display.getDisplay(this).setCurrent(getBookmarks());
+			break;
+		case Options.ALL_BUSSTOPS_SCREEN:
+			Display.getDisplay(this).setCurrent(allBusStops);
+			break;
+		case Options.ALL_BUSSTOPS_SCHED:
+			showAllBusStopsSchedule(0);
+			break;
+		}
 	}
 }
