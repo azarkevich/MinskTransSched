@@ -6,6 +6,7 @@ import javax.microedition.rms.*;
 import options.Options;
 import options.OptionsStoreManager;
 import options.OptionsVisualizer;
+import resources.Images;
 
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
@@ -55,7 +56,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		else if(cmd == cmdShowAllBusStops)
 		{
 			allBusStops.setSelectedIndex(scheduleBoard.getBusStation(), true);
-			Display.getDisplay(this).setCurrent(allBusStops);
+			Display.getDisplay(this).setCurrent(getAllBusStopsScreen());
 		}
 		else if(cmd == cmdSelectBusStop)
 		{
@@ -214,6 +215,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 		busStops = loader.busStops;
 		
+		Images.load();
+		
 		scheduleBoard = new SchedulerCanvas(busStops);
 		scheduleBoard.setCommandListener(this);
 		scheduleBoard.addCommand(cmdExit);
@@ -254,11 +257,20 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			//Display.getDisplay(this).setCurrent(getBookmarks());
 			break;
 		case Options.ALL_BUSSTOPS_SCREEN:
-			Display.getDisplay(this).setCurrent(allBusStops);
+			Display.getDisplay(this).setCurrent(getAllBusStopsScreen());
 			break;
 		case Options.ALL_BUSSTOPS_SCHED:
 			showAllBusStopsSchedule(0);
 			break;
 		}
+	}
+	
+	Displayable getAllBusStopsScreen()
+	{
+		for (int i = 0; i < busStops.length; i++)
+		{
+			allBusStops.set(i, busStops[i].name, busStops[i].bookmarked ? Images.heart : null);
+		}
+		return allBusStops;
 	}
 }

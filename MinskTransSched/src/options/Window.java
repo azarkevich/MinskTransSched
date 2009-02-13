@@ -2,6 +2,8 @@ package options;
 
 import javax.microedition.lcdui.*;
 
+import resources.Images;
+
 public class Window extends Form implements OptionsVisualizer
 {
 	TextField tfDefWindowSize = null;
@@ -15,7 +17,7 @@ public class Window extends Form implements OptionsVisualizer
 	{
 		super("Настройки");
 		
-		append(new StringItem("Настройки", "Окно расписания, мин."));
+		append(new StringItem(null, "Настройки окна расписания (мин.)"));
 		
 		tfDefWindowSize = new TextField("Размер", "", 6, TextField.DECIMAL);
 		append(tfDefWindowSize);
@@ -29,10 +31,12 @@ public class Window extends Form implements OptionsVisualizer
 		tfDefWindowShiftStep = new TextField("Шаг сдвига", "", 6, TextField.DECIMAL);
 		append(tfDefWindowShiftStep);
 		
-		append(new StringItem("Настройки", "Стартовый экран"));
+		append(new Spacer(0, 5));
 
 		String choices[] = { "Список favorites", "Список всех остановок", "Расписание favorites", "Расписание всех остановок" };
-		startupScreen = new ChoiceGroup(null, Choice.EXCLUSIVE, choices, null);
+		Image[] imgs = {Images.heart, null, null, null}; 
+		startupScreen = new ChoiceGroup("Стартовый экран", Choice.EXCLUSIVE, choices, imgs);
+
 		append(startupScreen);
 
 		ReadSettingToControls();
