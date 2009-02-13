@@ -73,8 +73,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 		RefreshScheduleText();
 	}
-	
-	int m_FontSize = Font.SIZE_SMALL;
 
 	public void paint(Graphics g)
 	{
@@ -100,7 +98,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			savedViewportTop = 0;
 
 		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
-				Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, m_FontSize),
+				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
 				m_ScheduleBuilder.GetScheduleText());
 		
 		m_MultiLineText.viewportTop = savedViewportTop;
@@ -163,7 +161,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
 			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
-			m_FontSize = Font.SIZE_SMALL;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			m_ScheduleBuilder.showFull = false;
 			RefreshScheduleText();
@@ -215,14 +212,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			return;
 
 		case KEY_POUND:
-			if(m_FontSize == Font.SIZE_SMALL)
-				m_FontSize = Font.SIZE_MEDIUM;
-			else if(m_FontSize == Font.SIZE_MEDIUM)
-				m_FontSize = Font.SIZE_LARGE;
-			else if(m_FontSize == Font.SIZE_LARGE)
-				m_FontSize = Font.SIZE_SMALL;
-
-			m_MultiLineText = null;
 			RefreshScheduleText();
 			return;
 		}

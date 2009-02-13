@@ -1,5 +1,7 @@
 import javax.microedition.lcdui.*;
 
+import options.Options;
+
 public class HelpCanvas extends Canvas
 {
 	MultiLineText m_MultiLineText;
@@ -23,15 +25,15 @@ public class HelpCanvas extends Canvas
 		"6   - сбросить настройки\n" +
 		"7/8 - уменьшить/увеличить сдвиг окна\n" +
 		"9   - переключить описания остановок\n" +
-		"0   - отметить остановку\n" +
-		"#   - изменить размер шрифта\n" +
+		"0   - занести/вынести в favorites\n" +
+//		"#   - изменить размер шрифта\n" +
 		"*   - показывать всё расписание";
 
 	public HelpCanvas()
 	{
 		m_MultiLineText = new MultiLineText();
 		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
-				Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL),
+				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
 				helpText);
 	}
 	

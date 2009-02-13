@@ -199,6 +199,10 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			if(busStops[i].bookmarked)
 				bookmarks.append (busStops[i].name, null);
 		}
+		
+		for (int i = 0; i < bookmarks.size(); i++)
+			bookmarks.setFont(i, Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize));
+
 		if(bookmarks.size() == 0)
 			return allBusStops;
 		
@@ -234,8 +238,11 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		
 		for (int i = 0; i < busStops.length; i++)
 		{
-			allBusStops.append (busStops[i].name, null);
+			allBusStops.append(busStops[i].name, null);
 		}
+
+		for (int i = 0; i < allBusStops.size(); i++)
+			allBusStops.setFont(i, Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize));
 		
 		bookmarks = new List("Закладки", Choice.IMPLICIT);
 		bookmarks.setCommandListener(this);
