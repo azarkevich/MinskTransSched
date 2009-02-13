@@ -36,6 +36,7 @@ public class ScheduleBuilder
 	}
 	
 	public boolean showDescription = false;
+	public boolean showFull = false;
 
 	public String GetScheduleText()
 	{
@@ -51,24 +52,32 @@ public class ScheduleBuilder
 		int endWindow = beginWindow + WindowSize;
 
 		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + (Station.bookmarked ? "* " : "") + Station.name);
-		if(showDescription)
-			sb.append("\n" + Station.description);
-		sb.append("\nОкно: ");
-		if(showDescription)
-			sb.append("Размер:");
-		FormatTimeDiff(endWindow - beginWindow, sb);
-
-		sb.append("; ");
-		if(showDescription)
-			sb.append("Сдвиг:");
-		if(WindowShift > 0)
-			sb.append("+");
-		FormatTimeDiff(WindowShift, sb);
 		
-		sb.append(" ");
-		if(showDescription)
-			sb.append("Диапазон:");
-		sb.append("[" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
+		if(showFull)
+		{
+			sb.append("\nПолное расписание\n");
+		}
+		else
+		{
+			if(showDescription)
+				sb.append("\n" + Station.description);
+			sb.append("\nОкно: ");
+			if(showDescription)
+				sb.append("Размер:");
+			FormatTimeDiff(endWindow - beginWindow, sb);
+	
+			sb.append("; ");
+			if(showDescription)
+				sb.append("Сдвиг:");
+			if(WindowShift > 0)
+				sb.append("+");
+			FormatTimeDiff(WindowShift, sb);
+			
+			sb.append(" ");
+			if(showDescription)
+				sb.append("Диапазон:");
+			sb.append("[" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
+		}
 		sb.append("\n");
 		
 		Schedule[] busOnStation = Station.schedules;
@@ -102,10 +111,10 @@ public class ScheduleBuilder
 			short[] times = GetSchedTimes(sched, cal);
 			for (int j = 0; j < times.length; j++)
 			{
-				if(times[j] < beginWindow)
+				if(times[j] < beginWindow && !showFull)
 					continue;
 
-				if(times[j] <= endWindow)
+				if(times[j] <= endWindow || showFull)
 				{
 					FormatBusTime(now, times[j], sb);
 					

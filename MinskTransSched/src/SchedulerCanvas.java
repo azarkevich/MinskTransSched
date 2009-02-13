@@ -165,6 +165,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.WindowSize = Window.defWindowSize;
 			m_FontSize = Font.SIZE_SMALL;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
+			m_ScheduleBuilder.showFull = false;
 			RefreshScheduleText();
 			return;
 			
@@ -209,6 +210,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			return;
 			
 		case KEY_STAR:
+			m_ScheduleBuilder.showFull = !m_ScheduleBuilder.showFull; 
 			RefreshScheduleText();
 			return;
 
