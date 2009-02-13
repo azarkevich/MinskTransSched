@@ -1,8 +1,8 @@
-MIDlet-1: BusSched,icon.png,MinskTransSchedMidlet
 MIDlet-Icon: icon.png
-MIDlet-Jar-URL: MinskTransSched.jar
-MIDlet-Name: MinskTransSched
+MIDlet-Version: 1.5.26
 MIDlet-Vendor: Sergey Azarkevich
-MIDlet-Version: 1.4.23
+MIDlet-Jar-URL: MinskTransSched.jar
 MicroEdition-Configuration: CLDC-1.1
+MIDlet-1: BusSched,icon.png,MinskTransSchedMidlet
 MicroEdition-Profile: MIDP-2.0
+MIDlet-Name: MinskTransSched
