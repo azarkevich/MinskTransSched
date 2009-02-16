@@ -12,23 +12,23 @@ public class MultiLineText
 	int textheight;
 	Vector vecLines;    
 
-	public void  MoveDown()
+	public void  MoveDown(int lines)
 	{
-		if (textheight>regionHeight)
+		if (textheight > regionHeight)
 		{            
-			viewportTop=viewportTop - lineHeight;
-			if (regionHeight-viewportTop>textheight)
-				viewportTop=regionHeight - textheight;
+			viewportTop = viewportTop - lines * lineHeight;
+			if (regionHeight - viewportTop > textheight)
+				viewportTop = regionHeight - textheight;
 		}
 	}
 
-	public void MoveUp()
+	public void MoveUp(int lines)
 	{
-		if (textheight>regionHeight)
+		if (textheight > regionHeight)
 		{
-			viewportTop=viewportTop + lineHeight;
-			if (viewportTop>0)
-				viewportTop=0;
+			viewportTop = viewportTop + lines * lineHeight;
+			if (viewportTop > 0)
+				viewportTop = 0;
 		}
 
 	}

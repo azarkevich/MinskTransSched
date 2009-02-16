@@ -12,6 +12,8 @@
 		    classname="org.tigris.subversion.svnant.SvnTask" />
 
 	<target name="build" depends="-initialize">
+			<buildnumber/>
+
 			<svn>
 				<wcVersion path="${basedir}" />
 			</svn>
@@ -19,14 +21,14 @@
 
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="MIDlet-Version:.*"
-                         replace="MIDlet-Version: ${app.version}.${revision.max}"
+                         replace="MIDlet-Version: ${app.version}.${revision.max}.${build.number}"
                          byline="true"/>
                          
 			
 			<ant antfile="build.xml" target="jar" dir="MinskTransSched" />
 			
-			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.jad" />
-			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.jar" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad" />
+			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar" />
 			
 			<antcall target="make-sources" />
 			<antcall target="-clean-tmp" />
@@ -49,8 +51,8 @@
 		</svn>
 	
 		<tar destfile="${path.build.output}/${midlet.file.name}.tar" basedir="${path.build}" />
-		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
-		<zip destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.src.zip" basedir="${path.build}"/>
+		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.${build.number}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
+		<zip destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.${build.number}.src.zip" basedir="${path.build}"/>
 
 		<delete file="${path.build.output}/${midlet.file.name}.tar"/>
 	</target>

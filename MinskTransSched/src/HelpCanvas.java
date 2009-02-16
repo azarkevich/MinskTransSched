@@ -17,30 +17,32 @@ public class HelpCanvas extends Canvas
 		foreColorB = b;
 	}
 	
-	final static String helpText = "Up/Down - текст вверх/вниз\n" +
-		"Left/Right - текст вверх/вниз построчно\n" +
-		"1/2 - предыдущая/следующая остановка\n" +
-		"3   - выходной/рабочий день\n" +
-		"4/5 - уменьшить/увеличить размер окна\n" +
-		"6   - сбросить настройки\n" +
-		"7/8 - уменьшить/увеличить сдвиг окна\n" +
-		"9   - переключить описания остановок\n" +
-		"0   - занести/вынести в favorites\n" +
-//		"#   - изменить размер шрифта\n" +
-		"*   - показывать всё расписание";
+	final static String helpText = 
+		"текст вверх/вниз: Up/Down\n" +
+		"текст вверх/вниз постранично: Left/Right\n" +
+		"предыдущая/следующая остановка: 1/2\n" +
+		"выходной/рабочий день: 3\n" +
+		"уменьшить/увеличить размер окна: 4/5\n" +
+		"сбросить настройки: 6\n" +
+		"уменьшить/увеличить сдвиг окна: 7/8\n" +
+		"переключить в режим детального описания: 9\n" +
+		"занести/вынести в favorites: 0\n" +
+		"показывать всё расписание: *";
 
 	public HelpCanvas()
 	{
-		m_MultiLineText = new MultiLineText();
-		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
-				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
-				helpText);
+		setFullScreenMode(true);
 	}
 	
 	public void paint(Graphics g)
 	{
 		if(m_MultiLineText == null)
-			return;
+		{
+			m_MultiLineText = new MultiLineText();
+			m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
+					Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
+					helpText);
+		}
 
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
@@ -64,22 +66,12 @@ public class HelpCanvas extends Canvas
 		{
 			if (keyCode == getKeyCode(Canvas.UP))
 			{
-				m_MultiLineText.MoveUp();
+				m_MultiLineText.MoveUp(Options.scrollSize);
 				repaint();
 			}
 			else if (keyCode == getKeyCode(Canvas.DOWN))
 			{
-				m_MultiLineText.MoveDown();
-				repaint();
-			}
-			else if (keyCode == getKeyCode(Canvas.LEFT))
-			{
-				m_MultiLineText.PageUp();
-				repaint();
-			}
-			else if (keyCode == getKeyCode(Canvas.RIGHT))
-			{
-				m_MultiLineText.PageDown();
+				m_MultiLineText.MoveDown(Options.scrollSize);
 				repaint();
 			}
 		}

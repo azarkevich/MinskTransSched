@@ -19,4 +19,6 @@ public class Options
 	public static int fontSize = Font.SIZE_SMALL;
 	public static int fontFace = Font.FACE_SYSTEM;
 	public static int fontStyle = Font.STYLE_PLAIN;
+	
+	public static int scrollSize = 1;
 }

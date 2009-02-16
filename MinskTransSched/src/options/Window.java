@@ -1,8 +1,5 @@
 package options;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.microedition.lcdui.*;
 
 import resources.Images;
@@ -20,6 +17,8 @@ public class Window extends Form implements OptionsVisualizer
 	ChoiceGroup fontFace = null;
 	
 	FontExample fe = null;
+
+	TextField scrollSize = null;
 
 	public Window()
 	{
@@ -47,6 +46,9 @@ public class Window extends Form implements OptionsVisualizer
 
 		append(startupScreen);
 		
+		scrollSize = new TextField("Скорость скролирования", "", 3, TextField.DECIMAL);
+		append(scrollSize);
+
 		String fontSizes[] = { "Малый", "Средний", "Большой" };
 		fontSize = new ChoiceGroup("Размер шрифта", Choice.POPUP, fontSizes, null);
 		append(fontSize);
@@ -99,6 +101,7 @@ public class Window extends Form implements OptionsVisualizer
 		tfDefWindowSizeStep.setString("" + Options.defWindowSizeStep);
 		tfDefWindowShift.setString("" + Options.defWindowShift);
 		tfDefWindowShiftStep.setString("" + Options.defWindowShiftStep);
+		scrollSize.setString("" + Options.scrollSize);
 		
 		startupScreen.setSelectedIndex(Options.startupScreen, true);
 		
@@ -165,5 +168,7 @@ public class Window extends Form implements OptionsVisualizer
 
 		Options.fontSize = GetFontSize();
 		Options.fontFace = GetFontFace();
+
+		Options.scrollSize = Integer.parseInt(scrollSize.getString());
 	}
 }

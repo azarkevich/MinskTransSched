@@ -19,7 +19,6 @@ public class OptionsStoreManager
 				ByteArrayInputStream bais = new ByteArrayInputStream(rec);
 				DataInputStream dis = new DataInputStream(bais);
 				Options.defWindowSize = dis.readShort();
-				System.out.println("WindowSize: " + Options.defWindowSize);
 				Options.defWindowShift = dis.readShort();
 				Options.defWindowSizeStep = dis.readShort();
 				Options.defWindowShiftStep = dis.readShort();
@@ -29,20 +28,22 @@ public class OptionsStoreManager
 				Options.fontSize = dis.readInt();
 				Options.fontFace = dis.readInt();
 				Options.fontStyle = dis.readInt();
+				
+				Options.scrollSize = dis.readInt();
 			}
 			catch(InvalidRecordIDException ex)
 			{
-				System.out.println(ex.toString());
+				//System.out.println(ex.toString());
 			}
 			catch(IOException ex)
 			{
-				System.out.println(ex.toString());
+				//System.out.println(ex.toString());
 			}
 			sett.closeRecordStore();
 		}
 		catch(RecordStoreException ex)
 		{
-			System.out.println(ex.toString());
+			//System.out.println(ex.toString());
 		}
 	}
 	
@@ -67,13 +68,13 @@ public class OptionsStoreManager
 				dos.writeInt(Options.fontSize);
 				dos.writeInt(Options.fontFace);
 				dos.writeInt(Options.fontStyle);
+				
+				dos.writeInt(Options.scrollSize);
 
 				dos.flush();
 
 				byte[] rec = baos.toByteArray();
 				
-				System.out.println("Out Array length: " + rec.length);
-			
 				if(sett.getNumRecords() == 0)
 					sett.addRecord(rec, 0, rec.length);
 				else
@@ -81,14 +82,14 @@ public class OptionsStoreManager
 			}
 			catch(InvalidRecordIDException ex)
 			{
-				System.out.println(ex.toString());
+				//System.out.println(ex.toString());
 			}
 
 			sett.closeRecordStore();
 		}
 		catch(Exception ex)
 		{
-			System.out.println(ex.toString());
+			//System.out.println(ex.toString());
 		}
 	}
 }

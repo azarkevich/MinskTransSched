@@ -54,6 +54,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 	public SchedulerCanvas(BusStop[] stops)
 	{
+		setFullScreenMode(true);
+		
 		busStops = stops;
 		
 		m_ScheduleBuilder = new ScheduleBuilder();
@@ -216,26 +218,32 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			return;
 		}
 
+		if (keyCode == getKeyCode(Canvas.LEFT))
+		{
+			m_CurrentSchedule = (m_CurrentSchedule + busStops.length - 1) % busStops.length;
+			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
+			RefreshScheduleText();
+			return;
+		}
+		
+		if (keyCode == getKeyCode(Canvas.RIGHT))
+		{
+			m_CurrentSchedule = (m_CurrentSchedule + 1) % busStops.length;
+			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
+			RefreshScheduleText();
+			return;
+		}
+
 		if(m_MultiLineText != null)
 		{
 			if (keyCode == getKeyCode(Canvas.UP))
 			{
-				m_MultiLineText.MoveUp();
+				m_MultiLineText.MoveUp(Options.scrollSize);
 				repaint();
 			}
 			else if (keyCode == getKeyCode(Canvas.DOWN))
 			{
-				m_MultiLineText.MoveDown();
-				repaint();
-			}
-			else if (keyCode == getKeyCode(Canvas.LEFT))
-			{
-				m_MultiLineText.PageUp();
-				repaint();
-			}
-			else if (keyCode == getKeyCode(Canvas.RIGHT))
-			{
-				m_MultiLineText.PageDown();
+				m_MultiLineText.MoveDown(Options.scrollSize);
 				repaint();
 			}
 		}
