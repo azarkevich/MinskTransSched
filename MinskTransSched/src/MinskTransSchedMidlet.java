@@ -153,8 +153,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	{
 		try{
 			RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
-//			System.out.println("RecCount:" + bmBusStops.getNumRecords());
-//			System.out.println("NextRecID:" + bmBusStops.getNextRecordID());
 			for(int i=0;i<bmBusStops.getNextRecordID();i++)
 			{
 				int recId = i + 1;
@@ -180,14 +178,12 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				}
 				catch(InvalidRecordIDException ex)
 				{
-					//System.out.println("Exception:" + ex.toString() + "\nRecordIndex:" + i + ", RecordID:" + recId);
 				}
 			}
 			bmBusStops.closeRecordStore();
 		}
 		catch(Exception ex)
 		{
-			//System.out.println("Exception:" + ex.toString());
 		}
 	}
 	
@@ -235,6 +231,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		allBusStops.addCommand(cmdShowBookMarks);
 		allBusStops.addCommand(cmdMainHelpPage);
 		allBusStops.addCommand(cmdOptions);
+		allBusStops.addCommand(cmdExit);
 		
 		for (int i = 0; i < busStops.length; i++)
 		{
@@ -250,6 +247,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		bookmarks.addCommand(cmdShowAllBusStops);
 		bookmarks.addCommand(cmdMainHelpPage);
 		bookmarks.addCommand(cmdOptions);
+		bookmarks.addCommand(cmdExit);
 
 		loadBookmarks();
 		

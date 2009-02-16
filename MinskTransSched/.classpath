@@ -7,6 +7,10 @@
 			<attribute name="javadoc_location" value="file:/C:/WTK2.5.2_01/docs/api/midp/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/WTK2.5.2_01/lib/cldcapi10.jar"/>
+	<classpathentry kind="lib" path="C:/WTK2.5.2_01/lib/cldcapi10.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://theoreticlabs.com/dev/api/cldc-1.0/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
