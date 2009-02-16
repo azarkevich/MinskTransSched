@@ -15,25 +15,27 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	final static Command cmdExit = new Command("Выход", Command.EXIT, 2);
 	final static Command cmdShowBookMarks = new Command("Закладки", Command.SCREEN, 1);
 	final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
-	final static Command cmdSelectBusStop = new Command("Выбрать", Command.OK, 1);
-	final static Command cmdSelectBookmark = new Command("Выбрать", Command.OK, 1);
+	final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
 	final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
 	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
 	
 	Stack displayableStack = new Stack(); 
 	final static Command cmdOptSaveCommand = new Command("Сохранить", Command.OK, 1);
 	final static Command cmdOptCancelCommand = new Command("Отмена", Command.BACK, 1);
+	final static Command cmdBack = new Command("Назад", Command.BACK, 1);
 
 	SchedulerCanvas scheduleBoard;
 	HelpCanvas helpCanvas;
 	List bookmarks;
 	List allBusStops;
 
+	Display display;
+	
 	public void commandAction(Command cmd, Displayable d)
 	{
 		if(cmd == cmdShowBookMarks)
 		{
-			Display.getDisplay(this).setCurrent(getBookmarks());
+			display.setCurrent(getBookmarks());
 		}
 		else if(cmd == cmdMainHelpPage)
 		{
@@ -41,13 +43,13 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			{
 				helpCanvas = new HelpCanvas();
 				helpCanvas.setCommandListener(this);
-				helpCanvas.addCommand(cmdShowAllBusStops);
-				helpCanvas.addCommand(cmdShowBookMarks);
 				helpCanvas.addCommand(cmdExit);
 				helpCanvas.addCommand(cmdOptions);
+				helpCanvas.addCommand(cmdBack);
 			}
 			
-			Display.getDisplay(this).setCurrent(helpCanvas);
+			displayableStack.push(display.getCurrent());
+			display.setCurrent(helpCanvas);
 		}
 		else if(cmd == cmdExit)
 		{
@@ -56,19 +58,17 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		else if(cmd == cmdShowAllBusStops)
 		{
 			allBusStops.setSelectedIndex(scheduleBoard.getBusStation(), true);
-			Display.getDisplay(this).setCurrent(getAllBusStopsScreen());
+			display.setCurrent(getAllBusStopsScreen());
 		}
-		else if(cmd == cmdSelectBusStop)
+		else if(cmd == List.SELECT_COMMAND || cmd == cmdSelect)
 		{
-			showAllBusStopsSchedule(((List)d).getSelectedIndex());
-		}
-		else if(cmd == cmdSelectBookmark)
-		{
-			showBookmarkSchedule(((List)d).getSelectedIndex());
+			if(d == bookmarks)
+				showBookmarkSchedule(((List)d).getSelectedIndex());
+			else if(d == allBusStops)
+				showAllBusStopsSchedule(((List)d).getSelectedIndex());
 		}
 		else if(cmd == cmdOptions)
 		{
-			Display display = Display.getDisplay(this);
 			displayableStack.push(display.getCurrent());
 			
 			options.Window opt = new options.Window();
@@ -78,9 +78,17 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 			display.setCurrent(opt);
 		}
-		else if(cmd == cmdOptCancelCommand || cmd == cmdOptSaveCommand)
+		else if(cmd == cmdOptSaveCommand)
 		{
-			Display display = Display.getDisplay(this);
+			((OptionsVisualizer)d).SaveSettingsFromControls(); 
+			OptionsStoreManager.SaveSettings();
+			
+			scheduleBoard.OptionsUpdated();
+		}
+
+		// back to previous screen
+		if(cmd == cmdBack || cmd == cmdOptCancelCommand || cmd == cmdOptSaveCommand)
+		{
 			if(displayableStack.empty())
 			{
 				display.setCurrent(getBookmarks());
@@ -88,14 +96,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			else
 			{
 				display.setCurrent((Displayable)displayableStack.pop());
-			}
-
-			if(cmd == cmdOptSaveCommand)
-			{
-				((OptionsVisualizer)d).SaveSettingsFromControls(); 
-				OptionsStoreManager.SaveSettings();
-				
-				scheduleBoard.OptionsUpdated();
 			}
 		}
 	}
@@ -105,7 +105,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		scheduleBoard.setBusStops(busStops);
 		scheduleBoard.setBusStation(sel);
 		scheduleBoard.setForeColor(255, 255, 255);
-		Display.getDisplay(this).setCurrent(scheduleBoard);
+		display.setCurrent(scheduleBoard);
 	}
 
 	void showBookmarkSchedule(int sel)
@@ -114,7 +114,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		scheduleBoard.setBusStops(bmBusStops);
 		scheduleBoard.setBusStation(sel);
 		scheduleBoard.setForeColor(0, 255, 0);
-		Display.getDisplay(this).setCurrent(scheduleBoard);
+		display.setCurrent(scheduleBoard);
 	}
 	
 	public BusStop[] GetBookmarkedBusStops()
@@ -207,6 +207,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 	protected void startApp() throws MIDletStateChangeException
 	{
+		display = Display.getDisplay(this);
+		
 		OptionsStoreManager.ReadSettings();
 
 	    // load data
@@ -227,7 +229,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		
 		allBusStops = new List("Остановки", Choice.IMPLICIT);
 		allBusStops.setCommandListener(this);
-		allBusStops.setSelectCommand(cmdSelectBusStop);
+		allBusStops.addCommand(cmdSelect);
 		allBusStops.addCommand(cmdShowBookMarks);
 		allBusStops.addCommand(cmdMainHelpPage);
 		allBusStops.addCommand(cmdOptions);
@@ -243,7 +245,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		
 		bookmarks = new List("Закладки", Choice.IMPLICIT);
 		bookmarks.setCommandListener(this);
-		bookmarks.setSelectCommand(cmdSelectBookmark);
+		bookmarks.addCommand(cmdSelect);
 		bookmarks.addCommand(cmdShowAllBusStops);
 		bookmarks.addCommand(cmdMainHelpPage);
 		bookmarks.addCommand(cmdOptions);
@@ -255,14 +257,13 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 		default:
 		case Options.BOOKMARK_SCREEN:
-			Display.getDisplay(this).setCurrent(getBookmarks());
+			display.setCurrent(getBookmarks());
 			break;
 		case Options.BOOKMARKS_SCHED:
 			showBookmarkSchedule(0);
-			//Display.getDisplay(this).setCurrent(getBookmarks());
 			break;
 		case Options.ALL_BUSSTOPS_SCREEN:
-			Display.getDisplay(this).setCurrent(getAllBusStopsScreen());
+			display.setCurrent(getAllBusStopsScreen());
 			break;
 		case Options.ALL_BUSSTOPS_SCHED:
 			showAllBusStopsSchedule(0);
