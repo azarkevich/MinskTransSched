@@ -2,12 +2,11 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
-import com.mts.MinskTransSchedMidlet;
 import com.resources.Images;
 
 
 
-public class Window extends Form implements OptionsVisualizer, ItemStateListener
+public class Window extends Form implements OptionsVisualizer
 {
 	TextField tfDefWindowSize = null;
 	TextField tfDefWindowShift = null;
@@ -31,7 +30,7 @@ public class Window extends Form implements OptionsVisualizer, ItemStateListener
 		
 		tfDefWindowSize = new TextField("Размер", "", 6, TextField.DECIMAL);
 		append(tfDefWindowSize);
-
+		
 		tfDefWindowShift = new TextField("Сдвиг", "", 6, TextField.DECIMAL);
 		append(tfDefWindowShift);
 		
@@ -58,10 +57,19 @@ public class Window extends Form implements OptionsVisualizer, ItemStateListener
 
 		String fontFaces[] = { "SYSTEM", "MONOSPACE", "PROPORTIONAL" };
 		fontFace = new ChoiceGroup("Стиль шрифта", Choice.POPUP, fontFaces, null);
-		
 		append(fontFace);
 
 		fe = new FontExample();
+		fe.setItemCommandListener(
+				new ItemCommandListener()
+				{
+					public void commandAction(Command command, Item item)
+					{
+						UpdateFontExample();
+					}
+				}
+			);
+		fe.setDefaultCommand(new Command("Обновить", Command.ITEM, 1));
 		append(fe);
 
 		lastFontFace = FontExample.fontFace;
@@ -71,13 +79,15 @@ public class Window extends Form implements OptionsVisualizer, ItemStateListener
 
 		ReadSettingToControls();
 		
-		setItemStateListener(this);
-	}
-	
-	public void itemStateChanged(Item item)
-	{
-		Alert a = new Alert("aaa");
-		MinskTransSchedMidlet.display.setCurrent(a);
+		setItemStateListener(
+				new ItemStateListener()
+				{
+					public void itemStateChanged(Item item)
+					{
+						UpdateFontExample();
+					}
+				}
+		);
 	}
 	
 	int lastFontFace;

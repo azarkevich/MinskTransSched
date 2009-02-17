@@ -8,7 +8,8 @@ public class FontExample extends CustomItem
 {
 	int prefferedWidth = 0;
 	int prefferedHeight = 0;
-	String text = "Пример шрифта";
+	String text1 = "Пример шрифта";
+	String text2 = "SELECT для обновления";
 	public FontExample()
 	{
 		super(null);
@@ -17,12 +18,15 @@ public class FontExample extends CustomItem
 		for (int i = 0; i < faces.length; i++)
 		{
 			Font f = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
-			int w = f.stringWidth(text);
-			if(prefferedWidth < w)
-				prefferedWidth = w;
+			int w1 = f.stringWidth(text1);
+			int w2 = f.stringWidth(text2);
+			if(prefferedWidth < w1)
+				prefferedWidth = w1;
+			if(prefferedWidth < w2)
+				prefferedWidth = w2;
 			
-			if(f.getHeight() > prefferedHeight)
-				prefferedHeight = f.getHeight(); 
+			if(f.getHeight()*2 > prefferedHeight)
+				prefferedHeight = f.getHeight()*2; 
 		}
 		
 		prefferedWidth += 4;
@@ -63,7 +67,9 @@ public class FontExample extends CustomItem
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, prefferedWidth, prefferedHeight);
 		g.setColor(0, 255, 0);
-		g.setFont(Font.getFont(fontFace, fontStyle, fontSize));
-		g.drawString(text, 2, 2, Graphics.LEFT | Graphics.TOP);
+		Font f = Font.getFont(fontFace, fontStyle, fontSize);
+		g.setFont(f);
+		g.drawString(text1, 2, 2, Graphics.LEFT | Graphics.TOP);
+		g.drawString(text2, 2, f.getHeight(), Graphics.LEFT | Graphics.TOP);
 	}
 }

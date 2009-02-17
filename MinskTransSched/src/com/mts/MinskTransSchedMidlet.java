@@ -4,9 +4,7 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
-import com.options.Options;
-import com.options.OptionsStoreManager;
-import com.options.OptionsVisualizer;
+import com.options.*;
 import com.resources.Images;
 import com.test.Caps;
 import com.test.KeysTest;
@@ -17,26 +15,28 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
 	public BusStop[] busStops;
 	
-	final static Command cmdExit = new Command("Exit", Command.EXIT, 2);
-	final static Command cmdShowBookMarks = new Command("Закладки", Command.SCREEN, 1);
-	final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
-	final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
-	final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
-	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
+	public final static Command cmdExit = new Command("Exit", Command.EXIT, 2);
+	public final static Command cmdShowBookMarks = new Command("Закладки", Command.SCREEN, 1);
+	public final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
+	public final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
+	public final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
+	public final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
+	public final static Command cmdOptionsGeneral = new Command("Основные", Command.SCREEN, 2);
+	public final static Command cmdOptionsKeys = new Command("Клавиши", Command.SCREEN, 2);
 
-	final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
-	final static Command cmdCaps = new Command("Возможности", Command.ITEM, 1);
-	final static Command cmdAbout = new Command("О программе", Command.ITEM, 1);
+	public final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
+	public final static Command cmdCaps = new Command("Возможности", Command.ITEM, 1);
+	public final static Command cmdAbout = new Command("О программе", Command.ITEM, 1);
+
+	public final static Command cmdOptSaveCommand = new Command("Сохранить", Command.OK, 1);
+	public final static Command cmdBack = new Command("Назад", Command.BACK, 1);
 
 	Stack displayableStack = new Stack(); 
-	final static Command cmdOptSaveCommand = new Command("Сохранить", Command.OK, 1);
-	final static Command cmdOptCancelCommand = new Command("Отмена", Command.BACK, 1);
-	final static Command cmdBack = new Command("Назад", Command.BACK, 1);
 
 	SchedulerCanvas scheduleBoard;
-	HelpCanvas helpCanvas;
 	List bookmarks;
 	List allBusStops;
+	List settings;
 
 	public static Display display;
 	public static MinskTransSchedMidlet midlet;
@@ -54,19 +54,17 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		}
 		else if(cmd == cmdMainHelpPage)
 		{
-			if(helpCanvas == null)
-			{
-				helpCanvas = new HelpCanvas();
-				helpCanvas.setCommandListener(this);
-				helpCanvas.addCommand(cmdExit);
-				helpCanvas.addCommand(cmdOptions);
-				helpCanvas.addCommand(cmdBack);
-				helpCanvas.addCommand(cmdKeysTest);
-				helpCanvas.addCommand(cmdCaps);
-				helpCanvas.addCommand(cmdAbout);
-			}
-			
 			displayableStack.push(display.getCurrent());
+			HelpCanvas helpCanvas = new HelpCanvas();
+			helpCanvas.addCommand(cmdExit);
+			helpCanvas.addCommand(cmdOptions);
+			helpCanvas.addCommand(cmdBack);
+			helpCanvas.addCommand(cmdKeysTest);
+			helpCanvas.addCommand(cmdCaps);
+			helpCanvas.addCommand(cmdAbout);
+
+			helpCanvas.setCommandListener(this);
+
 			display.setCurrent(helpCanvas);
 		}
 		else if(cmd == cmdExit)
@@ -84,17 +82,37 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				showBookmarkSchedule(((List)d).getSelectedIndex());
 			else if(d == allBusStops)
 				showAllBusStopsSchedule(((List)d).getSelectedIndex());
+			else if(d == settings)
+			{
+				if(((List)d).getSelectedIndex() == 0)
+					showOptGeneral();
+				else
+					showOptKeys();
+			}
 		}
 		else if(cmd == cmdOptions)
 		{
 			displayableStack.push(display.getCurrent());
 			
-			com.options.Window opt = new com.options.Window();
-			opt.addCommand(cmdOptSaveCommand);
-			opt.addCommand(cmdOptCancelCommand);
-			opt.setCommandListener(this);
-
-			display.setCurrent(opt);
+			settings = new List("Настройки", List.IMPLICIT);
+			settings.append("Основные", null);
+			settings.append("Клавиши", null);
+			
+			settings.addCommand(cmdOptionsGeneral);
+			settings.addCommand(cmdOptionsKeys);
+			settings.addCommand(cmdBack);
+			settings.addCommand(cmdSelect);
+			settings.setCommandListener(this);
+			
+			display.setCurrent(settings);
+		}
+		else if(cmd == cmdOptionsGeneral)
+		{
+			showOptGeneral();
+		}
+		else if(cmd == cmdOptionsKeys)
+		{
+			showOptKeys();
 		}
 		else if(cmd == cmdKeysTest)
 		{
@@ -135,7 +153,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		}
 
 		// back to previous screen
-		if(cmd == cmdBack || cmd == cmdOptCancelCommand || cmd == cmdOptSaveCommand)
+		if(cmd == cmdBack || cmd == cmdOptSaveCommand)
 		{
 			if(displayableStack.empty())
 			{
@@ -146,6 +164,30 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				display.setCurrent((Displayable)displayableStack.pop());
 			}
 		}
+	}
+	
+	void showOptGeneral()
+	{
+		displayableStack.push(display.getCurrent());
+
+		Window opt = new Window();
+		opt.addCommand(cmdOptSaveCommand);
+		opt.addCommand(cmdBack);
+		opt.setCommandListener(this);
+
+		display.setCurrent(opt);
+	}
+	
+	void showOptKeys()
+	{
+		displayableStack.push(display.getCurrent());
+
+		KeysPrefs opt = new KeysPrefs();
+		opt.addCommand(cmdOptSaveCommand);
+		opt.addCommand(cmdBack);
+		opt.setCommandListener(this);
+
+		display.setCurrent(opt);
 	}
 	
 	void showAllBusStopsSchedule(int sel)
