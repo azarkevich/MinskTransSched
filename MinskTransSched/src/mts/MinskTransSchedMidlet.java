@@ -1,24 +1,33 @@
+package mts;
 import java.util.Stack;
 import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
+import com.mts.About;
+
 import options.Options;
 import options.OptionsStoreManager;
 import options.OptionsVisualizer;
 import resources.Images;
+import test.Caps;
+import test.KeysTest;
 
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
 	public BusStop[] busStops;
 	
-	final static Command cmdExit = new Command("Выход", Command.EXIT, 2);
+	final static Command cmdExit = new Command("Exit", Command.EXIT, 2);
 	final static Command cmdShowBookMarks = new Command("Закладки", Command.SCREEN, 1);
 	final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
 	final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
 	final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
 	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
-	
+
+	final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
+	final static Command cmdCaps = new Command("Возможности", Command.ITEM, 1);
+	final static Command cmdAbout = new Command("О программе", Command.ITEM, 1);
+
 	Stack displayableStack = new Stack(); 
 	final static Command cmdOptSaveCommand = new Command("Сохранить", Command.OK, 1);
 	final static Command cmdOptCancelCommand = new Command("Отмена", Command.BACK, 1);
@@ -29,8 +38,14 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	List bookmarks;
 	List allBusStops;
 
-	Display display;
-	
+	public static Display display;
+	public static MinskTransSchedMidlet midlet;
+
+	public MinskTransSchedMidlet()
+	{
+		midlet = this;
+	}
+
 	public void commandAction(Command cmd, Displayable d)
 	{
 		if(cmd == cmdShowBookMarks)
@@ -46,6 +61,9 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				helpCanvas.addCommand(cmdExit);
 				helpCanvas.addCommand(cmdOptions);
 				helpCanvas.addCommand(cmdBack);
+				helpCanvas.addCommand(cmdKeysTest);
+				helpCanvas.addCommand(cmdCaps);
+				helpCanvas.addCommand(cmdAbout);
 			}
 			
 			displayableStack.push(display.getCurrent());
@@ -77,6 +95,36 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			opt.setCommandListener(this);
 
 			display.setCurrent(opt);
+		}
+		else if(cmd == cmdKeysTest)
+		{
+			displayableStack.push(display.getCurrent());
+			
+			KeysTest scr = new KeysTest();
+			scr.addCommand(cmdBack);
+			scr.setCommandListener(this);
+
+			display.setCurrent(scr);
+		}
+		else if(cmd == cmdAbout)
+		{
+			displayableStack.push(display.getCurrent());
+			
+			About scr = new About();
+			scr.addCommand(cmdBack);
+			scr.setCommandListener(this);
+
+			display.setCurrent(scr);
+		}
+		else if(cmd == cmdCaps)
+		{
+			displayableStack.push(display.getCurrent());
+			
+			Caps scr = new Caps();
+			scr.addCommand(cmdBack);
+			scr.setCommandListener(this);
+
+			display.setCurrent(scr);
 		}
 		else if(cmd == cmdOptSaveCommand)
 		{
@@ -136,10 +184,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		return ret;
 	}
 	
-	public MinskTransSchedMidlet()
-	{
-	}
-
 	protected void destroyApp(boolean unconditional)
 	{
 		notifyDestroyed();

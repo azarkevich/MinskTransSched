@@ -2,9 +2,11 @@ package options;
 
 import javax.microedition.lcdui.*;
 
+import mts.MinskTransSchedMidlet;
+
 import resources.Images;
 
-public class Window extends Form implements OptionsVisualizer
+public class Window extends Form implements OptionsVisualizer, ItemStateListener
 {
 	TextField tfDefWindowSize = null;
 	TextField tfDefWindowShift = null;
@@ -68,15 +70,13 @@ public class Window extends Form implements OptionsVisualizer
 
 		ReadSettingToControls();
 		
-		ItemStateListener isl = new ItemStateListener()
-		{
-			public void itemStateChanged(Item item)
-			{
-				if(item == fontSize || item == fontFace)
-					UpdateFontExample();
-			}
-		};
-		this.setItemStateListener(isl);
+		setItemStateListener(this);
+	}
+	
+	public void itemStateChanged(Item item)
+	{
+		Alert a = new Alert("aaa");
+		MinskTransSchedMidlet.display.setCurrent(a);
 	}
 	
 	int lastFontFace;

@@ -1,3 +1,4 @@
+package mts;
 import java.util.Vector;
 import javax.microedition.lcdui.*;
 
@@ -20,6 +21,11 @@ public class MultiLineText
 			if (regionHeight - viewportTop > textheight)
 				viewportTop = regionHeight - textheight;
 		}
+	}
+
+	public void MoveEnd()
+	{
+		viewportTop = regionHeight - textheight;
 	}
 
 	public void MoveUp(int lines)

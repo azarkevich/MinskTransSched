@@ -1,3 +1,4 @@
+package mts;
 import java.io.*;
 
 public class ScheduleLoader
@@ -17,7 +18,7 @@ public class ScheduleLoader
 	void LoadBuses() throws IOException
 	{
 		// load buses
-		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("buses"));
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/buses"));
 		short count = dis.readShort();
 		buses = new Bus[count];
 		for (int i = 0; i < count; i++)
@@ -33,7 +34,7 @@ public class ScheduleLoader
 	void LoadSchedules() throws Exception
 	{
 		// load 'scheds'
-		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("scheds"));
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/scheds"));
 		short count = dis.readShort();
 		schedules = new Schedule[count];
 		int freeSchedule = 0;
@@ -101,7 +102,7 @@ public class ScheduleLoader
 	void LoadBusStops() throws IOException
 	{
 		// load buses
-		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("busStops"));
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/busStops"));
 		short count = dis.readShort();
 		busStops = new BusStop[count];
 		for (int i = 0; i < count; i++)

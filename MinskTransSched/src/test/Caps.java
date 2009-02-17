@@ -1,8 +1,15 @@
-import javax.microedition.lcdui.*;
+package test;
+
+
+import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Font;
+import javax.microedition.lcdui.Graphics;
+
+import mts.MultiLineText;
 
 import options.Options;
 
-public class HelpCanvas extends Canvas
+public class Caps extends Canvas
 {
 	MultiLineText m_MultiLineText;
 
@@ -17,21 +24,17 @@ public class HelpCanvas extends Canvas
 		foreColorB = b;
 	}
 	
-	final static String helpText = 
-		"текст вверх/вниз: Up/Down\n" +
-		"текст вверх/вниз постранично: Left/Right\n" +
-		"предыдущая/следующая остановка: 1/2\n" +
-		"выходной/рабочий день: 3\n" +
-		"уменьшить/увеличить размер окна: 4/5\n" +
-		"сбросить настройки: 6\n" +
-		"уменьшить/увеличить сдвиг окна: 7/8\n" +
-		"переключить в режим детального описания: 9\n" +
-		"занести/вынести в favorites: 0\n" +
-		"показывать всё расписание: *";
+	String text = "";
 
-	public HelpCanvas()
+	public Caps()
 	{
 		setFullScreenMode(true);
+		
+		text = "Canvas:\nDbl Buffer: " + isDoubleBuffered() + 
+			"\npointer ev: " + this.hasPointerEvents() + 
+			"\nmotion ev: " + this.hasPointerMotionEvents() + 
+			"\nrepeat ev: " + this.hasRepeatEvents();
+		
 	}
 	
 	public void paint(Graphics g)
@@ -41,7 +44,7 @@ public class HelpCanvas extends Canvas
 			m_MultiLineText = new MultiLineText();
 			m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 					Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
-					helpText);
+					text);
 		}
 
 		g.setColor(0, 0, 0);
@@ -64,12 +67,12 @@ public class HelpCanvas extends Canvas
 	{
 		if(m_MultiLineText != null)
 		{
-			if (keyCode == getKeyCode(Canvas.UP))
+			if (keyCode == getKeyCode(Canvas.UP) || keyCode == '1')
 			{
 				m_MultiLineText.MoveUp(Options.scrollSize);
 				repaint();
 			}
-			else if (keyCode == getKeyCode(Canvas.DOWN))
+			else if (keyCode == getKeyCode(Canvas.DOWN) || keyCode == '4')
 			{
 				m_MultiLineText.MoveDown(Options.scrollSize);
 				repaint();

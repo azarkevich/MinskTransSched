@@ -1,3 +1,4 @@
+package mts;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -6,6 +7,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
 
+import options.KeyCommands;
 import options.Options;
 import options.OptionsListener;
 
@@ -108,80 +110,92 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		repaint();
 	}
 
+	boolean keyRepeated = false;
 	protected void keyPressed(int keyCode)
 	{
-		OnKeyEvent(keyCode, false);
+		keyRepeated = false;
+		handleKeyEvent(keyCode, false, false);
 	}
 	
 	protected void keyRepeated(int keyCode)
 	{
-		OnKeyEvent(keyCode, true);
+		keyRepeated = true;
+		handleKeyEvent(keyCode, false, true);
+	}
+
+	protected void keyReleased(int keyCode)
+	{
+		handleKeyEvent(keyCode, true, keyRepeated);
+		keyRepeated = false;
+	}
+
+	void handleKeyEvent(int keyCode, boolean released, boolean repeated)
+	{
+		boolean isGameCode = (keyCode < 0);
+		if(isGameCode)
+			keyCode = getGameAction(keyCode);
+		
+		int cmd = KeyCommands.mapKeyToCommand(keyCode, isGameCode, released, repeated);
+		
+		if(cmd != KeyCommands.CMD_NONE)
+			handleCmd(cmd);
 	}
 	
-	private void OnKeyEvent(int keyCode, boolean repeated)
+	void handleCmd(int cmd)
 	{
-		/*
-		m_SchedText = "KeyName: " + getKeyName(keyCode) + "\n";
-		m_SchedText += "KeyCode: " + keyCode + "\n";
-		m_SchedText += "GameAction: " + getGameAction(keyCode) + "\n"; 
-		m_MultiLineText = null;
-		repaint();
-		return;
-		*/
-
-		switch (keyCode)
+		switch(cmd)
 		{
-		case KEY_NUM1:
+		case KeyCommands.CMD_SCROLL_UP:
+			m_MultiLineText.MoveUp(Options.scrollSize);
+			repaint();
+			return;
+		case KeyCommands.CMD_SCROLL_DOWN:
+			m_MultiLineText.MoveDown(Options.scrollSize);
+			repaint();
+			return;
+
+		case KeyCommands.CMD_BUSSTOP_PREV:
 			m_CurrentSchedule = (m_CurrentSchedule + busStops.length - 1) % busStops.length;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			RefreshScheduleText();
-			return;
-		case KEY_NUM2:
+			break;
+
+		case KeyCommands.CMD_BUSSTOP_NEXT:
 			m_CurrentSchedule = (m_CurrentSchedule + 1) % busStops.length;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			RefreshScheduleText();
-			return;
+			break;
 
-		case KEY_NUM3:
+		case KeyCommands.CMD_TOGGLE_DAY:
 			m_ScheduleBuilder.ShiftDayType();
-			RefreshScheduleText();
-			return;
-			
-		case KEY_NUM4:
-			m_ScheduleBuilder.WindowSize -= Options.defWindowSizeStep;
-			if(m_ScheduleBuilder.WindowSize < 0)
-				m_ScheduleBuilder.WindowSize = 0;
-			RefreshScheduleText();
-			return;
-		case KEY_NUM5:
-			m_ScheduleBuilder.WindowSize += Options.defWindowSizeStep;
-			RefreshScheduleText();
-			return;
-			
-		case KEY_NUM6:
+			break;
+
+		case KeyCommands.CMD_RESET_SCHEDULE:
 			m_CurrentSchedule = 0;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
 			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			m_ScheduleBuilder.showFull = false;
-			RefreshScheduleText();
-			return;
-			
-		case KEY_NUM7:
+			break;
+
+		case KeyCommands.CMD_DESCREASE_WINDOW:
+			m_ScheduleBuilder.WindowSize -= Options.defWindowSizeStep;
+			if(m_ScheduleBuilder.WindowSize < 0)
+				m_ScheduleBuilder.WindowSize = 0;
+			break;
+		case KeyCommands.CMD_INCREASE_WINDOW:
+			m_ScheduleBuilder.WindowSize += Options.defWindowSizeStep;
+			break;
+		case KeyCommands.CMD_SHIFT_WINDOW_LEFT:
 			m_ScheduleBuilder.WindowShift -= Options.defWindowShiftStep;
-			RefreshScheduleText();
-			return;
-		case KEY_NUM8:
+			break;
+		case KeyCommands.CMD_SHIFT_WINDOW_RIGHT:
 			m_ScheduleBuilder.WindowShift += Options.defWindowShiftStep;
-			RefreshScheduleText();
-			return;
-			
-		case KEY_NUM9:
+			break;
+		case KeyCommands.CMD_TOGGLE_DETAILED_DESCRIPTION:
 			m_ScheduleBuilder.showDescription = !m_ScheduleBuilder.showDescription;
-			RefreshScheduleText();
-			return;
-		case KEY_NUM0:
+			break;
+			
+		case KeyCommands.CMD_TOGGLE_FAVORITE:
 			try{
 				if(m_ScheduleBuilder.Station != null)
 				{
@@ -205,50 +219,26 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 				// restore
 				m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
 			}
-			RefreshScheduleText();
-			return;
+			break;
 			
-		case KEY_STAR:
+		case KeyCommands.CMD_TOGGLE_FULL_SCHED:
 			m_ScheduleBuilder.showFull = !m_ScheduleBuilder.showFull; 
-			RefreshScheduleText();
-			return;
+			break;
+			
+		case KeyCommands.CMD_SHOW_BOOKMARKS:
+			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowBookMarks, this);
+			break;
 
-		case KEY_POUND:
-			RefreshScheduleText();
-			return;
-		}
+		case KeyCommands.CMD_SHOW_BUSSTOPS:
+			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowAllBusStops, this);
+			break;
 
-		if (keyCode == getKeyCode(Canvas.LEFT))
-		{
-			m_CurrentSchedule = (m_CurrentSchedule + busStops.length - 1) % busStops.length;
-			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			RefreshScheduleText();
+		default:
 			return;
 		}
-		
-		if (keyCode == getKeyCode(Canvas.RIGHT))
-		{
-			m_CurrentSchedule = (m_CurrentSchedule + 1) % busStops.length;
-			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			RefreshScheduleText();
-			return;
-		}
-
-		if(m_MultiLineText != null)
-		{
-			if (keyCode == getKeyCode(Canvas.UP))
-			{
-				m_MultiLineText.MoveUp(Options.scrollSize);
-				repaint();
-			}
-			else if (keyCode == getKeyCode(Canvas.DOWN))
-			{
-				m_MultiLineText.MoveDown(Options.scrollSize);
-				repaint();
-			}
-		}
+		RefreshScheduleText();
 	}
-
+	
 	public void OptionsUpdated()
 	{
 		m_ScheduleBuilder.WindowShift = Options.defWindowShift;
