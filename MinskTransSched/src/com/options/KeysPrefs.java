@@ -2,13 +2,38 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
+import com.mts.MinskTransSchedMidlet;
+
 public class KeysPrefs extends Form implements OptionsVisualizer
 {
+	class CommandListener implements ItemCommandListener
+	{
+		int keyHash;
+		CmdDef cmd;
+		public CommandListener(int keyHash, CmdDef cmd)
+		{
+			this.keyHash = keyHash;
+			this.cmd = cmd;
+		}
+		
+		public void commandAction(Command command, Item item)
+		{
+			
+		}
+	}
+	
 	//class KeyDef
 	public KeysPrefs()
 	{
 		super("Настройки клавиш");
 		
+		Canvas c = new Canvas()
+		{
+			public void paint(Graphics g)
+			{
+			}
+		};
+
 		append(new StringItem(null, "Нажмите SELECT, что-бы сменить назначение клавиши, или выберите в меню соответсвующий пункт."));
 		
 		java.util.Enumeration en = KeyCommands.key2cmd.keys();
@@ -16,25 +41,21 @@ public class KeysPrefs extends Form implements OptionsVisualizer
 		while(en.hasMoreElements())
 		{
 			Integer keyHash = (Integer)en.nextElement();
-			CmdDef cmd = (CmdDef )KeyCommands.key2cmd.get(key);
-			String cmdName = (String)KeyCommands.cmd2name.get(cmd);
-			if(cmdName == null)
+			CmdDef cmd = (CmdDef )KeyCommands.key2cmd.get(keyHash);
+			if(cmd == null)
 				continue;
+			String cmdName = cmd.name;
 
-			StringItem si = new StringItem(cmdName, "Key: " + key); 
+			int keyCode = KeyCommands.getKeyCodeFromKeyHashCode(keyHash.intValue());
+			String keyCodeName = c.getKeyName(keyCode);
+			if(keyCodeName == null)
+				keyCodeName = "#" + keyCode;
+			StringItem si = new StringItem(cmdName, keyCodeName); 
 			append(si);
-//			si.setDefaultCommand(new Command("Изменить", Command.ITEM, 1));
-//			si.setItemCommandListener(new ItemCommandListener()
-//				{
-//					public void commandAction(Command command, Item item)
-//					{
-//						Alert a = new Alert(command.getLabel());
-//						MinskTransSchedMidlet.display.setCurrent(a);
-//					}
-//				}
-//			);
+			si.setDefaultCommand(new Command("Изменить", Command.ITEM, 1));
+			si.setItemCommandListener(new CommandListener(keyHash.intValue(), cmd));
 		}
-		*/
+
 	}
 	
 	public void ReadSettingToControls()

@@ -43,31 +43,31 @@ public class CmdDef
 		{
 			cmdid2cmd = new Hashtable();
 
-			cmdid2cmd.put(cmdScrollUp.id, cmdScrollUp);
-			cmdid2cmd.put(cmdScrollDown.id, cmdScrollDown);
-			cmdid2cmd.put(cmdScrollUpPage.id, cmdScrollUpPage);
-			cmdid2cmd.put(cmdScrollDownPage.id, cmdScrollDownPage);
-			cmdid2cmd.put(cmdBusStopPrev.id, cmdBusStopPrev);
-			cmdid2cmd.put(cmdBusStopNext.id, cmdBusStopNext);
+			cmdid2cmd.put(new Integer(cmdScrollUp.id), cmdScrollUp);
+			cmdid2cmd.put(new Integer(cmdScrollDown.id), cmdScrollDown);
+			cmdid2cmd.put(new Integer(cmdScrollUpPage.id), cmdScrollUpPage);
+			cmdid2cmd.put(new Integer(cmdScrollDownPage.id), cmdScrollDownPage);
+			cmdid2cmd.put(new Integer(cmdBusStopPrev.id), cmdBusStopPrev);
+			cmdid2cmd.put(new Integer(cmdBusStopNext.id), cmdBusStopNext);
 
-			cmdid2cmd.put(cmdWindowDecrease.id, cmdWindowDecrease);
-			cmdid2cmd.put(cmdWindowIncrease.id, cmdWindowIncrease);
+			cmdid2cmd.put(new Integer(cmdWindowDecrease.id), cmdWindowDecrease);
+			cmdid2cmd.put(new Integer(cmdWindowIncrease.id), cmdWindowIncrease);
 
-			cmdid2cmd.put(cmdWindowShiftDecrease.id, cmdWindowShiftDecrease);
-			cmdid2cmd.put(cmdWindowShiftIncrease.id, cmdWindowShiftIncrease);
+			cmdid2cmd.put(new Integer(cmdWindowShiftDecrease.id), cmdWindowShiftDecrease);
+			cmdid2cmd.put(new Integer(cmdWindowShiftIncrease.id), cmdWindowShiftIncrease);
 
-			cmdid2cmd.put(cmdToggleDayType.id, cmdToggleDayType);
-			cmdid2cmd.put(cmdToggleDetailedDescription.id, cmdToggleDetailedDescription);
-			cmdid2cmd.put(cmdToggleFavorite.id, cmdToggleFavorite);
-			cmdid2cmd.put(cmdToggleFullSchedule.id, cmdToggleFullSchedule);
+			cmdid2cmd.put(new Integer(cmdToggleDayType.id), cmdToggleDayType);
+			cmdid2cmd.put(new Integer(cmdToggleDetailedDescription.id), cmdToggleDetailedDescription);
+			cmdid2cmd.put(new Integer(cmdToggleFavorite.id), cmdToggleFavorite);
+			cmdid2cmd.put(new Integer(cmdToggleFullSchedule.id), cmdToggleFullSchedule);
 
-			cmdid2cmd.put(cmdScheduleReset.id, cmdScheduleReset);
+			cmdid2cmd.put(new Integer(cmdScheduleReset.id), cmdScheduleReset);
 
-			cmdid2cmd.put(cmdShowBookmarks.id, cmdShowBookmarks);
-			cmdid2cmd.put(cmdShowAllBusStops.id, cmdShowAllBusStops);
-			cmdid2cmd.put(cmdScheduleFullScreen.id, cmdScheduleFullScreen);
+			cmdid2cmd.put(new Integer(cmdShowBookmarks.id), cmdShowBookmarks);
+			cmdid2cmd.put(new Integer(cmdShowAllBusStops.id), cmdShowAllBusStops);
+			cmdid2cmd.put(new Integer(cmdScheduleFullScreen.id), cmdScheduleFullScreen);
 		}
 		
-		return (CmdDef)cmdid2cmd.get(id);
+		return (CmdDef)cmdid2cmd.get(new Integer(id));
 	}
 }

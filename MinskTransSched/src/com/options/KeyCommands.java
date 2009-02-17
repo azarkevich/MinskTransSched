@@ -12,15 +12,25 @@ public class KeyCommands
 	public static Integer getKeyHashCode(int keyCode, short actionType)
 	{
 		if(keyCode < 0)
-			return (-keyCode) | (actionType << 16) | 0x80000000;
+			return new Integer((-keyCode) | (actionType << 16) | 0x80000000);
 		
-		return keyCode | (actionType << 16);
+		return new Integer(keyCode | (actionType << 16));
 	}
 	
+	public static int getKeyCodeFromKeyHashCode(int hash)
+	{
+		if((hash & 0x80000000) == 0x80000000)
+		{
+			return -(hash & 0xFFFF);
+		}
+		
+		return hash & 0xFFFF;
+	}
+
 	public static CmdDef getCommand(int keyCode, boolean released, boolean repeated)
 	{
-		int hash1 = 0;
-		int hash2 = 0;
+		Integer hash1;
+		Integer hash2;
 		if(released == false)
 		{
 			hash1 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS);
@@ -51,12 +61,12 @@ public class KeyCommands
 	public static void mapKeyDef2Cmd(int keyDef, CmdDef cmd)
 	{
 		System.err.println("Add: " + cmd.name + " hash: " + keyDef);
-		key2cmd.put(keyDef, cmd);
+		key2cmd.put(new Integer(keyDef), cmd);
 	}
 
 	public static void mapKey2Cmd(int keyCode, short actionType, CmdDef cmd)
 	{
-		int hash = getKeyHashCode(keyCode, actionType);
+		Integer hash = getKeyHashCode(keyCode, actionType);
 		System.err.println("Add: " + cmd.name + " hash: " + hash);
 		key2cmd.put(hash, cmd);
 	}
