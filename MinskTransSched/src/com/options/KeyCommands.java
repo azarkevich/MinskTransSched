@@ -3,98 +3,98 @@ package com.options;
 import java.util.Hashtable;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Graphics;
 
 public class KeyCommands
 {
-	public static final int CMD_NONE = 0;
-	public static final int CMD_SCROLL_UP = 1;
-	public static final int CMD_SCROLL_DOWN = 2;
-	public static final int CMD_SCROLL_PAGE_UP = 3;
-	public static final int CMD_SCROLL_PAGE_DOWN = 4;
-	
-	public static final int CMD_TOGGLE_FAVORITE = 5;
-	
-	public static final int CMD_RESET_SCHEDULE = 6;
-	public static final int CMD_SHIFT_WINDOW_LEFT = 7;
-	public static final int CMD_SHIFT_WINDOW_RIGHT = 8;
-	public static final int CMD_INCREASE_WINDOW = 9;
-	public static final int CMD_DESCREASE_WINDOW = 10;
-	
-	public static final int CMD_BUSSTOP_PREV = 11;
-	public static final int CMD_BUSSTOP_NEXT = 12;
-	
-	public static final int CMD_TOGGLE_DAY = 13;
-	public static final int CMD_TOGGLE_DETAILED_DESCRIPTION = 14;
-	public static final int CMD_TOGGLE_FULL_SCHED = 15;
+	static Hashtable key2cmd = new Hashtable();
 
-	public static final int CMD_SHOW_BOOKMARKS = 16;
-	public static final int CMD_SHOW_BUSSTOPS = 17;
-
-	public static final int CMD_TOGGLE_FULLSCREEN = 18;
-
-	public static Hashtable key2cmd = new Hashtable();
-
-	public static Integer getKeyHashCode(int code, boolean isGameCode, boolean isReleased, boolean isRepeated)
+	public static Integer getKeyHashCode(int keyCode, short actionType)
 	{
-		int hashKey = (short)code;
-		if(isGameCode)
-			hashKey |= 0x10000;
+		if(keyCode < 0)
+			return (-keyCode) | (actionType << 16) | 0x80000000;
 		
-		if(isReleased)
-			hashKey |= 0x20000;
-		
-		if(isRepeated)
-			hashKey |= 0x40000;
-		
-		return new Integer(hashKey);
+		return keyCode | (actionType << 16);
 	}
 	
-	public static int mapKeyToCommand(int code, boolean isGameCode, boolean isReleased, boolean isRepeated)
+	public static CmdDef getCommand(int keyCode, boolean released, boolean repeated)
 	{
-		Object o = key2cmd.get(getKeyHashCode(code, isGameCode, isReleased, isRepeated));
+		int hash1 = 0;
+		int hash2 = 0;
+		if(released == false)
+		{
+			hash1 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS);
+			if(repeated)
+				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS_REPEAT);
+			else
+				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS_FIRST);
+		}
+		else
+		{
+			hash1 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_RELEASE);
+			if(repeated)
+				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_RELEASE_LONG);
+			else
+				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_RELEASE_SHORT);
+		}
+
+		Object o = key2cmd.get(hash1);
 		if(o == null)
-			return CMD_NONE;
-		
-		return ((Integer)o).intValue();
+			o = key2cmd.get(hash2);
+
+		System.err.println("code:" + keyCode + ", released: " + released + ", repeated: " + repeated +  
+				", hash1: " + hash1 + ", hash2: " + hash2 + ", o: " + o);
+
+		return (CmdDef)o;
 	}
 	
-	static void addPressAndRepeat(int code, boolean isGameCode, int cmd)
+	public static void mapKeyDef2Cmd(int keyDef, CmdDef cmd)
 	{
-		Integer c = new Integer(cmd);
-		key2cmd.put(getKeyHashCode(code, isGameCode, false, false), c);
-		key2cmd.put(getKeyHashCode(code, isGameCode, false, true), c);
+		System.err.println("Add: " + cmd.name + " hash: " + keyDef);
+		key2cmd.put(keyDef, cmd);
 	}
 
+	public static void mapKey2Cmd(int keyCode, short actionType, CmdDef cmd)
+	{
+		int hash = getKeyHashCode(keyCode, actionType);
+		System.err.println("Add: " + cmd.name + " hash: " + hash);
+		key2cmd.put(hash, cmd);
+	}
+	
 	public static void loadDefaultKeyCommands()
 	{
 		key2cmd.clear();
-
-		// text scrolling
-		addPressAndRepeat(Canvas.UP, true, CMD_SCROLL_UP);
-		addPressAndRepeat(Canvas.DOWN, true, CMD_SCROLL_DOWN);
-		addPressAndRepeat(Canvas.LEFT, true, CMD_BUSSTOP_PREV);
-		addPressAndRepeat(Canvas.RIGHT, true, CMD_BUSSTOP_NEXT);
 		
-		addPressAndRepeat('1', false, CMD_BUSSTOP_PREV);
-		addPressAndRepeat('2', false, CMD_BUSSTOP_NEXT);
+		Canvas c = new Canvas()
+		{
+			public void paint(Graphics g)
+			{
+			}
+		};
 
-		key2cmd.put(getKeyHashCode('3', false, false, false), new Integer(CMD_TOGGLE_DAY));
+		mapKey2Cmd(c.getKeyCode(Canvas.UP), KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdScrollUp);
+		mapKey2Cmd(c.getKeyCode(Canvas.DOWN), KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdScrollDown);
+
+		mapKey2Cmd('1', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdBusStopPrev);
+		mapKey2Cmd('2', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdBusStopNext);
+
+		mapKey2Cmd('3', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleDayType);
+
+		mapKey2Cmd('4', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowDecrease);
+		mapKey2Cmd('5', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowIncrease);
 		
-		addPressAndRepeat('4', false, CMD_DESCREASE_WINDOW);
-		addPressAndRepeat('5', false, CMD_INCREASE_WINDOW);
+		mapKey2Cmd('6', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdScheduleReset);
 
-		key2cmd.put(getKeyHashCode('6', false, false, false), new Integer(CMD_RESET_SCHEDULE));
-
-		addPressAndRepeat('7', false, CMD_SHIFT_WINDOW_LEFT);
-		addPressAndRepeat('8', false, CMD_SHIFT_WINDOW_RIGHT);
-
-		key2cmd.put(getKeyHashCode('9', false, false, false), new Integer(CMD_TOGGLE_DETAILED_DESCRIPTION));
-		key2cmd.put(getKeyHashCode('0', false, false, false), new Integer(CMD_TOGGLE_FAVORITE));
-		key2cmd.put(getKeyHashCode('*', false, false, false), new Integer(CMD_TOGGLE_FULL_SCHED));
-
-		key2cmd.put(getKeyHashCode(Canvas.FIRE, true, true, false), new Integer(CMD_SHOW_BOOKMARKS));
-		key2cmd.put(getKeyHashCode(Canvas.FIRE, true, true, true), new Integer(CMD_SHOW_BUSSTOPS));
+		mapKey2Cmd('7', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowShiftDecrease);
+		mapKey2Cmd('8', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowShiftIncrease);
 		
-		key2cmd.put(getKeyHashCode('#', false, true, false), new Integer(CMD_TOGGLE_FULLSCREEN));
+		mapKey2Cmd('9', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleDetailedDescription);
+		mapKey2Cmd('0', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleFavorite);
+		mapKey2Cmd('*', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleFullSchedule);
+
+		mapKey2Cmd(c.getKeyCode(Canvas.FIRE), KeyActionDef.KEY_ACTION_RELEASE_SHORT, CmdDef.cmdShowBookmarks);
+		mapKey2Cmd(c.getKeyCode(Canvas.FIRE), KeyActionDef.KEY_ACTION_RELEASE_LONG, CmdDef.cmdShowAllBusStops);
+
+		mapKey2Cmd('#', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdScheduleFullScreen);
 	}
 }

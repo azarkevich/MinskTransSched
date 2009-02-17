@@ -7,6 +7,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
 
+import com.options.CmdDef;
 import com.options.KeyCommands;
 import com.options.Options;
 import com.options.OptionsListener;
@@ -132,76 +133,78 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 	void handleKeyEvent(int keyCode, boolean released, boolean repeated)
 	{
-		boolean isGameCode = (keyCode < 0);
-		if(isGameCode)
-			keyCode = getGameAction(keyCode);
+		CmdDef cmd = KeyCommands.getCommand(keyCode, released, repeated);
+		System.out.println("cmd: " + cmd);
+		if(cmd == null)
+			return;
 		
-		int cmd = KeyCommands.mapKeyToCommand(keyCode, isGameCode, released, repeated);
-		
-		if(cmd != KeyCommands.CMD_NONE)
-			handleCmd(cmd);
-	}
-	
-	void handleCmd(int cmd)
-	{
-		switch(cmd)
+		if(cmd == CmdDef.cmdScrollUp)
 		{
-		case KeyCommands.CMD_SCROLL_UP:
 			m_MultiLineText.MoveUp(Options.scrollSize);
 			repaint();
 			return;
-		case KeyCommands.CMD_SCROLL_DOWN:
+		}
+		else if(cmd == CmdDef.cmdScrollDown)
+		{
 			m_MultiLineText.MoveDown(Options.scrollSize);
 			repaint();
 			return;
-
-		case KeyCommands.CMD_BUSSTOP_PREV:
+		}
+		else if(cmd == CmdDef.cmdScrollUpPage)
+		{
+			m_MultiLineText.PageUp();
+			repaint();
+			return;
+		}
+		else if(cmd == CmdDef.cmdScrollDownPage)
+		{
+			m_MultiLineText.PageDown();
+			repaint();
+			return;
+		}
+		else if(cmd == CmdDef.cmdBusStopPrev)
+		{
 			m_CurrentSchedule = (m_CurrentSchedule + busStops.length - 1) % busStops.length;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			break;
-
-		case KeyCommands.CMD_BUSSTOP_NEXT:
+		}
+		else if(cmd == CmdDef.cmdBusStopNext)
+		{
 			m_CurrentSchedule = (m_CurrentSchedule + 1) % busStops.length;
 			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			break;
-
-		case KeyCommands.CMD_TOGGLE_DAY:
-			m_ScheduleBuilder.ShiftDayType();
-			break;
-
-		case KeyCommands.CMD_RESET_SCHEDULE:
-			m_CurrentSchedule = 0;
-			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
-			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
-			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
-			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
-			m_ScheduleBuilder.showFull = false;
-			break;
-
-		case KeyCommands.CMD_DESCREASE_WINDOW:
+		}
+		else if(cmd == CmdDef.cmdWindowDecrease)
+		{
 			m_ScheduleBuilder.WindowSize -= Options.defWindowSizeStep;
 			if(m_ScheduleBuilder.WindowSize < 0)
 				m_ScheduleBuilder.WindowSize = 0;
-			break;
-		case KeyCommands.CMD_INCREASE_WINDOW:
+		}
+		else if(cmd == CmdDef.cmdWindowIncrease)
+		{
 			m_ScheduleBuilder.WindowSize += Options.defWindowSizeStep;
-			break;
-		case KeyCommands.CMD_SHIFT_WINDOW_LEFT:
+		}
+		else if(cmd == CmdDef.cmdWindowShiftDecrease)
+		{
 			m_ScheduleBuilder.WindowShift -= Options.defWindowShiftStep;
-			break;
-		case KeyCommands.CMD_SHIFT_WINDOW_RIGHT:
+		}
+		else if(cmd == CmdDef.cmdWindowShiftIncrease)
+		{
 			m_ScheduleBuilder.WindowShift += Options.defWindowShiftStep;
-			break;
-		case KeyCommands.CMD_TOGGLE_DETAILED_DESCRIPTION:
+		}
+		else if(cmd == CmdDef.cmdToggleDayType)
+		{
+			m_ScheduleBuilder.ShiftDayType();
+		}
+		else if(cmd == CmdDef.cmdToggleDetailedDescription)
+		{
 			m_ScheduleBuilder.showDescription = !m_ScheduleBuilder.showDescription;
-			break;
-			
-		case KeyCommands.CMD_TOGGLE_FAVORITE:
+		}
+		else if(cmd == CmdDef.cmdToggleFavorite)
+		{
 			try{
 				if(m_ScheduleBuilder.Station != null)
 				{
 					m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
-
+	
 					RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
 					byte[] rec = new byte[3];
 					rec[0] = (byte)(m_ScheduleBuilder.Station.bookmarked ? 1 : 0);
@@ -220,28 +223,34 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 				// restore
 				m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
 			}
-			break;
-			
-		case KeyCommands.CMD_TOGGLE_FULL_SCHED:
+		}
+		else if(cmd == CmdDef.cmdToggleFullSchedule)
+		{
 			m_ScheduleBuilder.showFull = !m_ScheduleBuilder.showFull; 
-			break;
-			
-		case KeyCommands.CMD_SHOW_BOOKMARKS:
+		}
+		else if(cmd == CmdDef.cmdScheduleReset)
+		{
+			m_CurrentSchedule = 0;
+			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
+			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
+			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
+			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
+			m_ScheduleBuilder.showFull = false;
+		}
+		else if(cmd == CmdDef.cmdShowBookmarks)
+		{
 			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowBookMarks, this);
-			break;
-
-		case KeyCommands.CMD_SHOW_BUSSTOPS:
+		}
+		else if(cmd == CmdDef.cmdShowAllBusStops)
+		{
 			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowAllBusStops, this);
-			break;
-
-		case KeyCommands.CMD_TOGGLE_FULLSCREEN:
+		}
+		else if(cmd == CmdDef.cmdScheduleFullScreen)
+		{
 			Options.fullScreen = !Options.fullScreen; 
 			setFullScreenMode(Options.fullScreen);
-			break;
-
-		default:
-			return;
 		}
+
 		RefreshScheduleText();
 	}
 	

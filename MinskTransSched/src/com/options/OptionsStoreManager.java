@@ -43,8 +43,7 @@ public class OptionsStoreManager
 			{
 				//System.out.println(ex.toString());
 			}
-			
-			KeyCommands.loadDefaultKeyCommands();
+
 			try
 			{
 				byte[] rec = sett.getRecord(SETTINGS_SLOT_KEYS);
@@ -54,19 +53,20 @@ public class OptionsStoreManager
 				short keysCount = dis.readShort();
 				for (int i = 0; i < keysCount; i++)
 				{
-					int keyHash = dis.readInt();
-					int cmd = dis.readShort();
-					KeyCommands.key2cmd.put(new Integer(keyHash), new Integer(cmd));
+					int keyDef = dis.readInt();
+					int cmdId = dis.readShort();
+					
+					CmdDef cmd = CmdDef.getCmd(cmdId);
+					if(cmd == null)
+						continue;
+					KeyCommands.mapKeyDef2Cmd(keyDef, cmd);
 				}
 			}
-			catch(InvalidRecordIDException ex)
+			catch(Exception ex)
 			{
-				//System.out.println(ex.toString());
+				KeyCommands.loadDefaultKeyCommands();
 			}
-			catch(IOException ex)
-			{
-				//System.out.println(ex.toString());
-			}
+
 			sett.closeRecordStore();
 		}
 		catch(RecordStoreException ex)
@@ -123,11 +123,11 @@ public class OptionsStoreManager
 				Enumeration en = KeyCommands.key2cmd.keys();
 				while(en.hasMoreElements())
 				{
-					Integer keyHash = (Integer)en.nextElement();
-					int cmd = ((Integer)KeyCommands.key2cmd.get(keyHash)).intValue();
+					Integer keyDef = (Integer)en.nextElement();
+					CmdDef cmd = (CmdDef)KeyCommands.key2cmd.get(keyDef);
 					
-					dos.writeInt(keyHash.intValue());
-					dos.writeShort(cmd);
+					dos.writeInt(keyDef.intValue());
+					dos.writeShort(cmd.id);
 				}
 
 				dos.flush();
