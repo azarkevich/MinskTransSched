@@ -28,11 +28,13 @@ public class HelpCanvas extends Canvas
 		"уменьшить/увеличить сдвиг окна: 7/8\n" +
 		"переключить в режим детального описания: 9\n" +
 		"занести/вынести в favorites: 0\n" +
-		"показывать всё расписание: *";
+		"показывать всё расписание: *" +
+		"переколючить полноэкранный режим: #"
+		;
 
 	public HelpCanvas()
 	{
-		setFullScreenMode(true);
+		setFullScreenMode(Options.fullScreen);
 	}
 	
 	public void paint(Graphics g)

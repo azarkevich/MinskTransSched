@@ -30,6 +30,8 @@ public class KeyCommands
 	public static final int CMD_SHOW_BOOKMARKS = 16;
 	public static final int CMD_SHOW_BUSSTOPS = 17;
 
+	public static final int CMD_TOGGLE_FULLSCREEN = 18;
+
 	public static Hashtable key2cmd = new Hashtable();
 
 	public static Integer getKeyHashCode(int code, boolean isGameCode, boolean isReleased, boolean isRepeated)
@@ -92,5 +94,7 @@ public class KeyCommands
 
 		key2cmd.put(getKeyHashCode(Canvas.FIRE, true, true, false), new Integer(CMD_SHOW_BOOKMARKS));
 		key2cmd.put(getKeyHashCode(Canvas.FIRE, true, true, true), new Integer(CMD_SHOW_BUSSTOPS));
+		
+		key2cmd.put(getKeyHashCode('#', false, true, false), new Integer(CMD_TOGGLE_FULLSCREEN));
 	}
 }

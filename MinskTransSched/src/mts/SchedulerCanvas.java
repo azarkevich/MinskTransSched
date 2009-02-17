@@ -56,7 +56,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 	public SchedulerCanvas(BusStop[] stops)
 	{
-		setFullScreenMode(true);
+		setFullScreenMode(Options.fullScreen);
 		
 		busStops = stops;
 		
@@ -231,6 +231,11 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 		case KeyCommands.CMD_SHOW_BUSSTOPS:
 			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowAllBusStops, this);
+			break;
+
+		case KeyCommands.CMD_TOGGLE_FULLSCREEN:
+			Options.fullScreen = !Options.fullScreen; 
+			setFullScreenMode(Options.fullScreen);
 			break;
 
 		default:

@@ -21,4 +21,6 @@ public class Options
 	public static int fontStyle = Font.STYLE_PLAIN;
 	
 	public static int scrollSize = 1;
+	
+	public static boolean fullScreen = true; 
 }
