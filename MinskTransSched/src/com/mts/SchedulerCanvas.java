@@ -134,7 +134,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 	void handleKeyEvent(int keyCode, boolean released, boolean repeated)
 	{
 		CmdDef cmd = KeyCommands.getCommand(keyCode, released, repeated);
-		System.out.println("cmd: " + cmd);
 		if(cmd == null)
 			return;
 		

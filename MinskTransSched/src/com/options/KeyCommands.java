@@ -9,12 +9,18 @@ public class KeyCommands
 {
 	static Hashtable key2cmd = new Hashtable();
 
-	public static Integer getKeyHashCode(int keyCode, short actionType)
+	public static Integer getKeyHashCode(int keyCode, boolean isGameCode, short actionType)
 	{
+		int ret = 0;
 		if(keyCode < 0)
-			return new Integer((-keyCode) | (actionType << 16) | 0x80000000);
+			ret = (-keyCode) | (actionType << 16) | 0x80000000;
+		else
+			ret = keyCode | (actionType << 16);
 		
-		return new Integer(keyCode | (actionType << 16));
+		if(isGameCode)
+			ret |= 0x40000000;
+		
+		return new Integer(ret);
 	}
 	
 	public static int getKeyCodeFromKeyHashCode(int hash)
@@ -27,47 +33,77 @@ public class KeyCommands
 		return hash & 0xFFFF;
 	}
 
+	static Canvas c = null;
 	public static CmdDef getCommand(int keyCode, boolean released, boolean repeated)
 	{
-		Integer hash1;
-		Integer hash2;
-		if(released == false)
+		if(c == null)
 		{
-			hash1 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS);
-			if(repeated)
-				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS_REPEAT);
-			else
-				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_PRESS_FIRST);
+			c = new Canvas()
+			{
+				public void paint(Graphics g)
+				{
+				}
+			};
 		}
+
+		Object o;
+		
+		// simple press/release
+		short action1 = released ? KeyActionDef.KEY_ACTION_RELEASE : KeyActionDef.KEY_ACTION_PRESS;
+		o = key2cmd.get(getKeyHashCode(keyCode, false, action1));
+		if(o != null)
+		{
+			System.out.println("1. #" + keyCode + " -> " + ((CmdDef)o).name);
+			return (CmdDef)o;
+		}
+
+		// detailed PRESS_FIRST/PRESS_REPEAT or RELEASE_SHORT/RELEASE_LONG
+		short action2;
+		if(released)
+			action2 = repeated ? KeyActionDef.KEY_ACTION_RELEASE_LONG : KeyActionDef.KEY_ACTION_RELEASE_SHORT;
 		else
+			action2 = repeated ? KeyActionDef.KEY_ACTION_PRESS_REPEAT : KeyActionDef.KEY_ACTION_PRESS_FIRST;
+
+		o = key2cmd.get(getKeyHashCode(keyCode, false, action2));
+		if(o != null)
 		{
-			hash1 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_RELEASE);
-			if(repeated)
-				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_RELEASE_LONG);
-			else
-				hash2 = getKeyHashCode(keyCode, KeyActionDef.KEY_ACTION_RELEASE_SHORT);
+			System.out.println("2. #" + keyCode + " -> " + ((CmdDef)o).name);
+			return (CmdDef)o;
 		}
 
-		Object o = key2cmd.get(hash1);
-		if(o == null)
-			o = key2cmd.get(hash2);
-
-		System.err.println("code:" + keyCode + ", released: " + released + ", repeated: " + repeated +  
-				", hash1: " + hash1 + ", hash2: " + hash2 + ", o: " + o);
-
-		return (CmdDef)o;
+		// not found. may be this is stored as game code?
+		if(keyCode < 0)
+		{
+			int gameCode = c.getGameAction(keyCode);
+			if(gameCode != 0)
+			{
+				o = key2cmd.get(getKeyHashCode(gameCode, true, action1));
+				if(o != null)
+				{
+					System.out.println("3. #" + keyCode + " -> " + ((CmdDef)o).name);
+					return (CmdDef)o;
+				}
+	
+				o = key2cmd.get(getKeyHashCode(gameCode, true, action2));
+				if(o != null)
+				{
+					System.out.println("4. #" + keyCode + " -> " + ((CmdDef)o).name);
+					return (CmdDef)o;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	public static void mapKeyDef2Cmd(int keyDef, CmdDef cmd)
 	{
-		System.err.println("Add: " + cmd.name + " hash: " + keyDef);
 		key2cmd.put(new Integer(keyDef), cmd);
 	}
 
-	public static void mapKey2Cmd(int keyCode, short actionType, CmdDef cmd)
+	public static void mapKey2Cmd(int keyCode, boolean isGameCode, short actionType, CmdDef cmd)
 	{
-		Integer hash = getKeyHashCode(keyCode, actionType);
-		System.err.println("Add: " + cmd.name + " hash: " + hash);
+		Integer hash = getKeyHashCode(keyCode, isGameCode, actionType);
 		key2cmd.put(hash, cmd);
 	}
 	
@@ -75,36 +111,29 @@ public class KeyCommands
 	{
 		key2cmd.clear();
 		
-		Canvas c = new Canvas()
-		{
-			public void paint(Graphics g)
-			{
-			}
-		};
+		mapKey2Cmd(Canvas.UP, true, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdScrollUp);
+		mapKey2Cmd(Canvas.DOWN, true, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdScrollDown);
 
-		mapKey2Cmd(c.getKeyCode(Canvas.UP), KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdScrollUp);
-		mapKey2Cmd(c.getKeyCode(Canvas.DOWN), KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdScrollDown);
+		mapKey2Cmd('1', false, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdBusStopPrev);
+		mapKey2Cmd('2', false, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdBusStopNext);
 
-		mapKey2Cmd('1', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdBusStopPrev);
-		mapKey2Cmd('2', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdBusStopNext);
+		mapKey2Cmd('3', false, KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleDayType);
 
-		mapKey2Cmd('3', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleDayType);
-
-		mapKey2Cmd('4', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowDecrease);
-		mapKey2Cmd('5', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowIncrease);
+		mapKey2Cmd('4', false, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowDecrease);
+		mapKey2Cmd('5', false, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowIncrease);
 		
-		mapKey2Cmd('6', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdScheduleReset);
+		mapKey2Cmd('6', false, KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdScheduleReset);
 
-		mapKey2Cmd('7', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowShiftDecrease);
-		mapKey2Cmd('8', KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowShiftIncrease);
+		mapKey2Cmd('7', false, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowShiftDecrease);
+		mapKey2Cmd('8', false, KeyActionDef.KEY_ACTION_PRESS, CmdDef.cmdWindowShiftIncrease);
 		
-		mapKey2Cmd('9', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleDetailedDescription);
-		mapKey2Cmd('0', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleFavorite);
-		mapKey2Cmd('*', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleFullSchedule);
+		mapKey2Cmd('9', false, KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleDetailedDescription);
+		mapKey2Cmd('0', false, KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleFavorite);
+		mapKey2Cmd('*', false, KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdToggleFullSchedule);
 
-		mapKey2Cmd(c.getKeyCode(Canvas.FIRE), KeyActionDef.KEY_ACTION_RELEASE_SHORT, CmdDef.cmdShowBookmarks);
-		mapKey2Cmd(c.getKeyCode(Canvas.FIRE), KeyActionDef.KEY_ACTION_RELEASE_LONG, CmdDef.cmdShowAllBusStops);
+		mapKey2Cmd(Canvas.FIRE, true, KeyActionDef.KEY_ACTION_RELEASE_SHORT, CmdDef.cmdShowBookmarks);
+		mapKey2Cmd(Canvas.FIRE, true, KeyActionDef.KEY_ACTION_RELEASE_LONG, CmdDef.cmdShowAllBusStops);
 
-		mapKey2Cmd('#', KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdScheduleFullScreen);
+		mapKey2Cmd('#', false, KeyActionDef.KEY_ACTION_PRESS_FIRST, CmdDef.cmdScheduleFullScreen);
 	}
 }

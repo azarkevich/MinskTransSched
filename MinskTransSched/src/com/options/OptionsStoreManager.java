@@ -12,6 +12,7 @@ public class OptionsStoreManager
 	final static int SETTINGS_SLOT_KEYS = 2;
 	public static void ReadSettings()
 	{
+		boolean hasErrors = false;
 		try
 		{
 			RecordStore sett = RecordStore.openRecordStore("settings", true);
@@ -37,11 +38,13 @@ public class OptionsStoreManager
 			}
 			catch(InvalidRecordIDException ex)
 			{
-				//System.out.println(ex.toString());
+				hasErrors = true;
+//				System.out.println("sett:" + ex.toString());
 			}
 			catch(IOException ex)
 			{
-				//System.out.println(ex.toString());
+				hasErrors = true;
+				System.out.println(ex.toString());
 			}
 
 			try
@@ -65,14 +68,20 @@ public class OptionsStoreManager
 			catch(Exception ex)
 			{
 				KeyCommands.loadDefaultKeyCommands();
+				hasErrors = true;
 			}
 
 			sett.closeRecordStore();
 		}
 		catch(RecordStoreException ex)
 		{
-			//System.out.println(ex.toString());
+			System.out.println(ex.toString());
+			hasErrors = true;
 		}
+		
+		
+		if(hasErrors)
+			SaveSettings();
 	}
 	
 	public static void SaveSettings()

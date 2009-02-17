@@ -67,30 +67,6 @@ public class KeysTest extends Canvas
 				return "GAME_C";
 			case GAME_D:
 				return "GAME_D";
-			case KEY_NUM0:
-				return "KEY_NUM0";
-			case KEY_NUM1:
-				return "KEY_NUM1";
-			case KEY_NUM2:
-				return "KEY_NUM2";
-			case KEY_NUM3:
-				return "KEY_NUM3";
-			case KEY_NUM4:
-				return "KEY_NUM4";
-			case KEY_NUM5:
-				return "KEY_NUM5";
-			case KEY_NUM6:
-				return "KEY_NUM6";
-			case KEY_NUM7:
-				return "KEY_NUM7";
-			case KEY_NUM8:
-				return "KEY_NUM8";
-			case KEY_NUM9:
-				return "KEY_NUM9";
-			case KEY_STAR:
-				return "KEY_STAR";
-			case KEY_POUND:
-				return "KEY_POUND";
 	    }
 	    return "<none>";
 	}
@@ -100,7 +76,10 @@ public class KeysTest extends Canvas
 		int gameCode = getGameAction(keyCode); 
 		String gameName = lookupGameName(gameCode);
 		
-		text = "#" + keyCode + (repeated ? "*" : "") + ", name: " + getKeyName(keyCode) + ", game: " + gameName + "(" + gameCode +  ")";
+		text = "Key code: " + keyCode + (repeated ? "(rep)" : "") + "\n" +
+			"Key name: " + getKeyName(keyCode) + "\n" + 
+			"Game key code: " + gameCode + "\n" +
+			"Game key name: " + gameName + "\n";
 		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
 				text);

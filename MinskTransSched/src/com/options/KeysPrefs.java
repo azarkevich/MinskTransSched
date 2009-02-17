@@ -2,8 +2,6 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
-import com.mts.MinskTransSchedMidlet;
-
 public class KeysPrefs extends Form implements OptionsVisualizer
 {
 	class CommandListener implements ItemCommandListener
