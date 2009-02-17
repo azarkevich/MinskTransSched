@@ -4,13 +4,14 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
+import com.options.Options;
+import com.options.OptionsStoreManager;
+import com.options.OptionsVisualizer;
+import com.resources.Images;
+import com.test.Caps;
+import com.test.KeysTest;
 
-import options.Options;
-import options.OptionsStoreManager;
-import options.OptionsVisualizer;
-import resources.Images;
-import test.Caps;
-import test.KeysTest;
+
 
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
@@ -88,7 +89,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 			displayableStack.push(display.getCurrent());
 			
-			options.Window opt = new options.Window();
+			com.options.Window opt = new com.options.Window();
 			opt.addCommand(cmdOptSaveCommand);
 			opt.addCommand(cmdOptCancelCommand);
 			opt.setCommandListener(this);

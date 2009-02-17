@@ -2,7 +2,8 @@ package com.mts;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import options.Options;
+import com.options.Options;
+
 
 public class ScheduleBuilder
 {

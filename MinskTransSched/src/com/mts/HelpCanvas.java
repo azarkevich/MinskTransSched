@@ -1,7 +1,8 @@
 package com.mts;
 import javax.microedition.lcdui.*;
 
-import options.Options;
+import com.options.Options;
+
 
 public class HelpCanvas extends Canvas
 {

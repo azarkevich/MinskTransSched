@@ -1,4 +1,4 @@
-package resources;
+package com.resources;
 import java.io.IOException;
 
 import javax.microedition.lcdui.Image;

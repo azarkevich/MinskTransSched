@@ -1,11 +1,11 @@
-package options;
+package com.options;
 
 import javax.microedition.lcdui.*;
 
 import com.mts.MinskTransSchedMidlet;
+import com.resources.Images;
 
 
-import resources.Images;
 
 public class Window extends Form implements OptionsVisualizer, ItemStateListener
 {

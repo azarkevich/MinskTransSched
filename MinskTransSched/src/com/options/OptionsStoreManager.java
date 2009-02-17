@@ -1,9 +1,10 @@
-package options;
+package com.options;
 
 import java.io.*;
 import java.util.Enumeration;
 
 import javax.microedition.rms.*;
+
 
 public class OptionsStoreManager
 {

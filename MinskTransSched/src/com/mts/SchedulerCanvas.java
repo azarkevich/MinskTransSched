@@ -7,9 +7,10 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
 
-import options.KeyCommands;
-import options.Options;
-import options.OptionsListener;
+import com.options.KeyCommands;
+import com.options.Options;
+import com.options.OptionsListener;
+
 
 public class SchedulerCanvas extends Canvas implements OptionsListener
 {

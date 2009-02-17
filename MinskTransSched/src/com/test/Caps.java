@@ -1,4 +1,4 @@
-package test;
+package com.test;
 
 
 import javax.microedition.lcdui.Canvas;
@@ -6,9 +6,9 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 import com.mts.MultiLineText;
+import com.options.Options;
 
 
-import options.Options;
 
 public class Caps extends Canvas
 {

@@ -1,12 +1,12 @@
-package test;
+package com.test;
 
 
 import javax.microedition.lcdui.*;
 
 import com.mts.MultiLineText;
+import com.options.Options;
 
 
-import options.Options;
 
 public class KeysTest extends Canvas
 {

@@ -1,4 +1,4 @@
-package options;
+package com.options;
 
 import javax.microedition.lcdui.CustomItem;
 import javax.microedition.lcdui.Font;
