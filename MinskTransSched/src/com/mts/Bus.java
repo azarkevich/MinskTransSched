@@ -1,4 +1,4 @@
-package mts;
+package com.mts;
 
 public class Bus
 {

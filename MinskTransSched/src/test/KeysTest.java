@@ -3,7 +3,8 @@ package test;
 
 import javax.microedition.lcdui.*;
 
-import mts.MultiLineText;
+import com.mts.MultiLineText;
+
 
 import options.Options;
 

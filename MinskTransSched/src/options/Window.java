@@ -2,7 +2,8 @@ package options;
 
 import javax.microedition.lcdui.*;
 
-import mts.MinskTransSchedMidlet;
+import com.mts.MinskTransSchedMidlet;
+
 
 import resources.Images;
 

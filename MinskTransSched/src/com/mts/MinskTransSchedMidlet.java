@@ -1,10 +1,9 @@
-package mts;
+package com.mts;
 import java.util.Stack;
 import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
-import com.mts.About;
 
 import options.Options;
 import options.OptionsStoreManager;

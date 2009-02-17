@@ -5,7 +5,8 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
-import mts.MultiLineText;
+import com.mts.MultiLineText;
+
 
 import options.Options;
 

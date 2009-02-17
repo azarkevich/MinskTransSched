@@ -1,5 +1,6 @@
-package mts;
+package com.mts;
 import java.util.Calendar;
+
 
 
 public class Schedule

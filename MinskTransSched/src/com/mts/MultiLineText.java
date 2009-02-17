@@ -1,4 +1,4 @@
-package mts;
+package com.mts;
 import java.util.Vector;
 import javax.microedition.lcdui.*;
 

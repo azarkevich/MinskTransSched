@@ -1,4 +1,4 @@
-package mts;
+package com.mts;
 import javax.microedition.lcdui.*;
 
 import options.Options;
