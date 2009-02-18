@@ -51,8 +51,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 			if(displayableStack.empty())
 			{
-				// TODO: replace with startup screen
-				display.setCurrent(getBookmarks());
+				showStartupScreen();
 			}
 			else
 			{
@@ -107,7 +106,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			
 			settings = new List("Настройки", List.IMPLICIT);
 			settings.append("Основные", null);
-			settings.append("Клавиши", null);
+			settings.append("Управление", null);
 			
 			settings.addCommand(cmdBack);
 			settings.addCommand(cmdSelect);
@@ -158,7 +157,9 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	{
 		displayableStack.push(display.getCurrent());
 
-		display.setCurrent(new KeysPrefs(this));
+//		display.setCurrent(new KeysPrefs(this));
+
+		display.setCurrent(new ControlPrefs(this));
 	}
 	
 	void showAllBusStopsSchedule(int sel)
@@ -310,6 +311,11 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 		loadBookmarks();
 		
+		showStartupScreen();
+	}
+	
+	void showStartupScreen()
+	{
 		switch (Options.startupScreen)
 		{
 		default:

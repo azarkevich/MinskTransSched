@@ -7,7 +7,7 @@ import javax.microedition.lcdui.Graphics;
 
 public class KeyCommands
 {
-	static Hashtable key2cmd = new Hashtable();
+	public static Hashtable key2cmd = new Hashtable();
 
 	public static Integer getKeyHash(int keyCode, boolean isGameCode, short actionType)
 	{

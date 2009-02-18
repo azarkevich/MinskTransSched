@@ -108,9 +108,11 @@ public class KeysPrefs extends Form implements CommandListener
 		
 		append(new StringItem(null, "Нажмите SELECT, что-бы сменить назначение клавиши, или выберите в меню соответсвующий пункт."));
 		
-		java.util.Enumeration en = KeyCommands.key2cmd.keys();
+		
+		Enumeration en = CmdDef.cmdid2cmd.elements();
 		while(en.hasMoreElements())
 		{
+			
 			Integer keyHash = (Integer)en.nextElement();
 			CmdDef cmd = (CmdDef )KeyCommands.key2cmd.get(keyHash);
 			if(cmd == null)
