@@ -20,18 +20,27 @@ public class KeysPrefs extends Form implements OptionsVisualizer
 		}
 	}
 	
+	Canvas c;
+	
 	//class KeyDef
 	public KeysPrefs()
 	{
 		super("Настройки клавиш");
 		
-		Canvas c = new Canvas()
+		c = new Canvas()
 		{
 			public void paint(Graphics g)
 			{
 			}
 		};
-
+		
+		ReadSettingToControls();
+	}
+	
+	public void ReadSettingToControls()
+	{
+		this.deleteAll();
+		
 		append(new StringItem(null, "Нажмите SELECT, что-бы сменить назначение клавиши, или выберите в меню соответсвующий пункт."));
 		
 		java.util.Enumeration en = KeyCommands.key2cmd.keys();
@@ -44,20 +53,28 @@ public class KeysPrefs extends Form implements OptionsVisualizer
 				continue;
 			String cmdName = cmd.name;
 
-			int keyCode = KeyCommands.getKeyCodeFromKeyHashCode(keyHash.intValue());
-			String keyCodeName = c.getKeyName(keyCode);
-			if(keyCodeName == null)
-				keyCodeName = "#" + keyCode;
+			int keyCode = KeyCommands.getKeyCodeFromKeyHash(keyHash.intValue());
+			String keyCodeName = null;
+			try{
+				if(KeyCommands.getIsGameCodeFromKeyHash(keyHash.intValue()))
+					keyCode = c.getKeyCode(keyCode);
+				if(keyCode > 32 && keyCode < 127)
+					keyCodeName = new String(new char[] { '\'', (char)keyCode , '\''});
+				else
+					keyCodeName = c.getKeyName(keyCode);
+				if(keyCodeName == null)
+					keyCodeName = "#" + keyCode;
+			}
+			catch(Exception ex)
+			{
+				keyHash = 0;
+				keyCodeName = "<none>";
+			}
 			StringItem si = new StringItem(cmdName, keyCodeName); 
 			append(si);
 			si.setDefaultCommand(new Command("Изменить", Command.ITEM, 1));
 			si.setItemCommandListener(new CommandListener(keyHash.intValue(), cmd));
 		}
-
-	}
-	
-	public void ReadSettingToControls()
-	{
 	}
 	
 	public void SaveSettingsFromControls()

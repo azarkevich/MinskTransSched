@@ -36,6 +36,14 @@ public class CmdDef
 	public static final CmdDef cmdShowAllBusStops = new CmdDef(16, "Все остановки");
 	public static final CmdDef cmdScheduleFullScreen = new CmdDef(17, "Полноэкранный режим");
 
+	// action type
+	public static final short KEY_ACTION_PRESS = 0;
+	public static final short KEY_ACTION_PRESS_FIRST = 1;
+	public static final short KEY_ACTION_PRESS_REPEAT = 2;
+	public static final short KEY_ACTION_RELEASE = 3;
+	public static final short KEY_ACTION_RELEASE_SHORT = 4;
+	public static final short KEY_ACTION_RELEASE_LONG = 5;
+
 	static Hashtable cmdid2cmd = null;
 	public static CmdDef getCmd(int id)
 	{

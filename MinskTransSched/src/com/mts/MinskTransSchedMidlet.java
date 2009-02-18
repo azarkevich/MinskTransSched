@@ -23,7 +23,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	public final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
 	public final static Command cmdOptionsGeneral = new Command("Основные", Command.SCREEN, 2);
 	public final static Command cmdOptionsKeys = new Command("Клавиши", Command.SCREEN, 2);
-	public final static Command cmdOptionsKeysReset = new Command("Сбросить настройки клавиш", Command.SCREEN, 2);
+	public final static Command cmdOptionsKeysReset = new Command("Сбросить настройки", Command.SCREEN, 2);
 
 	public final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
 	public final static Command cmdCaps = new Command("Возможности", Command.ITEM, 1);
@@ -57,6 +57,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 			KeyCommands.loadDefaultKeyCommands();
 			OptionsStoreManager.SaveSettings();
+			((KeysPrefs)d).ReadSettingToControls();
 		}
 		else if(cmd == cmdMainHelpPage)
 		{
@@ -108,7 +109,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			settings.addCommand(cmdOptionsKeys);
 			settings.addCommand(cmdBack);
 			settings.addCommand(cmdSelect);
-			settings.addCommand(cmdOptionsKeysReset);
 			settings.setCommandListener(this);
 			
 			display.setCurrent(settings);
@@ -191,6 +191,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 		KeysPrefs opt = new KeysPrefs();
 		opt.addCommand(cmdOptSaveCommand);
+		opt.addCommand(cmdOptionsKeysReset);
 		opt.addCommand(cmdBack);
 		opt.setCommandListener(this);
 

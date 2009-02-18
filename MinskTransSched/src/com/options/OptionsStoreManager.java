@@ -62,7 +62,7 @@ public class OptionsStoreManager
 					CmdDef cmd = CmdDef.getCmd(cmdId);
 					if(cmd == null)
 						continue;
-					KeyCommands.mapKeyDef2Cmd(keyDef, cmd);
+					KeyCommands.mapKeyHash2Cmd(keyDef, cmd);
 				}
 			}
 			catch(Exception ex)
