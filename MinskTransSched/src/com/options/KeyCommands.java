@@ -11,11 +11,12 @@ public class KeyCommands
 
 	public static Integer getKeyHash(int keyCode, boolean isGameCode, short actionType)
 	{
+		int actionMask = ((actionType & 0xF) << 16); 
 		int ret = 0;
 		if(keyCode < 0)
-			ret = (-keyCode) | (actionType << 16) | 0x80000000;
+			ret = (-keyCode) | actionMask | 0x80000000;
 		else
-			ret = keyCode | (actionType << 16);
+			ret = keyCode | actionMask;
 		
 		if(isGameCode)
 			ret |= 0x40000000;
@@ -30,6 +31,11 @@ public class KeyCommands
 			keyCode = -keyCode;
 		
 		return keyCode;
+	}
+
+	public static short getActionCodeFromKeyHash(int hash)
+	{
+		return (short)((hash & 0x000F0000) >> 16);
 	}
 
 	public static boolean getIsGameCodeFromKeyHash(int hash)

@@ -10,27 +10,27 @@ public class MultiLineText
 	int regionWidth;
 	int regionHeight;
 	int lineHeight;
-	int textheight;
+	public int textHeight;
 	Vector vecLines;    
 
 	public void  MoveDown(int lines)
 	{
-		if (textheight > regionHeight)
+		if (textHeight > regionHeight)
 		{            
 			viewportTop = viewportTop - lines * lineHeight;
-			if (regionHeight - viewportTop > textheight)
-				viewportTop = regionHeight - textheight;
+			if (regionHeight - viewportTop > textHeight)
+				viewportTop = regionHeight - textHeight;
 		}
 	}
 
 	public void MoveEnd()
 	{
-		viewportTop = regionHeight - textheight;
+		viewportTop = regionHeight - textHeight;
 	}
 
 	public void MoveUp(int lines)
 	{
-		if (textheight > regionHeight)
+		if (textHeight > regionHeight)
 		{
 			viewportTop = viewportTop + lines * lineHeight;
 			if (viewportTop > 0)
@@ -41,7 +41,7 @@ public class MultiLineText
 
 	public void PageUp()
 	{
-		if (textheight>regionHeight)
+		if (textHeight>regionHeight)
 		{
 			viewportTop=viewportTop+regionHeight;
 			if (viewportTop>0){viewportTop=0;} 
@@ -51,12 +51,12 @@ public class MultiLineText
 
 	public void PageDown()
 	{
-		if (textheight>regionHeight)
+		if (textHeight>regionHeight)
 		{
 			viewportTop=viewportTop-regionHeight;
-			if (regionHeight-viewportTop>textheight)
+			if (regionHeight-viewportTop>textHeight)
 			{
-				viewportTop=regionHeight-textheight;
+				viewportTop=regionHeight-textHeight;
 			}
 		}         
 	}
@@ -89,7 +89,7 @@ public class MultiLineText
 			parBegin = parEnd + 1;
 		}
 		
-		textheight=vecLines.size() * lineHeight;
+		textHeight=vecLines.size() * lineHeight;
 	}
 	
 	void SplitString(Font f, String parText)
@@ -147,6 +147,7 @@ public class MultiLineText
 		vecLines.addElement(parText.substring(in, imax));
 	}
 
+	public boolean justifyCenter = false; 
 	public void DrawMultStr(Graphics g)
 	{
 		// save clip & font
@@ -166,7 +167,10 @@ public class MultiLineText
 		{                
 			if ((y1 + lineHeight)>0)
 			{
-				g.drawString((String)vecLines.elementAt(i), regionX + 1, regionY + y1, Graphics.LEFT | Graphics.TOP);           
+				if(justifyCenter)
+					g.drawString((String)vecLines.elementAt(i), regionX + 1 + (regionWidth - 2)/2, regionY + y1, Graphics.HCENTER | Graphics.TOP);           
+				else
+					g.drawString((String)vecLines.elementAt(i), regionX + 1, regionY + y1, Graphics.LEFT | Graphics.TOP);           
 			}
 			y1=y1 + lineHeight; 
 			if (y1>regionHeight)

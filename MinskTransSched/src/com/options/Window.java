@@ -2,12 +2,23 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
+import com.mts.MinskTransSchedMidlet;
 import com.resources.Images;
 
-
-
-public class Window extends Form implements OptionsVisualizer
+public class Window extends Form implements CommandListener
 {
+	public void commandAction(Command cmd, Displayable d)
+	{
+		boolean handled = false;
+		if(cmd == MinskTransSchedMidlet.cmdOK)
+		{
+			SaveSettings();
+		}
+		
+		if(handled == false)
+			parentCL.commandAction(cmd, d);
+	}
+
 	TextField tfDefWindowSize = null;
 	TextField tfDefWindowShift = null;
 	TextField tfDefWindowSizeStep = null;
@@ -22,10 +33,17 @@ public class Window extends Form implements OptionsVisualizer
 
 	TextField scrollSize = null;
 
-	public Window()
+	CommandListener parentCL;
+	public Window(CommandListener parent)
 	{
 		super("Настройки");
 		
+		parentCL = parent;
+
+		this.addCommand(MinskTransSchedMidlet.cmdOK);
+		this.addCommand(MinskTransSchedMidlet.cmdBack);
+		this.setCommandListener(this);
+
 		append(new StringItem(null, "Настройки окна расписания (мин.)"));
 		
 		tfDefWindowSize = new TextField("Размер", "", 6, TextField.DECIMAL);
@@ -77,7 +95,7 @@ public class Window extends Form implements OptionsVisualizer
 		
 		UpdateFontExample();
 
-		ReadSettingToControls();
+		LoadSettings();
 		
 		setItemStateListener(
 				new ItemStateListener()
@@ -106,7 +124,7 @@ public class Window extends Form implements OptionsVisualizer
 		}
 	}
 
-	public void ReadSettingToControls()
+	void LoadSettings()
 	{
 		tfDefWindowSize.setString("" + Options.defWindowSize);
 		tfDefWindowSizeStep.setString("" + Options.defWindowSizeStep);
@@ -169,7 +187,7 @@ public class Window extends Form implements OptionsVisualizer
 		return Font.FACE_SYSTEM;
 	}
 
-	public void SaveSettingsFromControls()
+	void SaveSettings()
 	{
 		Options.defWindowSize = Integer.parseInt(tfDefWindowSize.getString());
 		Options.defWindowShift = Integer.parseInt(tfDefWindowShift.getString());
@@ -181,5 +199,7 @@ public class Window extends Form implements OptionsVisualizer
 		Options.fontFace = GetFontFace();
 
 		Options.scrollSize = Integer.parseInt(scrollSize.getString());
+
+		OptionsStoreManager.SaveSettings();
 	}
 }

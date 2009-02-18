@@ -10,7 +10,6 @@ import com.test.Caps;
 import com.test.KeysTest;
 
 
-
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
 	public BusStop[] busStops;
@@ -21,16 +20,14 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	public final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
 	public final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
 	public final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
-	public final static Command cmdOptionsGeneral = new Command("Основные", Command.SCREEN, 2);
-	public final static Command cmdOptionsKeys = new Command("Клавиши", Command.SCREEN, 2);
-	public final static Command cmdOptionsKeysReset = new Command("Сбросить настройки", Command.SCREEN, 2);
 
 	public final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
 	public final static Command cmdCaps = new Command("Возможности", Command.ITEM, 1);
 	public final static Command cmdAbout = new Command("О программе", Command.ITEM, 1);
 
-	public final static Command cmdOptSaveCommand = new Command("Сохранить", Command.OK, 1);
+	public final static Command cmdOK = new Command("OK", Command.OK, 1);
 	public final static Command cmdBack = new Command("Назад", Command.BACK, 1);
+	public final static Command cmdReset = new Command("Сбросить", Command.OK, 2);
 
 	Stack displayableStack = new Stack(); 
 
@@ -49,15 +46,22 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == cmdShowBookMarks)
+		// OK, Cancel, Back - restore previous form
+		if(cmd == cmdOK || cmd == cmdBack)
+		{
+			if(displayableStack.empty())
+			{
+				// TODO: replace with startup screen
+				display.setCurrent(getBookmarks());
+			}
+			else
+			{
+				display.setCurrent((Displayable)displayableStack.pop());
+			}
+		}
+		else if(cmd == cmdShowBookMarks)
 		{
 			display.setCurrent(getBookmarks());
-		}
-		else if(cmd == cmdOptionsKeysReset)
-		{
-			KeyCommands.loadDefaultKeyCommands();
-			OptionsStoreManager.SaveSettings();
-			((KeysPrefs)d).ReadSettingToControls();
 		}
 		else if(cmd == cmdMainHelpPage)
 		{
@@ -105,21 +109,11 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 			settings.append("Основные", null);
 			settings.append("Клавиши", null);
 			
-			settings.addCommand(cmdOptionsGeneral);
-			settings.addCommand(cmdOptionsKeys);
 			settings.addCommand(cmdBack);
 			settings.addCommand(cmdSelect);
 			settings.setCommandListener(this);
 			
 			display.setCurrent(settings);
-		}
-		else if(cmd == cmdOptionsGeneral)
-		{
-			showOptGeneral();
-		}
-		else if(cmd == cmdOptionsKeys)
-		{
-			showOptKeys();
 		}
 		else if(cmd == cmdKeysTest)
 		{
@@ -151,51 +145,20 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 			display.setCurrent(scr);
 		}
-		else if(cmd == cmdOptSaveCommand)
-		{
-			((OptionsVisualizer)d).SaveSettingsFromControls(); 
-			OptionsStoreManager.SaveSettings();
-			
-			scheduleBoard.OptionsUpdated();
-		}
-
-		// back to previous screen
-		if(cmd == cmdBack || cmd == cmdOptSaveCommand)
-		{
-			if(displayableStack.empty())
-			{
-				display.setCurrent(getBookmarks());
-			}
-			else
-			{
-				display.setCurrent((Displayable)displayableStack.pop());
-			}
-		}
 	}
 	
 	void showOptGeneral()
 	{
 		displayableStack.push(display.getCurrent());
 
-		Window opt = new Window();
-		opt.addCommand(cmdOptSaveCommand);
-		opt.addCommand(cmdBack);
-		opt.setCommandListener(this);
-
-		display.setCurrent(opt);
+		display.setCurrent(new Window(this));
 	}
 	
 	void showOptKeys()
 	{
 		displayableStack.push(display.getCurrent());
 
-		KeysPrefs opt = new KeysPrefs();
-		opt.addCommand(cmdOptSaveCommand);
-		opt.addCommand(cmdOptionsKeysReset);
-		opt.addCommand(cmdBack);
-		opt.setCommandListener(this);
-
-		display.setCurrent(opt);
+		display.setCurrent(new KeysPrefs(this));
 	}
 	
 	void showAllBusStopsSchedule(int sel)

@@ -30,6 +30,11 @@
 			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad" />
 			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar" />
 			
+			<replaceregexp file="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad"
+                         match="MIDlet-Jar-URL:.*"
+                         replace="MIDlet-Jar-URL: MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar"
+                         byline="true"/>
+
 			<antcall target="make-sources" />
 			<antcall target="-clean-tmp" />
 	</target>
