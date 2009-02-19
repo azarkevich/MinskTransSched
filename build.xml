@@ -19,14 +19,21 @@
 			</svn>
 			<echo message="" />
 
+			<copy file="MinskTransSched/MinskTransSched.jad" tofile="MinskTransSched/MinskTransSched.jad~" />
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="MIDlet-Version:.*"
                          replace="MIDlet-Version: ${app.version}.${revision.max}.${build.number}"
                          byline="true"/>
-                         
-			
+
+			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
+                         match="^Version:.*"
+                         replace="Version: ${app.version}.r${revision.max}.b${build.number}"
+                         byline="true"/>
+
 			<ant antfile="build.xml" target="deployable" dir="MinskTransSched" />
-			
+
+			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
+
 			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad" />
 			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar" />
 			

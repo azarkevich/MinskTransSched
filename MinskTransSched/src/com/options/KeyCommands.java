@@ -32,7 +32,7 @@ public class KeyCommands
 		// not found. may be this is stored as game code?
 		if(keyCode < 0)
 		{
-			int gameCode = CmdDef.c.getGameAction(keyCode);
+			int gameCode = CmdDef.getDummyCanvas().getGameAction(keyCode);
 			if(gameCode != 0)
 			{
 				cmd = CmdDef.getCommandByKeyHash(CmdDef.getKeyHash(gameCode, true, action1).intValue());

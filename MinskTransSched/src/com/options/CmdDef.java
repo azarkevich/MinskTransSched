@@ -42,15 +42,15 @@ public class CmdDef
 	public int id;
 	public String name;
 	public String description;
-	int defKeyHash;
-	int keyHash;
+	private int defKeyHash;
+	private int keyHash;
 	
 	public int getKeyHash()
 	{
 		return keyHash;
 	}
 	
-	static Hashtable keyHash2Cmd; 
+	private static Hashtable keyHash2Cmd; 
 	public void setKeyHash(int newKeyHash)
 	{
 		if(keyHash != 0)
@@ -111,9 +111,8 @@ public class CmdDef
 		return ((hash & 0x40000000) == 0x40000000);
 	}
 
-	static Canvas c;
-
-	public static String getKeyHashName(int keyHash, String noneString)
+	private static Canvas c;
+	public static Canvas getDummyCanvas()
 	{
 		if(c == null)
 		{
@@ -124,10 +123,15 @@ public class CmdDef
 				}
 			};
 		}
+		return c;
+	}
+
+	public static String getKeyHashName(int keyHash, String noneString)
+	{
 		int keyCode = getKeyCodeFromKeyHash(keyHash);
 		if(keyCode != 0 && getIsGameCodeFromKeyHash(keyHash))
 		{
-			keyCode = c.getKeyCode(keyCode);
+			keyCode = getDummyCanvas().getKeyCode(keyCode);
 		}
 
 		if(keyCode == 0)
@@ -136,7 +140,7 @@ public class CmdDef
 		if(keyCode >= 32 && keyCode < 127)
 			return new String(new char[] {(char)keyCode});
 
-		return c.getKeyName(keyCode);
+		return getDummyCanvas().getKeyName(keyCode);
 	}
 
 	public static CmdDef cmdScrollUp = new CmdDef(
@@ -295,8 +299,8 @@ public class CmdDef
 	public static final short KEY_ACTION_RELEASE_SHORT = 4;
 	public static final short KEY_ACTION_RELEASE_LONG = 5;
 
-	static Vector v;
-	static CmdDef[] allCommands;
+	private static Vector v;
+	private static CmdDef[] allCommands;
 	public static CmdDef[] getAllCommands()
 	{
 		if(allCommands == null)
@@ -308,7 +312,7 @@ public class CmdDef
 		return allCommands;
 	}
 	
-	static Hashtable cmdid2cmd = null;
+	private static Hashtable cmdid2cmd = null;
 	public static CmdDef getCmd(int id)
 	{
 		if(cmdid2cmd == null)
