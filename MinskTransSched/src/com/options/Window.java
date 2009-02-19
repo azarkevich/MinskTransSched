@@ -33,6 +33,8 @@ public class Window extends Form implements CommandListener
 
 	TextField scrollSize = null;
 
+	ChoiceGroup fullScreenMode = null;
+
 	CommandListener parentCL;
 	public Window(CommandListener parent)
 	{
@@ -93,10 +95,14 @@ public class Window extends Form implements CommandListener
 		lastFontFace = FontExample.fontFace;
 		lastFontSize = FontExample.fontSize;
 		
-		UpdateFontExample();
+		String fullScreen[] = { "Полноэкрнанное", "Обычное" };
+		fullScreenMode = new ChoiceGroup("Расписание", Choice.POPUP, fullScreen, null);
+		append(fullScreenMode);
 
 		LoadSettings();
-		
+
+		UpdateFontExample();
+
 		setItemStateListener(
 				new ItemStateListener()
 				{
@@ -161,6 +167,8 @@ public class Window extends Form implements CommandListener
 			fontFace.setSelectedIndex(2, true);
 			break;
 		}
+		
+		fullScreenMode.setSelectedIndex(Options.fullScreen ? 0 : 1, true);
 	}
 	
 	int GetFontSize()
@@ -189,10 +197,10 @@ public class Window extends Form implements CommandListener
 
 	void SaveSettings()
 	{
-		Options.defWindowSize = Integer.parseInt(tfDefWindowSize.getString());
-		Options.defWindowShift = Integer.parseInt(tfDefWindowShift.getString());
-		Options.defWindowSizeStep = Integer.parseInt(tfDefWindowSizeStep.getString());
-		Options.defWindowShiftStep = Integer.parseInt(tfDefWindowShiftStep.getString());
+		Options.defWindowSize = Short.parseShort(tfDefWindowSize.getString());
+		Options.defWindowShift = Short.parseShort(tfDefWindowShift.getString());
+		Options.defWindowSizeStep = Short.parseShort(tfDefWindowSizeStep.getString());
+		Options.defWindowShiftStep = Short.parseShort(tfDefWindowShiftStep.getString());
 		Options.startupScreen = (byte)startupScreen.getSelectedIndex();
 
 		Options.fontSize = GetFontSize();
@@ -200,6 +208,13 @@ public class Window extends Form implements CommandListener
 
 		Options.scrollSize = Integer.parseInt(scrollSize.getString());
 
+		Options.fullScreen = (fullScreenMode.getSelectedIndex() == 0) ? true : false;
+
 		OptionsStoreManager.SaveSettings();
+		
+		for (int i = 0; i < MinskTransSchedMidlet.optionsListeners.length; i++)
+		{
+			MinskTransSchedMidlet.optionsListeners[i].OptionsUpdated();
+		}
 	}
 }

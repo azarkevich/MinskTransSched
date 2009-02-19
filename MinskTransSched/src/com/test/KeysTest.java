@@ -6,8 +6,6 @@ import javax.microedition.lcdui.*;
 import com.mts.MultiLineText;
 import com.options.Options;
 
-
-
 public class KeysTest extends Canvas
 {
 	MultiLineText m_MultiLineText;

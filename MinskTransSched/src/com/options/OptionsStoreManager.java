@@ -1,7 +1,6 @@
 package com.options;
 
 import java.io.*;
-import java.util.Enumeration;
 
 import javax.microedition.rms.*;
 
@@ -35,6 +34,8 @@ public class OptionsStoreManager
 				Options.fontStyle = dis.readInt();
 				
 				Options.scrollSize = dis.readInt();
+				
+				Options.fullScreen = dis.readBoolean();
 			}
 			catch(InvalidRecordIDException ex)
 			{
@@ -56,18 +57,16 @@ public class OptionsStoreManager
 				short keysCount = dis.readShort();
 				for (int i = 0; i < keysCount; i++)
 				{
-					int keyDef = dis.readInt();
+					int keyHash = dis.readInt();
 					int cmdId = dis.readShort();
 					
 					CmdDef cmd = CmdDef.getCmd(cmdId);
-					if(cmd == null)
-						continue;
-					KeyCommands.mapKeyHash2Cmd(keyDef, cmd);
+					if(cmd != null)
+						cmd.setKeyHash(keyHash);
 				}
 			}
 			catch(Exception ex)
 			{
-				KeyCommands.loadDefaultKeyCommands();
 				hasErrors = true;
 			}
 
@@ -107,6 +106,8 @@ public class OptionsStoreManager
 				
 				dos.writeInt(Options.scrollSize);
 
+				dos.writeBoolean(Options.fullScreen);
+
 				dos.flush();
 
 				byte[] rec = baos.toByteArray();
@@ -127,16 +128,13 @@ public class OptionsStoreManager
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
 				DataOutputStream dos = new DataOutputStream(baos);
 
-				dos.writeShort(KeyCommands.key2cmd.size());
-				
-				Enumeration en = KeyCommands.key2cmd.keys();
-				while(en.hasMoreElements())
+				CmdDef[] all = CmdDef.getAllCommands();
+				dos.writeShort(all.length);
+
+				for (int i = 0; i < all.length; i++)
 				{
-					Integer keyDef = (Integer)en.nextElement();
-					CmdDef cmd = (CmdDef)KeyCommands.key2cmd.get(keyDef);
-					
-					dos.writeInt(keyDef.intValue());
-					dos.writeShort(cmd.id);
+					dos.writeInt(all[i].getKeyHash());
+					dos.writeShort(all[i].id);
 				}
 
 				dos.flush();

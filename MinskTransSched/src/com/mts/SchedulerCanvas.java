@@ -25,6 +25,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 	int m_CurrentSchedule = 0;
 	
 	Timer m_RefreshTimer;
+	
+	boolean fullScreen = false;
 
 	int foreColorR = 0;
 	int foreColorG = 255;
@@ -58,7 +60,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 
 	public SchedulerCanvas(BusStop[] stops)
 	{
-		setFullScreenMode(Options.fullScreen);
+		fullScreen = Options.fullScreen;
+		setFullScreenMode(fullScreen);
 		
 		busStops = stops;
 		
@@ -234,6 +237,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
 			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
+			m_ScheduleBuilder.schedShift = 0;
 			m_ScheduleBuilder.showFull = false;
 		}
 		else if(cmd == CmdDef.cmdShowBookmarks)
@@ -246,8 +250,24 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		}
 		else if(cmd == CmdDef.cmdScheduleFullScreen)
 		{
-			Options.fullScreen = !Options.fullScreen; 
-			setFullScreenMode(Options.fullScreen);
+			fullScreen = !fullScreen; 
+			setFullScreenMode(fullScreen);
+		}
+		else if(cmd == CmdDef.cmdSchedShiftDecrease)
+		{
+			m_ScheduleBuilder.schedShift--;
+		}
+		else if(cmd == CmdDef.cmdSchedShiftIncrease)
+		{
+			m_ScheduleBuilder.schedShift++;
+		}
+		else if(cmd == CmdDef.cmdSchedShiftDecrease10)
+		{
+			m_ScheduleBuilder.schedShift -= 10;
+		}
+		else if(cmd == CmdDef.cmdSchedShiftIncrease10)
+		{
+			m_ScheduleBuilder.schedShift+=10;
 		}
 
 		RefreshScheduleText();
@@ -257,6 +277,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 	{
 		m_ScheduleBuilder.WindowShift = Options.defWindowShift;
 		m_ScheduleBuilder.WindowSize = Options.defWindowSize;
+		fullScreen = Options.fullScreen;
+		setFullScreenMode(fullScreen);
 		RefreshScheduleText(true);
 	}
 }

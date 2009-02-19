@@ -19,6 +19,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	public final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
 	public final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
 	public final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
+	public final static Command cmdHelp = new Command("Помощь", Command.HELP, 1);
 	public final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
 
 	public final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
@@ -26,6 +27,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	public final static Command cmdAbout = new Command("О программе", Command.ITEM, 1);
 
 	public final static Command cmdOK = new Command("OK", Command.OK, 1);
+	public final static Command cmdCancel = new Command("Отменить", Command.BACK, 1);
 	public final static Command cmdBack = new Command("Назад", Command.BACK, 1);
 	public final static Command cmdReset = new Command("Сбросить", Command.OK, 2);
 
@@ -38,6 +40,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 	public static Display display;
 	public static MinskTransSchedMidlet midlet;
+	
+	public static OptionsListener[] optionsListeners;
 
 	public MinskTransSchedMidlet()
 	{
@@ -47,7 +51,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	public void commandAction(Command cmd, Displayable d)
 	{
 		// OK, Cancel, Back - restore previous form
-		if(cmd == cmdOK || cmd == cmdBack)
+		if(cmd == cmdOK || cmd == cmdBack || cmd == cmdCancel)
 		{
 			if(displayableStack.empty())
 			{
@@ -65,7 +69,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		else if(cmd == cmdMainHelpPage)
 		{
 			displayableStack.push(display.getCurrent());
-			HelpCanvas helpCanvas = new HelpCanvas();
+			HelpCanvas helpCanvas = new HelpCanvas(HelpCanvas.mainHelpText);
 			helpCanvas.addCommand(cmdExit);
 			helpCanvas.addCommand(cmdOptions);
 			helpCanvas.addCommand(cmdBack);
@@ -156,8 +160,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	void showOptKeys()
 	{
 		displayableStack.push(display.getCurrent());
-
-//		display.setCurrent(new KeysPrefs(this));
 
 		display.setCurrent(new ControlPrefs(this));
 	}
@@ -284,6 +286,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		scheduleBoard.addCommand(cmdShowAllBusStops);
 		scheduleBoard.addCommand(cmdMainHelpPage);
 		scheduleBoard.addCommand(cmdOptions);
+		
+		optionsListeners = new OptionsListener[] { scheduleBoard };
 		
 		allBusStops = new List("Остановки", Choice.IMPLICIT);
 		allBusStops.setCommandListener(this);

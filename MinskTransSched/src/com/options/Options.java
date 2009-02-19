@@ -4,10 +4,10 @@ import javax.microedition.lcdui.Font;
 
 public class Options
 {
-	public static int defWindowSize = 30;
-	public static int defWindowShift = -5;
-	public static int defWindowSizeStep = 10;
-	public static int defWindowShiftStep = 10;
+	public static short defWindowSize = 30;
+	public static short defWindowShift = -5;
+	public static short defWindowSizeStep = 10;
+	public static short defWindowShiftStep = 10;
 	
 	public static final int BOOKMARK_SCREEN = 0;
 	public static final int ALL_BUSSTOPS_SCREEN = 1;
@@ -22,5 +22,5 @@ public class Options
 	
 	public static int scrollSize = 1;
 	
-	public static boolean fullScreen = true; 
+	public static boolean fullScreen = true;
 }

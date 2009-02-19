@@ -19,7 +19,7 @@ public class HelpCanvas extends Canvas
 		foreColorB = b;
 	}
 	
-	final static String helpText = 
+	public final static String mainHelpText = 
 		"Расписание автобусов г.Минска\n" +
 		"Состоит из 4 основных экранов:\n" +
 		" 1. Список избранных остановок\n" +
@@ -34,7 +34,8 @@ public class HelpCanvas extends Canvas
 		"В режиме расписания по умолчанию используются следующие клафиши:\n" +
 		" 'Up' и 'Down' Скролинг текста в верх/вниз (на некоторых телефонах не работает, " +
 		"попробуйте переопределить в меню настроек)\n" +
-		" 'Left', '1' и 'Right', '2' Предыдущая/следующая остановка\n" +
+		" 'Left' и 'Right' сдвиг расписания на 1 минуту. Долгое удержание - сдвиг на 10 минут\n" +
+		" '1' и '2' Предыдущая/следующая остановка\n" +
 		" '3' Переключить выходной/рабочий день. Обычно программа сама определяет " +
 		"выходной/рабочие дни, но иногода приходится задавать в ручную, например на праздники.\n" +
 		" '4' и '5' Уменьшить/увеличить размер окна. Увеличенное окно вмещает больше времён\n" +
@@ -46,13 +47,14 @@ public class HelpCanvas extends Canvas
 		", остановках, а так же как было получено расписание.\n" +
 		" '0' Занести/вынести текущую остановку в избранное\n" +
 		" '*' Отобразить расписание польностью, без окна.\n" +
-		" '#' Переколючить полноэкранный режим\n" +
 		" 'SELECT' - перейти к списку избранного\n" +
 		" 'SELECT(долгое нажате)' - перейти к списку всех остановок\n"
 		;
 
-	public HelpCanvas()
+	public String text; 
+	public HelpCanvas(String text)
 	{
+		this.text = text; 
 		setFullScreenMode(Options.fullScreen);
 	}
 	
@@ -63,7 +65,7 @@ public class HelpCanvas extends Canvas
 			m_MultiLineText = new MultiLineText();
 			m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 					Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
-					helpText);
+					text);
 		}
 
 		g.setColor(0, 0, 0);

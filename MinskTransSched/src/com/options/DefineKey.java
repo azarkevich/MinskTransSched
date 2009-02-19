@@ -1,75 +1,45 @@
 package com.options;
 
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
-import javax.microedition.lcdui.StringItem;
 
+import com.mts.MinskTransSchedMidlet;
 import com.mts.MultiLineText;
 
-public class DefineKey extends Canvas implements CommandListener
+public class DefineKey extends Canvas
 {
-	static final Command cmdEditActionType = new Command("Дополнительно", Command.OK, 1); 
-	static final Command cmdClear = new Command("Очистить", Command.OK, 1); 
-
-	public void commandAction(Command cmd, Displayable d)
-	{
-		if(cmd == cmdEditActionType)
-		{
-			
-		}
-		else if(cmd == cmdClear)
-		{
-			hash = 0;
-			multiLineText = null;
-			repaint();
-		}
-		else
-		{
-			parentCL.commandAction(cmd, d);
-		}
-	}
-
-	public int hash;
-
+	ControlPrefs parent;
 	MultiLineText multiLineText;
 	CmdDef cmd;
-	StringItem item;
+	int index;
+	public int newHash;
 	
-	CommandListener parentCL;
-
-	public DefineKey(CommandListener parent)
+	public DefineKey(ControlPrefs parent)
 	{
 		this.setTitle("Определение клавиши");
-		
-		this.addCommand(cmdEditActionType);
-		this.addCommand(cmdClear);
-		this.setCommandListener(this);
-		
-		parentCL = parent;
+		this.parent = parent;
 	}
 	
-	public void setData(CmdDef cmd, int hash, StringItem item)
+	public void setData(CmdDef cmd, int index)
 	{
 		this.cmd = cmd;
-		this.hash = hash;
-		this.item = item;
-		
+		newHash = cmd.getKeyHash();
+		this.index = index;
 		multiLineText = null;
+		repaint();
 	}
 
 	protected void keyPressed(int keyCode)
 	{
-		hash = KeyCommands.getKeyHash(
+		newHash = CmdDef.getKeyHash(
 				keyCode,
 				false,
-				KeyCommands.getActionCodeFromKeyHash(hash)
+				CmdDef.getActionCodeFromKeyHash(cmd.getKeyHash())
 			).intValue();
 
-		multiLineText = null;
-		repaint();
+		MinskTransSchedMidlet.display.setCurrent(parent);
+		
+		parent.onKeyAssigned(cmd, index, newHash);
 	}
 
 	protected void paint(Graphics g)
@@ -77,22 +47,8 @@ public class DefineKey extends Canvas implements CommandListener
 		if(multiLineText == null)
 		{
 			int canvasHeight = getHeight();
-			String text = "Выберите клавишу для действия\n\n'" + cmd.name + "'";
-			
-			int keyCode = KeyCommands.getKeyCodeFromKeyHash(hash);
-			if(keyCode !=0 && KeyCommands.getIsGameCodeFromKeyHash(hash))
-			{
-				keyCode = getKeyCode(keyCode);
-			}
-
-			if(keyCode != 0)
-			{
-				text = text + "\n\n>>" + getKeyName(keyCode) + "<<";
-			}
-			else
-			{
-				text = text + "\n\n<нет>";
-			}
+			String text = "Выберите клавишу для действия\n\n'" + cmd.name + "'"+ "\n\n" +
+				cmd.getKeyHashName("<нет>");
 			
 			multiLineText = new MultiLineText();
 			multiLineText.SetTextPar(0, 0, getWidth(), canvasHeight, g.getFont(), 

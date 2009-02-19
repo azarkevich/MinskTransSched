@@ -1,12 +1,12 @@
 package com.options;
 
+/*
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.microedition.lcdui.*;
 
 import com.mts.MinskTransSchedMidlet;
-
 public class KeysPrefs extends Form implements CommandListener
 {
 	CommandListener parentCommandLisener;
@@ -41,7 +41,7 @@ public class KeysPrefs extends Form implements CommandListener
 			}
 			else if(cmd == MinskTransSchedMidlet.cmdReset)
 			{
-				KeyCommands.loadDefaultKeyCommands();
+				CmdDef.resetAllKeyHashes();
 				OptionsStoreManager.SaveSettings();
 				
 				LoadSettings();
@@ -108,11 +108,9 @@ public class KeysPrefs extends Form implements CommandListener
 		
 		append(new StringItem(null, "Нажмите SELECT, что-бы сменить назначение клавиши, или выберите в меню соответсвующий пункт."));
 		
-		
 		Enumeration en = CmdDef.cmdid2cmd.elements();
 		while(en.hasMoreElements())
 		{
-			
 			Integer keyHash = (Integer)en.nextElement();
 			CmdDef cmd = (CmdDef )KeyCommands.key2cmd.get(keyHash);
 			if(cmd == null)
@@ -167,3 +165,4 @@ public class KeysPrefs extends Form implements CommandListener
 		OptionsStoreManager.SaveSettings();
 	}
 }
+*/

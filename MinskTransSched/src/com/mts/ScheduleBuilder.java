@@ -48,7 +48,7 @@ public class ScheduleBuilder
 		StringBuffer sb = new StringBuffer();
 
 		Calendar cal = GetCalendar();
-
+		
 		int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
@@ -80,8 +80,18 @@ public class ScheduleBuilder
 				sb.append("Диапазон:");
 			sb.append("[" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
 		}
-		sb.append("\n");
 		
+		if(schedShift != 0)
+		{
+			sb.append("Сдвиг расп.: ");
+			if(schedShift > 0)
+				sb.append("+");
+			FormatTimeDiff(schedShift, sb);
+			sb.append("\n");
+		}
+		
+		sb.append("\n");
+
 		Schedule[] busOnStation = Station.schedules;
 		
 		for (int i = 0; i < busOnStation.length; i++)
@@ -113,12 +123,13 @@ public class ScheduleBuilder
 			short[] times = GetSchedTimes(sched, cal);
 			for (int j = 0; j < times.length; j++)
 			{
-				if(times[j] < beginWindow && !showFull)
+				int time = times[j] + schedShift; 
+				if(time < beginWindow && !showFull)
 					continue;
 
-				if(times[j] <= endWindow || showFull)
+				if(time <= endWindow || showFull)
 				{
-					FormatBusTime(now, times[j], sb);
+					FormatBusTime(now, time, sb);
 					
 					schedEmpty = false;
 				}
@@ -127,7 +138,7 @@ public class ScheduleBuilder
 					if(schedEmpty)
 					{
 						sb.append(">>");
-						FormatBusTime(now, times[j], sb);
+						FormatBusTime(now, time, sb);
 					}
 					break;
 				}
@@ -201,8 +212,9 @@ public class ScheduleBuilder
 	public static final int DAY_WORK = 1;
 	public static final int DAY_HOLIDAY = 2;
 
-	public int WindowSize = Options.defWindowSize;
-	public int WindowShift = Options.defWindowShift;
+	public short WindowSize = Options.defWindowSize;
+	public short WindowShift = Options.defWindowShift;
+	public short schedShift = 0;
 	
 	public BusStop Station;
 	
