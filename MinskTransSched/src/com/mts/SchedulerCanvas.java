@@ -228,7 +228,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		}
 		else if(cmd == CmdDef.cmdToggleFullSchedule)
 		{
-			m_ScheduleBuilder.showFull = !m_ScheduleBuilder.showFull; 
+			m_ScheduleBuilder.toggleFullSched(); 
 		}
 		else if(cmd == CmdDef.cmdScheduleReset)
 		{
@@ -238,7 +238,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			m_ScheduleBuilder.schedShift = 0;
-			m_ScheduleBuilder.showFull = false;
+			m_ScheduleBuilder.showFull = ScheduleBuilder.SCHED_FULL_NONE;
+			m_ScheduleBuilder.showTimeDiff = true;
 		}
 		else if(cmd == CmdDef.cmdShowBookmarks)
 		{
@@ -256,18 +257,32 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		else if(cmd == CmdDef.cmdSchedShiftDecrease)
 		{
 			m_ScheduleBuilder.schedShift--;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftIncrease)
 		{
 			m_ScheduleBuilder.schedShift++;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftDecrease10)
 		{
 			m_ScheduleBuilder.schedShift -= 10;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftIncrease10)
 		{
 			m_ScheduleBuilder.schedShift+=10;
+			RefreshScheduleText(true);
+			return;
+		}
+		else if(cmd == CmdDef.cmdToggleSchedShowTimeDiff)
+		{
+			m_ScheduleBuilder.showTimeDiff = !m_ScheduleBuilder.showTimeDiff;
+			RefreshScheduleText(true);
+			return;
 		}
 
 		RefreshScheduleText();

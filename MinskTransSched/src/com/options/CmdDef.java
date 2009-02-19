@@ -290,6 +290,11 @@ public class CmdDef
 			"Увеличить сдвиг расписания на 10 мин",
 			CmdDef.KEY_ACTION_RELEASE_LONG,
 			Canvas.RIGHT, true);
+
+	public static CmdDef cmdToggleSchedShowTimeDiff = new CmdDef(
+			22,
+			"Отобр. 'Осталось'",
+			"Отображать или нет сколько осталось(или прошло) до автобуса");
 	
 	// action type
 	public static final short KEY_ACTION_PRESS = 0;

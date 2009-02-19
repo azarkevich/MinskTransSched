@@ -31,14 +31,39 @@ public class ScheduleBuilder
 		return FormatNum(hi) + sep + FormatNum(lo);
 	}
 	
-	
 	Calendar GetCalendar()
 	{
 		return Calendar.getInstance(TimeZone.getDefault());
 	}
 	
 	public boolean showDescription = false;
-	public boolean showFull = false;
+	public boolean showTimeDiff = true;
+	
+	public void toggleFullSched()
+	{
+		showFull = (showFull + 1) % 3;
+		
+		// SCHED_FULL_SIMPLE same as SCHED_FULL_NOTIME if showTimeDiff == false,
+		// so toggle again
+		if(showFull == SCHED_FULL_SIMPLE && showTimeDiff == false)
+			toggleFullSched();
+	}
+	
+	public static final int SCHED_FULL_NONE = 0; 
+	public static final int SCHED_FULL_SIMPLE = 1; 
+	public static final int SCHED_FULL_NOTIME = 2; 
+
+	public int showFull = SCHED_FULL_NONE;
+	
+	boolean isFullSchedule()
+	{
+		return (showFull != SCHED_FULL_NONE);
+	}
+
+	boolean isShowTimeDiff()
+	{
+		return (showFull != SCHED_FULL_NOTIME) && showTimeDiff;
+	}
 
 	public String GetScheduleText()
 	{
@@ -55,7 +80,7 @@ public class ScheduleBuilder
 
 		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + (Station.bookmarked ? "* " : "") + Station.name);
 		
-		if(showFull)
+		if(isFullSchedule())
 		{
 			sb.append("\nПолное расписание\n");
 		}
@@ -124,10 +149,10 @@ public class ScheduleBuilder
 			for (int j = 0; j < times.length; j++)
 			{
 				int time = times[j] + schedShift; 
-				if(time < beginWindow && !showFull)
+				if(time < beginWindow && !isFullSchedule())
 					continue;
 
-				if(time <= endWindow || showFull)
+				if(time <= endWindow || isFullSchedule())
 				{
 					FormatBusTime(now, time, sb);
 					
@@ -200,12 +225,16 @@ public class ScheduleBuilder
 	private void FormatBusTime(int now, int stop, StringBuffer sb)
 	{
 		sb.append(FormatXTime(stop, ":"));
-		sb.append("[");
 		
-		int diff = stop - now;
-		FormatTimeDiff(diff, sb);
-		
-		sb.append("] ");
+		if(isShowTimeDiff())
+		{
+			sb.append("[");
+			int diff = stop - now;
+			FormatTimeDiff(diff, sb);
+			
+			sb.append("]");
+		}
+		sb.append(" ");
 	}
 	
 	public static final int DAY_AUTO = 0;
