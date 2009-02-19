@@ -1,8 +1,5 @@
 package com.options;
 
-import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Graphics;
-
 public class KeyCommands
 {
 	public static CmdDef getCommand(int keyCode, boolean released, boolean repeated)

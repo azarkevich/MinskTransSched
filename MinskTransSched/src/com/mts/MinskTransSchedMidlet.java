@@ -154,7 +154,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	{
 		displayableStack.push(display.getCurrent());
 
-		display.setCurrent(new Window(this));
+		display.setCurrent(new GeneralPrefs(this));
 	}
 	
 	void showOptKeys()

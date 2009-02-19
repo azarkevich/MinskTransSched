@@ -5,7 +5,7 @@ import javax.microedition.lcdui.*;
 import com.mts.MinskTransSchedMidlet;
 import com.resources.Images;
 
-public class Window extends Form implements CommandListener
+public class GeneralPrefs extends Form implements CommandListener
 {
 	public void commandAction(Command cmd, Displayable d)
 	{
@@ -36,7 +36,7 @@ public class Window extends Form implements CommandListener
 	ChoiceGroup fullScreenMode = null;
 
 	CommandListener parentCL;
-	public Window(CommandListener parent)
+	public GeneralPrefs(CommandListener parent)
 	{
 		super("Настройки");
 		
