@@ -25,7 +25,7 @@
                          byline="true"/>
                          
 			
-			<ant antfile="build.xml" target="jar" dir="MinskTransSched" />
+			<ant antfile="build.xml" target="deployable" dir="MinskTransSched" />
 			
 			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad" />
 			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar" />
