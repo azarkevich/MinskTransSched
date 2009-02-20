@@ -11,6 +11,24 @@
 	<taskdef name="svn" classpathref="project.classpath"
 		    classname="org.tigris.subversion.svnant.SvnTask" />
 
+	<target name="publish" depends="build">
+			<delete>
+				<fileset dir="c:\Apache-2.0.59\htdocs\mt\" includes="*.jad"/>
+				<fileset dir="c:\Apache-2.0.59\htdocs\mt\" includes="*.jar"/>
+			</delete>
+
+			<property name="version.full" value="${app.version}.${revision.max}.${build.number}" />
+			<property name="publish.dir" value="c:\Apache-2.0.59\htdocs\mt" />
+			
+			<copy file="bin/MinskTransSched_v${version.full}.jad" tofile="${publish.dir}\MinskTransport.jad" />
+			<copy file="bin/MinskTransSched_v${version.full}.jar" tofile="${publish.dir}\MinskTransport.jar" />
+
+			<replaceregexp file="${publish.dir}\MinskTransport.jad"
+                         match="MIDlet-Jar-URL:.*"
+                         replace="MIDlet-Jar-URL: MinskTransport.jar"
+                         byline="true"/>
+	</target>
+
 	<target name="build" depends="-initialize">
 			<buildnumber/>
 
@@ -33,6 +51,8 @@
 			<ant antfile="build.xml" target="deployable" dir="MinskTransSched" />
 
 			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
+
+			<delete file="${path.build.output}/${midlet.file.name}.tar"/>
 
 			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad" />
 			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar" />
