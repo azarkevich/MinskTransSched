@@ -296,6 +296,13 @@ public class CmdDef
 			"Отобр. 'Осталось'",
 			"Отображать или нет сколько осталось(или прошло) до автобуса");
 	
+	public static CmdDef cmdToggleBusFlow = new CmdDef(
+			23,
+			"Bus Flow",
+			"Отображать автобусы в порядке проезда по остановке",
+			CmdDef.KEY_ACTION_PRESS,
+			'#');
+	
 	// action type
 	public static final short KEY_ACTION_PRESS = 0;
 	public static final short KEY_ACTION_PRESS_FIRST = 1;

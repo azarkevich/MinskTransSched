@@ -179,22 +179,32 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.WindowSize -= Options.defWindowSizeStep;
 			if(m_ScheduleBuilder.WindowSize < 0)
 				m_ScheduleBuilder.WindowSize = 0;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdWindowIncrease)
 		{
 			m_ScheduleBuilder.WindowSize += Options.defWindowSizeStep;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdWindowShiftDecrease)
 		{
 			m_ScheduleBuilder.WindowShift -= Options.defWindowShiftStep;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdWindowShiftIncrease)
 		{
 			m_ScheduleBuilder.WindowShift += Options.defWindowShiftStep;
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdToggleDayType)
 		{
 			m_ScheduleBuilder.ShiftDayType();
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdToggleDetailedDescription)
 		{
@@ -232,8 +242,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		}
 		else if(cmd == CmdDef.cmdScheduleReset)
 		{
-			m_CurrentSchedule = 0;
-			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
 			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
 			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
 			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
@@ -253,6 +261,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		{
 			fullScreen = !fullScreen; 
 			setFullScreenMode(fullScreen);
+			RefreshScheduleText(true);
+			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftDecrease)
 		{
@@ -283,6 +293,10 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.showTimeDiff = !m_ScheduleBuilder.showTimeDiff;
 			RefreshScheduleText(true);
 			return;
+		}
+		else if(cmd == CmdDef.cmdToggleBusFlow)
+		{
+			m_ScheduleBuilder.showBusFlow = !m_ScheduleBuilder.showBusFlow;
 		}
 
 		RefreshScheduleText();

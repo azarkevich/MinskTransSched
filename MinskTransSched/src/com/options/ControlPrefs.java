@@ -18,8 +18,9 @@ public class ControlPrefs extends List implements CommandListener
 		boolean handled = false;
 		if(cmd == cmdDescription)
 		{
+			CmdDef c = all[this.getSelectedIndex()];
 			Alert a = new Alert(null);
-			a.setString(all[this.getSelectedIndex()].description);
+			a.setString(c.description + "\n" + CmdDef.getKeyHashName(c.getKeyHash(), "<нет>"));
 			MinskTransSchedMidlet.display.setCurrent(a);
 			handled = true;
 		}
@@ -97,6 +98,8 @@ public class ControlPrefs extends List implements CommandListener
 		super("Настройки управления", List.IMPLICIT);
 		
 		parentCL = clParent;
+		
+		setFitPolicy(Choice.TEXT_WRAP_ON);
 		
 		loadItems();
 		

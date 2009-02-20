@@ -20,12 +20,12 @@ public class ScheduleLoader
 	{
 		// load buses
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/buses"));
-		short count = dis.readShort();
+		short count = dis.readByte();
 		buses = new Bus[count];
 		for (int i = 0; i < count; i++)
 		{
 			buses[i] = new Bus();
-			buses[i].id = dis.readShort();
+			buses[i].id = dis.readByte();
 			buses[i].name = dis.readUTF();
 			buses[i].route = dis.readUTF();
 		}
@@ -36,17 +36,17 @@ public class ScheduleLoader
 	{
 		// load 'scheds'
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/scheds"));
-		short count = dis.readShort();
+		short count = dis.readByte();
 		schedules = new Schedule[count];
 		int freeSchedule = 0;
 		for (int i = 0; i < count; i++)
 		{
 			// read data
-			short bus = dis.readShort();
-			short busStop = dis.readShort();
+			short bus = dis.readByte();
+			short busStop = dis.readByte();
 			int day = dis.readByte();
 			String from = dis.readUTF();
-			int timesCount = dis.readShort();
+			int timesCount = dis.readByte();
 			short[] times = new short[timesCount];
 			for (int t = 0; t < times.length; t++)
 			{
@@ -104,12 +104,12 @@ public class ScheduleLoader
 	{
 		// load buses
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/busStops"));
-		short count = dis.readShort();
+		short count = dis.readByte();
 		busStops = new BusStop[count];
 		for (int i = 0; i < count; i++)
 		{
 			busStops[i] = new BusStop();
-			busStops[i].id = dis.readShort();
+			busStops[i].id = dis.readByte();
 			busStops[i].name = dis.readUTF();
 			busStops[i].description = dis.readUTF();
 		}

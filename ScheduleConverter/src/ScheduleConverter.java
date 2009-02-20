@@ -84,6 +84,10 @@ public class ScheduleConverter
 					{
 						Bus b = new Bus();
 						b.id = Integer.parseInt(r.get("id"));
+
+						if(b.id > Byte.MAX_VALUE)
+							throw new Exception("Bus ID exceed store size");
+
 						b.name = r.get("name");
 						b.route = r.get("route");
 						
@@ -102,6 +106,8 @@ public class ScheduleConverter
 					{
 						BusStop bs = new BusStop();
 						bs.id = Integer.parseInt(r.get("id"));
+						if(bs.id > Byte.MAX_VALUE)
+							throw new Exception("BusStop ID exceed store size");
 						bs.name = r.get("name");
 						bs.officialName = r.get("officialName");
 						bs.description = r.get("description");
@@ -560,7 +566,7 @@ public class ScheduleConverter
 		}
 	}
 
-	void WriteBuses(String file) throws IOException
+	void WriteBuses(String file) throws Exception
 	{
 		// format:
 		// bus count: short
@@ -571,11 +577,13 @@ public class ScheduleConverter
 		// ...
 		
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
-		dos.writeShort((short)buses.size());
+		if(buses.size() > Byte.MAX_VALUE)
+			throw new Exception("buses.size() exceed store size");
+		dos.writeByte(buses.size());
 		for (int i = 0; i < buses.size(); i++)
 		{
 			Bus bus = buses.get(i);
-			dos.writeShort(bus.id);
+			dos.writeByte(bus.id);
 			dos.writeUTF(bus.name);
 			dos.writeUTF(bus.route);
 		}
@@ -583,22 +591,24 @@ public class ScheduleConverter
 		dos.close();
 	}
 
-	void WriteBusStops(String file) throws IOException
+	void WriteBusStops(String file) throws Exception
 	{
 		// format:
 		// busStop count: short
 		//
-		// id: short
+		// id: byte
 		// name: UTF-8
 		// description: UTF-8
 		// ...
 		
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
-		dos.writeShort((short)busStops.size());
+		if(busStops.size() > Byte.MAX_VALUE)
+			throw new Exception("busStops.size() exceed store size");
+		dos.writeByte(busStops.size());
 		for (int i = 0; i < busStops.size(); i++)
 		{
 			BusStop busStop = busStops.get(i);
-			dos.writeShort(busStop.id);
+			dos.writeByte(busStop.id);
 			dos.writeUTF(busStop.name);
 			dos.writeUTF(busStop.description);
 		}
@@ -612,23 +622,30 @@ public class ScheduleConverter
 		return daysStr[day];
 	}
 
-	void WriteSchedules(String file) throws IOException
+	void WriteSchedules(String file) throws Exception
 	{
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
-		dos.writeShort((short)schedules.size());
+		
+		if(schedules.size() > Byte.MAX_VALUE)
+			throw new Exception("schedules.size() exceed store size");
+		
+		dos.writeByte(schedules.size());
 
 		for (int i = 0; i < schedules.size(); i++)
 		{
 			Schedule sched = schedules.get(i);
 
-			dos.writeShort(sched.bus);
-			dos.writeShort(sched.busStop);
+			dos.writeByte(sched.bus);
+			dos.writeByte(sched.busStop);
 			dos.writeByte(sched.day);
 			dos.writeUTF(sched.from);
 			
 			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DayToString(sched.day));
 			
-			dos.writeShort(sched.times.size());
+			if(sched.times.size() > Byte.MAX_VALUE)
+				throw new Exception("Value exceed store size");
+
+			dos.writeByte(sched.times.size());
 			
 			for (int j = 0; j < sched.times.size(); j++)
 			{

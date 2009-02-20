@@ -38,6 +38,7 @@ public class ScheduleBuilder
 	
 	public boolean showDescription = false;
 	public boolean showTimeDiff = true;
+	public boolean showBusFlow = false;
 	
 	public void toggleFullSched()
 	{
@@ -115,46 +116,56 @@ public class ScheduleBuilder
 			sb.append("\n");
 		}
 		
-		sb.append("\n");
-
 		Schedule[] busOnStation = Station.schedules;
 		
-		for (int i = 0; i < busOnStation.length; i++)
+		// bus flow
+		if(showBusFlow)
 		{
-			boolean schedEmpty = true;
-			Schedule sched = busOnStation[i];
-			sb.append(sched.bus.name);
-			sb.append(": ");
-			boolean needLF = false;
-			if(showDescription)
+			int[] indexes = new int[busOnStation.length];
+			short[][] times = new short[busOnStation.length][];
+			for (int i = 0; i < indexes.length; i++)
 			{
-				if(sched.bus.route.compareTo("") != 0)
-				{
-					sb.append("\nМаршр.:");
-					sb.append(sched.bus.route);
-					needLF = true;
-				}
-				String desc = GetSchedDesc(sched, cal);
-				if(desc.compareTo("") != 0)
-				{
-					sb.append("\nРасп.:");
-					sb.append(desc);
-					needLF = true;
-				}
+				indexes[i] = 0;
+				times[i] = GetSchedTimes(busOnStation[i], cal);
 			}
-			if(needLF)
-				sb.append("\n");
 			
-			short[] times = GetSchedTimes(sched, cal);
-			for (int j = 0; j < times.length; j++)
+			// find minimal time:
+			boolean schedEmpty = true;
+			Bus lastBus = null;
+			while(true)
 			{
-				int time = times[j] + schedShift; 
-				if(time < beginWindow && !isFullSchedule())
+				int minIndex = -1;
+				short minTime = Short.MAX_VALUE;
+				Bus b = null;
+				for (int i = 0; i < indexes.length; i++)
+				{
+					if(indexes[i] != -1 && times[i][indexes[i]] < minTime)
+					{
+						minTime = times[i][indexes[i]];
+						minIndex = i;
+						b = busOnStation[i].bus;
+					}
+				}
+				if(minIndex == -1)
+					break;
+
+				indexes[minIndex]++;
+				if(indexes[minIndex] >= times[minIndex].length)
+					indexes[minIndex] = -1;
+
+				if(minTime < beginWindow && !isFullSchedule())
 					continue;
 
-				if(time <= endWindow || isFullSchedule())
+				if(minTime <= endWindow || isFullSchedule())
 				{
-					FormatBusTime(now, time, sb);
+					if(lastBus != b)
+					{
+						sb.append("\n");
+						sb.append(b.name);
+						sb.append(": ");
+					}
+						
+					FormatBusTime(now, minTime, sb);
 					
 					schedEmpty = false;
 				}
@@ -162,14 +173,72 @@ public class ScheduleBuilder
 				{
 					if(schedEmpty)
 					{
+						sb.append(b.name);
+						sb.append(": ");
 						sb.append(">>");
-						FormatBusTime(now, time, sb);
+						FormatBusTime(now, minTime, sb);
 					}
 					break;
 				}
+				lastBus = b;
 			}
+		}
+		else
+		{
 			sb.append("\n");
-			sb.append("\n");
+
+			for (int i = 0; i < busOnStation.length; i++)
+			{
+				boolean schedEmpty = true;
+				Schedule sched = busOnStation[i];
+				sb.append(sched.bus.name);
+				sb.append(": ");
+				boolean needLF = false;
+				if(showDescription)
+				{
+					if(sched.bus.route.compareTo("") != 0)
+					{
+						sb.append("\nМаршр.:");
+						sb.append(sched.bus.route);
+						needLF = true;
+					}
+					String desc = GetSchedDesc(sched, cal);
+					if(desc.compareTo("") != 0)
+					{
+						sb.append("\nРасп.:");
+						sb.append(desc);
+						needLF = true;
+					}
+				}
+				if(needLF)
+					sb.append("\n");
+				
+				short[] times = GetSchedTimes(sched, cal);
+				for (int j = 0; j < times.length; j++)
+				{
+					int time = times[j] + schedShift; 
+					if(time < beginWindow && !isFullSchedule())
+						continue;
+	
+					if(time <= endWindow || isFullSchedule())
+					{
+						FormatBusTime(now, time, sb);
+						
+						schedEmpty = false;
+					}
+					else
+					{
+						if(schedEmpty)
+						{
+							sb.append(">>");
+							FormatBusTime(now, time, sb);
+						}
+						break;
+					}
+				}
+				sb.append("\n");
+				sb.append("\n");
+			}
 		}
 		
 		return sb.toString();

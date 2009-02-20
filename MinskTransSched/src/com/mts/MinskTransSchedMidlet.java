@@ -22,8 +22,8 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	public final static Command cmdHelp = new Command("Помощь", Command.HELP, 1);
 	public final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
 
-	public final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 1);
-	public final static Command cmdCaps = new Command("Возможности", Command.ITEM, 1);
+	public final static Command cmdKeysTest = new Command("Тест клавиатуры", Command.ITEM, 10);
+	public final static Command cmdCaps = new Command("Возможности", Command.ITEM, 10);
 	public final static Command cmdAbout = new Command("О программе", Command.ITEM, 1);
 
 	public final static Command cmdOK = new Command("OK", Command.OK, 1);
@@ -34,9 +34,9 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	Stack displayableStack = new Stack(); 
 
 	SchedulerCanvas scheduleBoard;
-	List bookmarks;
 	List allBusStops;
 	List settings;
+	List bookmarks;
 
 	public static Display display;
 	public static MinskTransSchedMidlet midlet;
@@ -249,17 +249,29 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	
 	Displayable getBookmarks()
 	{
-		bookmarks.deleteAll();
+		// create on demand
+		if(bookmarks == null)
+		{
+			bookmarks = new List("Закладки", Choice.IMPLICIT);
+			bookmarks.setCommandListener(this);
+			bookmarks.addCommand(cmdSelect);
+			bookmarks.addCommand(cmdShowAllBusStops);
+			bookmarks.addCommand(cmdMainHelpPage);
+			bookmarks.addCommand(cmdOptions);
+			bookmarks.addCommand(cmdExit);
+		}
+		else
+		{
+			bookmarks.deleteAll();
+		}
+
 		for (int i = 0; i < busStops.length; i++)
 		{
 			if(busStops[i].bookmarked)
-				bookmarks.append (busStops[i].name, null);
+				bookmarks.append (busStops[i].name, Images.heart);
 		}
-		
-		for (int i = 0; i < bookmarks.size(); i++)
-			bookmarks.setFont(i, Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize));
 
-		if(bookmarks.size() == 0)
+		if(bookmarks == null)
 			return allBusStops;
 		
 		return bookmarks;
@@ -305,14 +317,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		for (int i = 0; i < allBusStops.size(); i++)
 			allBusStops.setFont(i, Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize));
 		
-		bookmarks = new List("Закладки", Choice.IMPLICIT);
-		bookmarks.setCommandListener(this);
-		bookmarks.addCommand(cmdSelect);
-		bookmarks.addCommand(cmdShowAllBusStops);
-		bookmarks.addCommand(cmdMainHelpPage);
-		bookmarks.addCommand(cmdOptions);
-		bookmarks.addCommand(cmdExit);
-
 		loadBookmarks();
 		
 		showStartupScreen();
