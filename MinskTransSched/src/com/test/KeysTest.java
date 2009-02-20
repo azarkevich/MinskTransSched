@@ -35,14 +35,19 @@ public class KeysTest extends Canvas
 
 	protected void keyPressed(int keyCode)
 	{
-		OnKeyEvent(keyCode, false);
+		OnKeyEvent(keyCode, true, false);
 	}
 	
 	protected void keyRepeated(int keyCode)
 	{
-		OnKeyEvent(keyCode, true);
+		OnKeyEvent(keyCode, true, true);
 	}
 	
+	protected void keyReleased(int keyCode)
+	{
+		OnKeyEvent(keyCode, false, false);
+	}
+
 	String lookupGameName(int gameCode)
 	{
 		switch(gameCode)
@@ -69,18 +74,18 @@ public class KeysTest extends Canvas
 	    return "<none>";
 	}
 	
-	private void OnKeyEvent(int keyCode, boolean repeated)
+	private void OnKeyEvent(int keyCode, boolean pressed, boolean repeated)
 	{
 		int gameCode = getGameAction(keyCode); 
 		String gameName = lookupGameName(gameCode);
 		
-		text = "Key code: " + keyCode + (repeated ? "(rep)" : "") + "\n" +
-			"Key name: " + getKeyName(keyCode) + "\n" + 
-			"Game key code: " + gameCode + "\n" +
-			"Game key name: " + gameName + "\n";
+		text = text + "\n" + (pressed ? "v" : "^") + (repeated ? "*" : " ") + " Code: " + keyCode + " (" + getKeyName(keyCode) +  ")" +
+			" Game: " + gameCode + " (" + gameName + ")";
 		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
 				text);
+		
+		m_MultiLineText.MoveEnd(); 
 		
 		repaint();
 	}
