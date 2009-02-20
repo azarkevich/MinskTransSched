@@ -271,7 +271,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				bookmarks.append (busStops[i].name, Images.heart);
 		}
 
-		if(bookmarks == null)
+		if(bookmarks.size() == 0)
 			return allBusStops;
 		
 		return bookmarks;

@@ -21,6 +21,11 @@ public class Schedule implements Comparable<Schedule>
 	public int bus;
 	public int busStop;
 	public int day;
-	public String from = "";
+	public int schedFrom = SCHED_FROM_UNKNOWN;
+	
+	public static final int SCHED_FROM_UNKNOWN = 0; 
+	public static final int SCHED_FROM_MINSK_TRANS_SITE = 1; 
+	public static final byte SCHED_FROM_BUSSTOP = 2; 
+
 	public Vector<Integer> times = new Vector<Integer>(50);
 }

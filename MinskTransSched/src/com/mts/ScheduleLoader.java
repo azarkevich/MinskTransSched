@@ -1,12 +1,13 @@
 package com.mts;
 import java.io.*;
+import java.util.Vector;
 
 
 public class ScheduleLoader
 {
 	public BusStop[] busStops;
-	Bus[] buses;
-	Schedule[] schedules;
+	private Bus[] buses;
+	private Vector schedules;
 	
 	void Debug(String x)
 	{
@@ -32,21 +33,37 @@ public class ScheduleLoader
 		dis.close();
 	}
 	
+	void LoadBusStops() throws IOException
+	{
+		// load buses
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/busStops"));
+		int count = dis.readByte();
+		busStops = new BusStop[count];
+		for (int i = 0; i < count; i++)
+		{
+			busStops[i] = new BusStop();
+			busStops[i].id = dis.readByte();
+			busStops[i].name = dis.readUTF();
+			busStops[i].description = dis.readUTF();
+			
+			//System.out.println("Read bs:" + busStops[i].id);
+		}
+		dis.close();
+	}
+
 	void LoadSchedules() throws Exception
 	{
 		// load 'scheds'
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/scheds"));
 		short count = dis.readByte();
-		schedules = new Schedule[count];
-		int freeSchedule = 0;
 		for (int i = 0; i < count; i++)
 		{
 			// read data
 			short bus = dis.readByte();
 			short busStop = dis.readByte();
 			int day = dis.readByte();
-			String from = dis.readUTF();
-			int timesCount = dis.readByte();
+			byte schedFrom = dis.readByte();
+			byte timesCount = dis.readByte();
 			short[] times = new short[timesCount];
 			for (int t = 0; t < times.length; t++)
 			{
@@ -61,15 +78,68 @@ public class ScheduleLoader
 
 				sched.bus = FindBus(bus);
 				sched.busStop = FindBusStop(busStop);
-				schedules[freeSchedule++] = sched;
+				schedules.addElement(sched);
 			}
 			
-			sched.setFrom(day, from);
+			if(schedFrom == Schedule.SCHED_FROM_MINSK_TRANS_SITE)
+			{
+				sched.setFrom(day, "minsktrans.by");
+			}
+			else if(schedFrom == Schedule.SCHED_FROM_BUSSTOP)
+			{
+				sched.setFrom(day, "С остановки");
+			}
+
 			sched.setTimes(day, times);
 		}
 		dis.close();
 	}
 
+	
+	void LoadDerivedSchedules() throws Exception
+	{
+		// load 'dscheds'
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/dscheds"));
+		int count = dis.readByte();
+		for (int i = 0; i < count; i++)
+		{
+			// read data
+			short bus = dis.readByte();
+			short busStop = dis.readByte();
+			int day = dis.readByte();
+			short baseBusStop = dis.readByte();
+			short shift = dis.readByte();
+			
+			//System.out.println("bus:" + bus + ", bs:" + busStop);
+			
+			// src
+			Schedule baseSched = FindSchedule(bus, baseBusStop);
+			
+			// dst
+			Schedule sched = FindSchedule(bus, busStop);
+			if(sched == null)
+			{
+				sched = new Schedule();
+
+				sched.bus = FindBus(bus);
+				sched.busStop = FindBusStop(busStop);
+				schedules.addElement(sched);
+			}
+			
+			// generate times:
+			short[] srcTimes = baseSched.getTimes(day);
+			short[] dstTimes = new short[srcTimes.length];
+			for (int j = 0; j < srcTimes.length; j++)
+			{
+				dstTimes[j] = (short)(srcTimes[j] + shift);
+			}
+			
+			sched.setTimes(day, dstTimes);
+			sched.setFrom(day, baseSched.busStop.name + " +" + shift + "m");
+		}
+		dis.close();
+	}
+	
 	Bus FindBus(short id) throws Exception
 	{
 		for (int i = 0; i < buses.length; i++)
@@ -92,43 +162,29 @@ public class ScheduleLoader
 	
 	Schedule FindSchedule(short bus, short busStop)
 	{
-		for (int i = 0; i < schedules.length; i++)
+		for (int i = 0; i < schedules.size(); i++)
 		{
-			if(schedules[i] != null && schedules[i].bus.id == bus && schedules[i].busStop.id == busStop)
-				return schedules[i];
+			Schedule sched = (Schedule)schedules.elementAt(i);
+			if(sched != null && sched.bus.id == bus && sched.busStop.id == busStop)
+				return sched;
 		}
 		return null;
-	}
-	
-	void LoadBusStops() throws IOException
-	{
-		// load buses
-		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/busStops"));
-		short count = dis.readByte();
-		busStops = new BusStop[count];
-		for (int i = 0; i < count; i++)
-		{
-			busStops[i] = new BusStop();
-			busStops[i].id = dis.readByte();
-			busStops[i].name = dis.readUTF();
-			busStops[i].description = dis.readUTF();
-		}
-		dis.close();
 	}
 	
 	public void Load()
 	{
 		try{
+			schedules = new Vector();
+
 			LoadBuses();
 			LoadBusStops();
 			LoadSchedules();
+			LoadDerivedSchedules();
 
-			for (int s = 0; s < schedules.length; s++)
+			for (int i = 0; i < schedules.size(); i++)
 			{
-				if(schedules[s] != null)
-				{
-					schedules[s].NormalizeDays();
-				}
+				Schedule sched = (Schedule)schedules.elementAt(i);
+				sched.NormalizeDays();
 			}
 			
 			// link scheds to busstops
@@ -137,19 +193,19 @@ public class ScheduleLoader
 				// calc count of schedules for it
 				BusStop stop = busStops[bs];
 				int count = 0;
-				for (int s = 0; s < schedules.length && schedules[s] != null; s++)
+				for (int s = 0; s < schedules.size(); s++)
 				{
-					if(schedules[s] != null && schedules[s].busStop == stop)
+					Schedule sched = (Schedule)schedules.elementAt(s);
+					if(sched.busStop == stop)
 						count++;
 				}
 				stop.schedules = new Schedule[count];
 				count = 0;
-				for (int s = 0; s < schedules.length && schedules[s] != null; s++)
+				for (int s = 0; s < schedules.size(); s++)
 				{
-					if(schedules[s].busStop == stop)
-					{
-						stop.schedules[count++] = schedules[s];
-					}
+					Schedule sched = (Schedule)schedules.elementAt(s);
+					if(sched.busStop == stop)
+						stop.schedules[count++] = sched;
 				}
 			}
 		}

@@ -202,11 +202,12 @@ public class ScheduleBuilder
 						sb.append(sched.bus.route);
 						needLF = true;
 					}
-					String desc = GetSchedDesc(sched, cal);
-					if(desc.compareTo("") != 0)
+					
+					String schedFrom = GetSchedFrom(sched, cal);
+					if(schedFrom.compareTo("") != 0)
 					{
 						sb.append("\nРасп.:");
-						sb.append(desc);
+						sb.append(schedFrom);
 						needLF = true;
 					}
 				}
@@ -261,7 +262,7 @@ public class ScheduleBuilder
 		return sched.getTimes(Schedule.WORKDAY);
 	}
 	
-	String GetSchedDesc(Schedule sched, Calendar cal)
+	String GetSchedFrom(Schedule sched, Calendar cal)
 	{
 		if(UserDayType == DAY_AUTO)
 		{

@@ -15,6 +15,7 @@ public class ScheduleConverter
 	Vector<Bus> buses = null;
 	Vector<BusStop> busStops = null;
 	Vector<Schedule> schedules = new Vector<Schedule>();
+	Vector<DerivedSchedule> derSchedules = new Vector<DerivedSchedule>();
 
 	void Convert(String[] args)
 	{
@@ -26,7 +27,6 @@ public class ScheduleConverter
 			}
 
 			String outDir = null;
-			Vector<Schedule> calcShift = null;
 
 			Charset c = Charset.forName("UTF-8");
 			
@@ -40,29 +40,6 @@ public class ScheduleConverter
 					if(i == args.length)
 						throw new Exception("Argument -c not supplied with parameter.");
 					c = Charset.forName(args[i]);
-					continue;
-				}
-				
-				if(arg.compareTo("--calc-shift") == 0)
-				{
-					i++;
-					if(i == args.length)
-						throw new Exception("Argument --calc-shift not supplied with parameter.");
-					String[] params = args[i].split(";");
-					if(params.length < 4)
-						throw new Exception("Argument for --calc-shift shall contains 4 or more parts.");
-					
-					Bus b = FindBus(params[0]);
-					int calcDay = ParseDay(params[1]);
-					calcShift = new Vector<Schedule>();
-					for (int j = 2; j < params.length; j++)
-					{
-						BusStop bs = FindBusStop(params[j]);
-						
-						Schedule sched = FindSchedule(schedules, b.id, bs.id, calcDay);
-						calcShift.add(sched);
-					}
-					
 					continue;
 				}
 
@@ -149,7 +126,7 @@ public class ScheduleConverter
 					if(bs.name.compareTo(bsO.name) == 0)
 						namesCount++;
 				}
-				
+
 				if(idsCount > 1)
 					throw new Exception("Bus Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by ID");
 
@@ -165,8 +142,22 @@ public class ScheduleConverter
 						break;
 					}
 				}
+				
+				if(used == false)
+				{
+					for (int j = 0; j < derSchedules.size(); j++)
+					{
+						if(derSchedules.get(j).busStop == bs.id || derSchedules.get(j).baseBusStop == bs.id)
+						{
+							used = true;
+							break;
+						}
+					}
+				}
+
 				if(!used)
 				{
+					System.out.println("Remove unused: " + busStops.get(i).name);
 					busStops.remove(i);
 					i--;
 				}
@@ -245,53 +236,8 @@ public class ScheduleConverter
 				WriteBuses(outDir + "/buses");
 				WriteBusStops(outDir + "/busStops");
 				WriteSchedules(outDir + "/scheds");
+				WriteDerivedSchedules(outDir + "/dscheds");
 				System.out.println("DATA STORED.");
-			}
-			
-			if(calcShift != null)
-			{
-				Schedule eth = calcShift.get(0);
-				for (int i = 1; i < calcShift.size(); i++)
-				{
-					Schedule cmp = calcShift.get(i);
-					
-					System.out.println(FindBusStop(eth.busStop).name + " - " + FindBusStop(cmp.busStop).name);
-
-					if(eth.times.size() == 0 || cmp.times.size() == 0)
-					{
-						System.out.println("\tempty schedule.");
-						continue;
-					}
-
-					if(eth.times.size() != cmp.times.size())
-						System.out.println("\tdifferent times count: " + eth.times.size() + " vs. " + cmp.times.size());
-					
-					boolean commonShiftValid = true;
-					int commonShift = 0;
-					for (int j = 0; j < eth.times.size() && j < cmp.times.size(); j++)
-					{
-						int curTime1 = eth.times.get(j);
-						int curTime2 = cmp.times.get(j);
-						int curShift = curTime2 - curTime1;
-						
-						if(j == 0)
-							commonShift = curShift;
-						else if(commonShift != curShift)
-							commonShiftValid = false;
-
-						String s = String.format("\t%02d:%02d[%04d] (%02d:%02d)[%04d]: %+02d",
-								curTime1 / 60, curTime1 % 60, curTime1,
-								curTime2 / 60, curTime2 % 60, curTime2,
-								curShift
-								);
-						System.out.println(s);
-					}
-					
-					if(commonShiftValid)
-						System.out.println("	common shift:" + commonShift);
-					else
-						System.out.println("	common shift: invalid");
-				}
 			}
 		}
 		catch(Exception ex)
@@ -383,22 +329,21 @@ public class ScheduleConverter
 					BusStop srcBusStop = FindBusStop(vals[1]);
 					int shift = Integer.parseInt(vals[2]);
 					String[] days = vals[3].split(" ");
-					
+
+					if(shift > Byte.MAX_VALUE)
+						throw new Exception("shift exceed store size");
+
 					for (int d = 0; d < days.length; d++)
 					{
 						day = ParseDay(days[d]);
-						Schedule src = FindSchedule(schedules, bus, srcBusStop.id, day);
-						Schedule dst = new Schedule();
-						dst.bus = bus;
-						dst.busStop = busStop;
-						dst.day = day;
-						dst.from = srcBusStop.name + " + " + shift + "m";
-						dst.times = new Vector<Integer>();
-						for (int t = 0; t < src.times.size(); t++)
-						{
-							dst.times.add(src.times.get(t) + shift);
-						}
-						schedules.add(dst);
+
+						DerivedSchedule ds = new DerivedSchedule();
+						ds.bus = bus;
+						ds.busStop = busStop;
+						ds.baseBusStop = srcBusStop.id;
+						ds.shift = shift;
+						ds.day = day;
+						derSchedules.add(ds);
 					}
 
 					// reset busstop and day
@@ -414,7 +359,19 @@ public class ScheduleConverter
 				if(line.startsWith("\\from"))
 				{
 					Schedule sched = FindSchedule(schedules, bus, busStop, day);
-					sched.from = line.replaceAll("^\\\\\\S+\\s+", "").trim(); 
+					String from = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					if(from.equalsIgnoreCase("site"))
+					{
+						sched.schedFrom = Schedule.SCHED_FROM_MINSK_TRANS_SITE;
+					}
+					else if(from.equalsIgnoreCase("busstop"))
+					{
+						sched.schedFrom = Schedule.SCHED_FROM_BUSSTOP;
+					}
+					else
+					{
+						throw new Exception("Unknonwn 'from' value:" + from);
+					}
 					continue;
 				}
 
@@ -638,7 +595,7 @@ public class ScheduleConverter
 			dos.writeByte(sched.bus);
 			dos.writeByte(sched.busStop);
 			dos.writeByte(sched.day);
-			dos.writeUTF(sched.from);
+			dos.writeByte(sched.schedFrom);
 			
 			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DayToString(sched.day));
 			
@@ -651,6 +608,30 @@ public class ScheduleConverter
 			{
 				dos.writeShort(sched.times.get(j));
 			}
+		}
+
+		dos.flush();
+		dos.close();
+	}
+
+	void WriteDerivedSchedules(String file) throws Exception
+	{
+		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
+		
+		if(derSchedules.size() > Byte.MAX_VALUE)
+			throw new Exception("derSchedules.size() exceed store size");
+		
+		dos.writeByte(derSchedules.size());
+
+		for (int i = 0; i < derSchedules.size(); i++)
+		{
+			DerivedSchedule sched = derSchedules.get(i);
+
+			dos.writeByte(sched.bus);
+			dos.writeByte(sched.busStop);
+			dos.writeByte(sched.day);
+			dos.writeByte(sched.baseBusStop);
+			dos.writeByte(sched.shift);
 		}
 
 		dos.flush();

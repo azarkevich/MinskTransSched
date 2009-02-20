@@ -22,14 +22,18 @@ public class Schedule
 		m_times[day - 1] = times;
 	}
 	
+	public static final byte SCHED_FROM_UNKNOWN = 0; 
+	public static final byte SCHED_FROM_MINSK_TRANS_SITE = 1; 
+	public static final byte SCHED_FROM_BUSSTOP = 2; 
+
 	public String getFrom(int day)
 	{
 		return m_from[day - 1];
 	}
 	
-	public void setFrom(int day, String desc)
+	public void setFrom(int day, String schedFrom)
 	{
-		m_from[day - 1] = desc;
+		m_from[day - 1] = schedFrom;
 	}
 
 	static final int[] workdayIndexes = new int[] { 
@@ -51,7 +55,7 @@ public class Schedule
 	{
 		// guess workday times
 		short[] workTimes = new short[] {};
-		String workFrom = "";
+		String workFrom = null;
 		for (int i = 0; i < workdayIndexes.length; i++)
 		{
 			if(m_times[workdayIndexes[i]] != null)
@@ -64,7 +68,7 @@ public class Schedule
 		
 		// guess holiday times
 		short[] holidayTimes = new short[0];
-		String holidayFrom = "";
+		String holidayFrom = null;
 		for (int i = 0; i < holidayIndexes.length; i++)
 		{
 			if(m_times[holidayIndexes[i]] != null)
@@ -81,9 +85,6 @@ public class Schedule
 			if(m_times[workdayIndexes[i]] == null)
 			{
 				m_times[workdayIndexes[i]] = workTimes;
-			}
-			if(m_from[workdayIndexes[i]] == null)
-			{
 				m_from[workdayIndexes[i]] = workFrom; 
 			}
 		}
@@ -94,9 +95,6 @@ public class Schedule
 			if(m_times[holidayIndexes[i]] == null)
 			{
 				m_times[holidayIndexes[i]] = holidayTimes;
-			}
-			if(m_from[holidayIndexes[i]] == null)
-			{
 				m_from[holidayIndexes[i]] = holidayFrom; 
 			}
 		}
