@@ -72,9 +72,9 @@ public class CmdDef
 		return (CmdDef)keyHash2Cmd.get(new Integer(keyHash));
 	}
 
-	public String getKeyHashName(String noneString)
+	public String getKeyHashName(boolean showAction, String noneString)
 	{
-		return getKeyHashName(keyHash, noneString);
+		return getKeyHashName(keyHash, showAction, noneString);
 	}
 
 	public static Integer getKeyHash(int keyCode, boolean isGameCode, short actionType)
@@ -126,7 +126,7 @@ public class CmdDef
 		return c;
 	}
 
-	public static String getKeyHashName(int keyHash, String noneString)
+	public static String getKeyHashName(int keyHash, boolean showAction, String noneString)
 	{
 		int keyCode = getKeyCodeFromKeyHash(keyHash);
 		if(keyCode != 0 && getIsGameCodeFromKeyHash(keyHash))
@@ -137,10 +137,46 @@ public class CmdDef
 		if(keyCode == 0)
 			return noneString;
 
+		String name = null;
 		if(keyCode >= 32 && keyCode < 127)
-			return new String(new char[] {(char)keyCode});
+			name = new String(new char[] {(char)keyCode});
 
-		return getDummyCanvas().getKeyName(keyCode);
+		name = getDummyCanvas().getKeyName(keyCode);
+
+		if(showAction)
+		{
+			int actionType = CmdDef.getActionCodeFromKeyHash(keyHash);
+			if(actionType == CmdDef.KEY_ACTION_PRESS)
+			{
+				name += "[P]";
+			}
+			else if(actionType == CmdDef.KEY_ACTION_PRESS_FIRST)
+			{
+				name += "[P1]";
+			}
+			else if(actionType == CmdDef.KEY_ACTION_PRESS_REPEAT)
+			{
+				name += "[P*]";
+			}
+			else if(actionType == CmdDef.KEY_ACTION_RELEASE)
+			{
+				name += "[R]";
+			}
+			else if(actionType == CmdDef.KEY_ACTION_RELEASE_SHORT)
+			{
+				name += "[R-]";
+			}
+			else if(actionType == CmdDef.KEY_ACTION_RELEASE_LONG)
+			{
+				name += "[R+]";
+			}
+			else
+			{
+				name += "[?]";
+			}
+		}
+		
+		return name;
 	}
 
 	public static CmdDef cmdScrollUp = new CmdDef(

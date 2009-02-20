@@ -48,7 +48,7 @@ public class DefineKey extends Canvas
 		{
 			int canvasHeight = getHeight();
 			String text = "Выберите клавишу для действия\n\n'" + cmd.name + "'"+ "\n\n" +
-				cmd.getKeyHashName("<нет>");
+				cmd.getKeyHashName(true, "<нет>");
 			
 			multiLineText = new MultiLineText();
 			multiLineText.SetTextPar(0, 0, getWidth(), canvasHeight, g.getFont(), 
