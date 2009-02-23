@@ -110,32 +110,30 @@ public class ScheduleLoader
 			short baseBusStop = dis.readByte();
 			short shift = dis.readByte();
 			
-			//System.out.println("bus:" + bus + ", bs:" + busStop);
-			
 			// src
-			Schedule baseSched = FindSchedule(bus, baseBusStop);
-			
-			// dst
-			Schedule sched = FindSchedule(bus, busStop);
-			if(sched == null)
-			{
-				sched = new Schedule();
+			Schedule srcSched = FindSchedule(bus, baseBusStop);
 
-				sched.bus = FindBus(bus);
-				sched.busStop = FindBusStop(busStop);
-				schedules.addElement(sched);
+			// dst
+			Schedule dstSched = FindSchedule(bus, busStop);
+			if(dstSched == null)
+			{
+				dstSched = new Schedule();
+
+				dstSched.bus = FindBus(bus);
+				dstSched.busStop = FindBusStop(busStop);
+				schedules.addElement(dstSched);
 			}
 			
 			// generate times:
-			short[] srcTimes = baseSched.getTimes(day);
+			short[] srcTimes = srcSched.getTimes(day);
 			short[] dstTimes = new short[srcTimes.length];
 			for (int j = 0; j < srcTimes.length; j++)
 			{
 				dstTimes[j] = (short)(srcTimes[j] + shift);
 			}
-			
-			sched.setTimes(day, dstTimes);
-			sched.setFrom(day, baseSched.busStop.name + " +" + shift + "m");
+
+			dstSched.setTimes(day, dstTimes);
+			dstSched.setFrom(day, srcSched.busStop.name + " +" + shift + "m");
 		}
 		dis.close();
 	}

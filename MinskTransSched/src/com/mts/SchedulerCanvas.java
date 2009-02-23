@@ -248,6 +248,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			m_ScheduleBuilder.schedShift = 0;
 			m_ScheduleBuilder.showFull = ScheduleBuilder.SCHED_FULL_NONE;
 			m_ScheduleBuilder.showTimeDiff = true;
+			m_ScheduleBuilder.showDescription = false;
 		}
 		else if(cmd == CmdDef.cmdShowBookmarks)
 		{
