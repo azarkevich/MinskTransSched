@@ -10,42 +10,53 @@
   
 	<taskdef name="svn" classpathref="project.classpath"
 		    classname="org.tigris.subversion.svnant.SvnTask" />
+		    
+	<target name="getversion">
+			<property file=".version" />
+
+			<!-- read SVN revision-->
+			<svn>
+				<wcVersion path="${basedir}" />
+			</svn>
+
+			<property name="version.revision.max" value="${revision.max}" />
+
+			<!-- generate jar version -->
+			<property name="version.jar" value="${version.major}.${version.minor}.${version.publish}" />
+	</target>
 
 	<target name="publish" depends="build">
+			<!-- increase publish number -->
+			<propertyfile file=".version" comment="version properties">
+				<entry key="version.publish" default="0" type="int" operation="+" value="1"/>
+			</propertyfile>
+			
 			<delete>
 				<fileset dir="c:\Apache-2.0.59\htdocs\mt\" includes="*.jad"/>
 				<fileset dir="c:\Apache-2.0.59\htdocs\mt\" includes="*.jar"/>
 			</delete>
 
-			<property name="version.full" value="${app.version}.${revision.max}.${build.number}" />
 			<property name="publish.dir" value="c:\Apache-2.0.59\htdocs\mt" />
 			
-			<copy file="bin/MinskTransSched_v${version.full}.jad" tofile="${publish.dir}\MinskTransport.jad" />
-			<copy file="bin/MinskTransSched_v${version.full}.jar" tofile="${publish.dir}\MinskTransport.jar" />
-
-			<replaceregexp file="${publish.dir}\MinskTransport.jad"
-                         match="MIDlet-Jar-URL:.*"
-                         replace="MIDlet-Jar-URL: MinskTransport.jar"
-                         byline="true"/>
+			<copy file="bin/MinskTransSched_v${version.jar}.jad" todir="${publish.dir}" />
+			<copy file="bin/MinskTransSched_v${version.jar}.jar" todir="${publish.dir}" />
 	</target>
 
-	<target name="build" depends="-initialize">
-			<buildnumber/>
-
-			<svn>
-				<wcVersion path="${basedir}" />
-			</svn>
-			<echo message="" />
+	<target name="build" depends="-initialize,getversion">
+			<!-- increase build number -->
+			<propertyfile file=".version">
+				<entry key="version.build" default="0" type="int" operation="+" value="1"/>
+			</propertyfile>
 
 			<copy file="MinskTransSched/MinskTransSched.jad" tofile="MinskTransSched/MinskTransSched.jad~" />
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="MIDlet-Version:.*"
-                         replace="MIDlet-Version: ${app.version}.${revision.max}.${build.number}"
+                         replace="MIDlet-Version: ${version.jar}"
                          byline="true"/>
 
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="^Version:.*"
-                         replace="Version: ${app.version}.r${revision.max}.b${build.number}"
+                         replace="Version: ${version.jar}.r${version.revision.max}.b${version.build}"
                          byline="true"/>
 
 			<ant antfile="build.xml" target="deployable" dir="MinskTransSched" />
@@ -54,12 +65,12 @@
 
 			<delete file="${path.build.output}/${midlet.file.name}.tar"/>
 
-			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad" />
-			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${version.jar}.jad" />
+			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${version.jar}.jar" />
 			
-			<replaceregexp file="bin/MinskTransSched_v${app.version}.${revision.max}.${build.number}.jad"
+			<replaceregexp file="bin/MinskTransSched_v${version.jar}.jad"
                          match="MIDlet-Jar-URL:.*"
-                         replace="MIDlet-Jar-URL: MinskTransSched_v${app.version}.${revision.max}.${build.number}.jar"
+                         replace="MIDlet-Jar-URL: MinskTransSched_v${version.jar}.jar"
                          byline="true"/>
 
 			<antcall target="make-sources" />
@@ -83,8 +94,8 @@
 		</svn>
 	
 		<tar destfile="${path.build.output}/${midlet.file.name}.tar" basedir="${path.build}" />
-		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.${build.number}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
-		<zip destfile="${path.build.output}/${midlet.file.name}_v${app.version}.${revision.max}.${build.number}.src.zip" basedir="${path.build}"/>
+		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${version.jar}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
+		<zip destfile="${path.build.output}/${midlet.file.name}_v${version.jar}.src.zip" basedir="${path.build}"/>
 
 		<delete file="${path.build.output}/${midlet.file.name}.tar"/>
 	</target>
