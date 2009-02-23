@@ -9,7 +9,8 @@ public class ScheduleConverter
 	 */
 	public static void main(String[] args)
 	{
-		new ScheduleConverter().Convert(args);
+		int status = new ScheduleConverter().Convert(args);
+		System.exit(status);
 	}
 	
 	Vector<Bus> buses = null;
@@ -17,13 +18,13 @@ public class ScheduleConverter
 	Vector<Schedule> schedules = new Vector<Schedule>();
 	Vector<DerivedSchedule> derSchedules = new Vector<DerivedSchedule>();
 
-	void Convert(String[] args)
+	int Convert(String[] args)
 	{
 		try{
 			if(args.length == 0)
 			{
 				ShowHelp();
-				return;
+				return -1;
 			}
 
 			String outDir = null;
@@ -243,7 +244,9 @@ public class ScheduleConverter
 		catch(Exception ex)
 		{
 			System.out.println("Exception: " + ex.getMessage());
+			return -2;
 		}
+		return 0;
 	}
 	
 	void ShowHelp()
