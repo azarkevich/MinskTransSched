@@ -2,12 +2,12 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
+import com.mts.HelpCanvas;
 import com.mts.MinskTransSchedMidlet;
 
 public class ControlPrefs extends List implements CommandListener
 {
 	static final Command cmdChangeKey = new Command("Изменить", Command.ITEM, 1);
-	static final Command cmdActionType = new Command("Вид реакции", Command.ITEM, 2);
 	static final Command cmdDescription = new Command("Описание", Command.ITEM, 3);
 	static final Command cmdDelete = new Command("Удалить", Command.ITEM, 4);
 	static final Command cmdRestore = new Command("Восстановить", Command.ITEM, 5);
@@ -28,15 +28,14 @@ public class ControlPrefs extends List implements CommandListener
 		{
 			if(cmd == MinskTransSchedMidlet.cmdSelect || cmd == List.SELECT_COMMAND)
 			{
-				int sel = this.getSelectedIndex();
-				CmdDef c = all[sel];
+				CmdDef c = all[this.getSelectedIndex()];
 
 				short actionCode = (short)actionTypeList.getSelectedIndex();
 				int hash = c.getKeyHash();
 				int keyCode = CmdDef.getKeyCodeFromKeyHash(hash);
 				boolean isGameCode = CmdDef.getIsGameCodeFromKeyHash(hash);
 				int newHash = CmdDef.getKeyHash(keyCode, isGameCode, actionCode).intValue();
-				onKeyAssigned(c, sel, newHash);
+				onKeyActionAssigned(c, newHash);
 				
 				MinskTransSchedMidlet.display.setCurrent(this);
 
@@ -60,40 +59,16 @@ public class ControlPrefs extends List implements CommandListener
 			MinskTransSchedMidlet.display.setCurrent(keyDefiner);
 			handled = true;
 		}
-		else if(cmd == cmdActionType)
-		{
-			CmdDef c = all[this.getSelectedIndex()];
-			
-			if(actionTypeList == null)
-			{
-				actionTypeList = new List("Вид реакции", List.IMPLICIT);
-				actionTypeList.append("Нажатие с повторениями", null);
-				actionTypeList.append("Нажатие", null);
-				actionTypeList.append("Повторы", null);
-				actionTypeList.append("Отжатие любое", null);
-				actionTypeList.append("Отжатие короткое", null);
-				actionTypeList.append("Отжатие длинное", null);
-				actionTypeList.setFitPolicy(ChoiceGroup.TEXT_WRAP_ON);
-
-				actionTypeList.addCommand(MinskTransSchedMidlet.cmdCancel);
-				actionTypeList.addCommand(MinskTransSchedMidlet.cmdSelect);
-				actionTypeList.setCommandListener(this);
-			}
-
-			int actionCode = CmdDef.getActionCodeFromKeyHash(c.getKeyHash());
-			
-			actionTypeList.setSelectedIndex(actionCode, true);
-
-			MinskTransSchedMidlet.display.setCurrent(actionTypeList);
-			handled = true;
-		}
 		else if(cmd == MinskTransSchedMidlet.cmdHelp)
 		{
-			// TODO
-			Alert a = new Alert(null);
-			a.setString("В разработке");
-			a.setType(AlertType.ERROR);
-			MinskTransSchedMidlet.display.setCurrent(a);
+			if(helpCanvas == null)
+			{
+				helpCanvas = new HelpCanvas(HelpCanvas.defineKeyText);
+				helpCanvas.addCommand(MinskTransSchedMidlet.cmdBack);
+				helpCanvas.addCommand(MinskTransSchedMidlet.cmdExit);
+				helpCanvas.setCommandListener(this);
+			}
+			MinskTransSchedMidlet.display.setCurrent(helpCanvas);
 			handled = true;
 		}
 		else if(cmd == cmdRestore)
@@ -132,6 +107,11 @@ public class ControlPrefs extends List implements CommandListener
 		{
 			OptionsStoreManager.ReadSettings();
 		}
+		else if(cmd == MinskTransSchedMidlet.cmdBack && d == helpCanvas)
+		{
+			MinskTransSchedMidlet.display.setCurrent(this);
+			handled = true;
+		}
 		
 		if(handled == false)
 			parentCL.commandAction(cmd, d);
@@ -140,6 +120,7 @@ public class ControlPrefs extends List implements CommandListener
 	List actionTypeList;
 	DefineKey keyDefiner;
 	CommandListener parentCL;
+	HelpCanvas helpCanvas;
 	CmdDef[] all;
 	public ControlPrefs(CommandListener clParent)
 	{
@@ -156,7 +137,6 @@ public class ControlPrefs extends List implements CommandListener
 		addCommand(MinskTransSchedMidlet.cmdHelp);
 		addCommand(cmdChangeKey);
 		addCommand(cmdDescription);
-		addCommand(cmdActionType);
 		addCommand(cmdRestore);
 		addCommand(cmdRestoreAll);
 		addCommand(cmdDelete);
@@ -167,7 +147,33 @@ public class ControlPrefs extends List implements CommandListener
 	public void onKeyAssigned(CmdDef cmd, int index, int newHash)
 	{
 		cmd.setKeyHash(newHash);
-		set(index, cmd.name + ": " + cmd.getKeyHashName(true, "<нет>"), null);
+		int actionCode = CmdDef.getActionCodeFromKeyHash(newHash);
+
+		if(actionTypeList == null)
+		{
+			actionTypeList = new List("Вид реакции", List.IMPLICIT);
+			actionTypeList.append("Нажатие с повторами", null);
+			actionTypeList.append("Нажатие", null);
+			actionTypeList.append("Повторы", null);
+			actionTypeList.append("Отжатие", null);
+			actionTypeList.append("Отжатие короткое", null);
+			actionTypeList.append("Отжатие длинное", null);
+			actionTypeList.setFitPolicy(ChoiceGroup.TEXT_WRAP_ON);
+
+			actionTypeList.addCommand(MinskTransSchedMidlet.cmdCancel);
+			actionTypeList.addCommand(MinskTransSchedMidlet.cmdSelect);
+			actionTypeList.setCommandListener(this);
+		}
+		
+		actionTypeList.setSelectedIndex(actionCode, true);
+
+		MinskTransSchedMidlet.display.setCurrent(actionTypeList);
+	}
+	
+	public void onKeyActionAssigned(CmdDef cmd, int newHash)
+	{
+		cmd.setKeyHash(newHash);
+		set(this.getSelectedIndex(), cmd.name + ": " + cmd.getKeyHashName(true, "<нет>"), null);
 	}
 	
 	void checkConflicts()
