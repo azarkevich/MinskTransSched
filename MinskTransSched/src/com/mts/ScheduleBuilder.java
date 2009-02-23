@@ -153,6 +153,9 @@ public class ScheduleBuilder
 				if(indexes[minIndex] >= times[minIndex].length)
 					indexes[minIndex] = -1;
 
+				// shift schedule
+				minTime += schedShift;
+
 				if(minTime < beginWindow && !isFullSchedule())
 					continue;
 
