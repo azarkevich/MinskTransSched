@@ -59,6 +59,9 @@
                          replace="Version: ${version.jar}.r${version.revision.max}.b${version.build}"
                          byline="true"/>
 
+			<ant antfile="build.xml" target="build-project" dir="ScheduleConverter" />
+			<ant antfile="build.xml" target="run" dir="ScheduleConverter" />
+
 			<ant antfile="build.xml" target="deployable" dir="MinskTransSched" />
 
 			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
