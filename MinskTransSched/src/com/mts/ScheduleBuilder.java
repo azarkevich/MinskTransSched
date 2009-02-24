@@ -7,6 +7,12 @@ import com.options.Options;
 
 public class ScheduleBuilder
 {
+	Filter filter;
+	public ScheduleBuilder(Filter filter)
+	{
+		this.filter = filter;
+	}
+	
 	public static String join(String[] s, String delimiter) {
 	    if (s.length == 0)
 	    	return "";
@@ -116,7 +122,7 @@ public class ScheduleBuilder
 			sb.append("\n");
 		}
 		
-		Schedule[] busOnStation = Station.schedules;
+		Schedule[] busOnStation = filter.FilterIt(Station.schedules);
 		
 		// bus flow
 		if(showBusFlow)

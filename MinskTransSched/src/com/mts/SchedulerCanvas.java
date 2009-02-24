@@ -18,10 +18,10 @@ import com.options.OptionsListener;
 
 public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
-	static final Command cmdShowBusStopsList = new Command("Спис. остановок", Command.OK, 1); 
+	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 1); 
 	static final Command cmdResetFilter = new Command("Сбросить фильтр", Command.OK, 1); 
-	static final Command cmdAddBusFilter = new Command("По автобусу", Command.OK, 1); 
-	static final Command cmdBusStopFilter = new Command("По остановке", Command.OK, 1); 
+	static final Command cmdAddBusFilter = new Command("По автобусу фильтр", Command.OK, 1); 
+	static final Command cmdBusStopFilter = new Command("По остановке фильтр", Command.OK, 1); 
 	
 	BusStop[] busStops = null;
 	int currentBusStopIndex = 0;
@@ -154,7 +154,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		
 		busStops = stops;
 		
-		m_ScheduleBuilder = new ScheduleBuilder();
+		m_ScheduleBuilder = new ScheduleBuilder(filter);
 		m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
 		
 		TimerTask tt = new TimerTask()
