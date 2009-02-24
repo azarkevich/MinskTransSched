@@ -92,6 +92,21 @@ public class CmdDef
 		return new Integer(ret);
 	}
 	
+	public int getKeyCode()
+	{
+		return CmdDef.getKeyCodeFromKeyHash(keyHash);
+	}
+	
+	public short getActionCode()
+	{
+		return CmdDef.getActionCodeFromKeyHash(keyHash);
+	}
+	
+	public boolean getIsGameCode()
+	{
+		return CmdDef.getIsGameCodeFromKeyHash(keyHash);
+	}
+
 	public static int getKeyCodeFromKeyHash(int hash)
 	{
 		int keyCode = hash & 0xFFFF;
@@ -129,7 +144,8 @@ public class CmdDef
 	public static String getKeyHashName(int keyHash, boolean showAction, String noneString)
 	{
 		int keyCode = getKeyCodeFromKeyHash(keyHash);
-		if(keyCode != 0 && getIsGameCodeFromKeyHash(keyHash))
+		boolean isGameCode = getIsGameCodeFromKeyHash(keyHash);
+		if(keyCode != 0 && isGameCode)
 		{
 			keyCode = getDummyCanvas().getKeyCode(keyCode);
 		}
@@ -145,6 +161,9 @@ public class CmdDef
 
 		if(showAction)
 		{
+			if(isGameCode)
+				name += "'";
+
 			int actionType = CmdDef.getActionCodeFromKeyHash(keyHash);
 			if(actionType == CmdDef.KEY_ACTION_PRESS)
 			{

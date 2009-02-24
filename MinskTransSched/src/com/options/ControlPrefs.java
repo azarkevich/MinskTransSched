@@ -101,7 +101,10 @@ public class ControlPrefs extends List implements CommandListener
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdOK)
 		{
-			OptionsStoreManager.SaveSettings();
+			if(checkConflicts())
+				OptionsStoreManager.SaveSettings();
+			else
+				handled = true;
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdCancel)
 		{
@@ -151,14 +154,14 @@ public class ControlPrefs extends List implements CommandListener
 
 		if(actionTypeList == null)
 		{
-			actionTypeList = new List("Вид реакции", List.IMPLICIT);
+			actionTypeList = new List("Вид реакции", List.EXCLUSIVE);
 			actionTypeList.append("Нажатие с повторами", null);
 			actionTypeList.append("Нажатие", null);
 			actionTypeList.append("Повторы", null);
 			actionTypeList.append("Отжатие", null);
 			actionTypeList.append("Отжатие короткое", null);
 			actionTypeList.append("Отжатие длинное", null);
-			actionTypeList.setFitPolicy(ChoiceGroup.TEXT_WRAP_ON);
+			//actionTypeList.setFitPolicy(ChoiceGroup.TEXT_WRAP_ON);
 
 			actionTypeList.addCommand(MinskTransSchedMidlet.cmdCancel);
 			actionTypeList.addCommand(MinskTransSchedMidlet.cmdSelect);
@@ -176,31 +179,53 @@ public class ControlPrefs extends List implements CommandListener
 		set(this.getSelectedIndex(), cmd.name + ": " + cmd.getKeyHashName(true, "<нет>"), null);
 	}
 	
-	void checkConflicts()
+	boolean checkConflicts()
 	{
-//		int keyCode = CmdDef.getKeyCodeFromKeyHash(newHash);
-//		short actionType = CmdDef.getActionCodeFromKeyHash(newHash);
-//		for (int i = 0; i < all.length; i++)
-//		{
-//			if(i == index)
-//				continue;
-//			
-//			int otherKeyCode = CmdDef.getKeyCodeFromKeyHash(all[i].getKeyHash());
-//			if(otherKeyCode == 0)
-//				continue;
-//			
-//			if(keyCode != otherKeyCode)
-//				continue;
-//				
-//			int otherActionType = CmdDef.getActionCodeFromKeyHash(all[i].getKeyHash());
-//
-//			if()
-//				
-//			Alert a = new Alert(null);
-//			a.setString("Данная клавиша связана с другой командой: " + all[i].name);
-//			MinskTransSchedMidlet.display.setCurrent(a, this);
-//			return;
-//		}
+		for (int i = 0; i < all.length; i++)
+		{
+			CmdDef c1 = all[i];
+
+			int keyCode1 = c1.getKeyCode();
+			if(keyCode1 == 0)
+				continue;
+			if(c1.getIsGameCode())
+				continue;
+			short keyAction1 = c1.getActionCode();
+
+			for (int j = 0; j < all.length; j++)
+			{
+				if(i == j)
+					continue;
+				
+				CmdDef c2 = all[j];
+				
+				int keyCode2 = c2.getKeyCode();
+				if(keyCode2 == 0)
+					continue;
+				if(c2.getIsGameCode())
+					continue;
+				short keyAction2 = c2.getActionCode();
+				
+				// equal keyCodes ?
+				if(keyCode1 == keyCode2)
+				{
+					// keys not interfere only if ACTION1 = SHORT_RELEASE && ACTION2 == LONG_RELEASE
+					if(keyAction1 == CmdDef.KEY_ACTION_RELEASE_SHORT && keyAction2 == CmdDef.KEY_ACTION_RELEASE_LONG ||
+							keyAction1 == CmdDef.KEY_ACTION_RELEASE_LONG && keyAction2 == CmdDef.KEY_ACTION_RELEASE_SHORT)
+						continue;
+
+					Alert a = new Alert(null);
+					a.setString(c1.name + "(" + c1.getKeyHashName(true, "") + ")\n" +
+							" конфликтует с " +
+							c2.name + "(" + c2.getKeyHashName(true, "") + ")");
+					a.setTimeout(Alert.FOREVER);
+					a.setType(AlertType.ERROR);
+					MinskTransSchedMidlet.display.setCurrent(a, this);
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	void loadItems()
