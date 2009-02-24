@@ -196,6 +196,7 @@ public class ScheduleConverter
 				}
 				if(!used)
 				{
+					System.out.println("Remove unused bus: " + buses.get(i).name);
 					buses.remove(i);
 					i--;
 				}
@@ -359,6 +360,9 @@ public class ScheduleConverter
 				if(busStop == -1)
 					throw new Exception("No bus stop specified");
 
+				if(day == -1)
+					throw new Exception("No day specified");
+
 				if(line.startsWith("\\from"))
 				{
 					Schedule sched = FindSchedule(schedules, bus, busStop, day);
@@ -374,36 +378,6 @@ public class ScheduleConverter
 					else
 					{
 						throw new Exception("Unknonwn 'from' value:" + from);
-					}
-					continue;
-				}
-
-				if(day == -1)
-					throw new Exception("No day specified");
-
-				if(line.startsWith("\\copy"))
-				{
-					String busStopName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
-					BusStop bsCopy = FindBusStop(busStopName);
-					Schedule src = FindSchedule(schedules, bus, bsCopy.id, day);
-					Schedule dst = FindSchedule(schedules, bus, busStop, day);
-					for (int i = 0; i < src.times.size(); i++)
-					{
-						dst.times.add(src.times.get(i));
-					}
-					continue;
-				}
-
-				if(line.startsWith("\\shift"))
-				{
-					short shift = Short.parseShort(line.replaceAll("^\\\\\\S+\\s+", "").trim()); 
-					Schedule sched = FindSchedule(schedules, bus, busStop, day);
-					for (int i = 0; i < sched.times.size(); i++)
-					{
-						int newTime = sched.times.get(i) + shift;
-						if(newTime < 0)
-							throw new Exception("Neative time when shifting");
-						sched.times.set(i, newTime);
 					}
 					continue;
 				}
@@ -449,7 +423,7 @@ public class ScheduleConverter
 		throw new Exception("Can't find bus stop #" + busStopId);
 	}
 	
-	Schedule FindSchedule(Vector<Schedule> schedules, int bus, int busStop, int day)
+	Schedule FindSchedule(Vector<Schedule> schedules, int bus, int busStop, int day) throws Exception
 	{
 		for (int i = 0; i < schedules.size(); i++)
 		{
@@ -461,6 +435,8 @@ public class ScheduleConverter
 		sched.bus = bus;
 		sched.busStop = busStop;
 		sched.day = day;
+		if(day == -1)
+			throw new Exception("day is -1");
 		schedules.add(sched);
 		return sched;
 	}
@@ -602,8 +578,8 @@ public class ScheduleConverter
 			
 			//System.out.println(sched.busStop + "/" + sched.bus + "/" + DayToString(sched.day));
 			
-			if(sched.times.size() > Byte.MAX_VALUE)
-				throw new Exception("Value exceed store size");
+			if(sched.times.size() > 255)
+				throw new Exception("Times count exceed store size");
 
 			dos.writeByte(sched.times.size());
 			

@@ -63,7 +63,7 @@ public class ScheduleLoader
 			short busStop = dis.readByte();
 			int day = dis.readByte();
 			byte schedFrom = dis.readByte();
-			byte timesCount = dis.readByte();
+			int timesCount = dis.readUnsignedByte();
 			short[] times = new short[timesCount];
 			for (int t = 0; t < times.length; t++)
 			{
