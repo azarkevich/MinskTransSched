@@ -4,7 +4,6 @@ import java.util.Vector;
 
 import javax.microedition.lcdui.Font;
 
-// text format plain\cFF0000red\bbold red
 public class TextParser
 {
 	public int regionWidth;
@@ -120,9 +119,7 @@ public class TextParser
 						tc.end >= begin && tc.end <= end)
 				{
 					TextChunk tcNew = new TextChunk();
-					tcNew.r = tc.r;
-					tcNew.g = tc.g;
-					tcNew.b = tc.b;
+					tcNew.color = tc.color;
 					tcNew.start = tc.start - begin;
 					tcNew.end = tc.end - begin;
 					colorInfo[i].addElement(tcNew);
@@ -171,10 +168,7 @@ public class TextParser
 					String r = text.substring(i + 2, i + 4);
 					String g = text.substring(i + 4, i + 6);
 					String b = text.substring(i + 6, i + 8);
-					
-					chunk.r = Integer.parseInt(r, 16);
-					chunk.g = Integer.parseInt(g, 16);
-					chunk.b = Integer.parseInt(b, 16);
+					chunk.color = (Integer.parseInt(r, 16) << 16) | (Integer.parseInt(g, 16) << 8) | Integer.parseInt(b, 16);
 					chunk.start = sb.length();
 					
 					colorIndexes.addElement(chunk);

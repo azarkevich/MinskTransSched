@@ -2,9 +2,7 @@ package text;
 
 public class TextChunk
 {
-	public int r;
-	public int g;
-	public int b;
+	public int color;
 	public int start;
 	public int end;
 }
