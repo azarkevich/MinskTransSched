@@ -12,11 +12,10 @@ import com.test.KeysTest;
 
 public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 {
-	public BusStop[] busStops;
-	
+	public static BusStop[] allBusStopsArray;
+	public static Bus[] allBusesArray;
+
 	public final static Command cmdExit = new Command("Exit", Command.EXIT, 2);
-	public final static Command cmdShowBookMarks = new Command("Закладки", Command.SCREEN, 1);
-	public final static Command cmdShowAllBusStops = new Command("Остановки", Command.SCREEN, 2);
 	public final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
 	public final static Command cmdMainHelpPage = new Command("Помощь", Command.HELP, 1);
 	public final static Command cmdHelp = new Command("Помощь", Command.HELP, 1);
@@ -34,9 +33,9 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	Stack displayableStack = new Stack(); 
 
 	SchedulerCanvas scheduleBoard;
-	List allBusStops;
+	List favBuses;
+	List allBuses;
 	List settings;
-	List bookmarks;
 
 	public static Display display;
 	public static MinskTransSchedMidlet midlet;
@@ -62,10 +61,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 				display.setCurrent((Displayable)displayableStack.pop());
 			}
 		}
-		else if(cmd == cmdShowBookMarks)
-		{
-			display.setCurrent(getBookmarks());
-		}
 		else if(cmd == cmdMainHelpPage)
 		{
 			displayableStack.push(display.getCurrent());
@@ -85,18 +80,17 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 			destroyApp(true);
 		}
-		else if(cmd == cmdShowAllBusStops)
-		{
-			allBusStops.setSelectedIndex(scheduleBoard.getBusStation(), true);
-			display.setCurrent(getAllBusStopsScreen());
-		}
+//		else if(cmd == cmdShowAllBusStops)
+//		{
+//			showAllBusStopsList();
+//		}
+//		else if(cmd == cmdShowFavBusStops)
+//		{
+//			showFavBusStopsList();
+//		}
 		else if(cmd == List.SELECT_COMMAND || cmd == cmdSelect)
 		{
-			if(d == bookmarks)
-				showBookmarkSchedule(((List)d).getSelectedIndex());
-			else if(d == allBusStops)
-				showAllBusStopsSchedule(((List)d).getSelectedIndex());
-			else if(d == settings)
+			if(d == settings)
 			{
 				if(((List)d).getSelectedIndex() == 0)
 					showOptGeneral();
@@ -164,42 +158,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		display.setCurrent(new ControlPrefs(this));
 	}
 	
-	void showAllBusStopsSchedule(int sel)
-	{
-		scheduleBoard.setBusStops(busStops);
-		scheduleBoard.setBusStation(sel);
-		scheduleBoard.setForeColor(255, 255, 255);
-		display.setCurrent(scheduleBoard);
-	}
-
-	void showBookmarkSchedule(int sel)
-	{
-		BusStop[] bmBusStops = GetBookmarkedBusStops();
-		scheduleBoard.setBusStops(bmBusStops);
-		scheduleBoard.setBusStation(sel);
-		scheduleBoard.setForeColor(0, 255, 0);
-		display.setCurrent(scheduleBoard);
-	}
-	
-	public BusStop[] GetBookmarkedBusStops()
-	{
-		BusStop[] ret = null;
-		int count = 0;
-		for (int i = 0; i < busStops.length; i++)
-		{
-			if(busStops[i].bookmarked)
-				count++;
-		}
-		ret = new BusStop[count];
-		int index = 0;
-		for (int i = 0; i < busStops.length; i++)
-		{
-			if(busStops[i].bookmarked)
-				ret[index++] = busStops[i];
-		}
-		return ret;
-	}
-	
 	protected void destroyApp(boolean unconditional)
 	{
 		notifyDestroyed();
@@ -209,7 +167,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	{
 	}
 	
-	void loadBookmarks()
+	void loadFavorites()
 	{
 		try{
 			RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
@@ -226,12 +184,12 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 					}
 	
 					int id = rec[1] * 256 + rec[2];
-					for (int b = 0; b < busStops.length; b++)
+					for (int b = 0; b < allBusStopsArray.length; b++)
 					{
-						if(busStops[b].id == id)
+						if(allBusStopsArray[b].id == id)
 						{
-							busStops[b].bookmarked = (rec[0] == 1);
-							busStops[b].bookmarkRecord = recId;
+							allBusStopsArray[b].favorite = (rec[0] == 1);
+							allBusStopsArray[b].bookmarkRecord = recId;
 							break;
 						}
 					}
@@ -246,36 +204,6 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		{
 		}
 	}
-	
-	Displayable getBookmarks()
-	{
-		// create on demand
-		if(bookmarks == null)
-		{
-			bookmarks = new List("Закладки", Choice.IMPLICIT);
-			bookmarks.setCommandListener(this);
-			bookmarks.addCommand(cmdSelect);
-			bookmarks.addCommand(cmdShowAllBusStops);
-			bookmarks.addCommand(cmdMainHelpPage);
-			bookmarks.addCommand(cmdOptions);
-			bookmarks.addCommand(cmdExit);
-		}
-		else
-		{
-			bookmarks.deleteAll();
-		}
-
-		for (int i = 0; i < busStops.length; i++)
-		{
-			if(busStops[i].bookmarked)
-				bookmarks.append (busStops[i].name, Images.heart);
-		}
-
-		if(bookmarks.size() == 0)
-			return allBusStops;
-		
-		return bookmarks;
-	}
 
 	protected void startApp() throws MIDletStateChangeException
 	{
@@ -287,67 +215,39 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		ScheduleLoader loader = new ScheduleLoader();
 		loader.Load();
 
-		busStops = loader.busStops;
+		allBusStopsArray = loader.busStops;
+		allBusesArray = loader.buses;
 		
 		Images.load();
 		
-		scheduleBoard = new SchedulerCanvas(busStops);
-		scheduleBoard.setCommandListener(this);
-		scheduleBoard.addCommand(cmdExit);
-		scheduleBoard.addCommand(cmdShowBookMarks);
-		scheduleBoard.addCommand(cmdShowAllBusStops);
-		scheduleBoard.addCommand(cmdMainHelpPage);
-		scheduleBoard.addCommand(cmdOptions);
+		scheduleBoard = new SchedulerCanvas(allBusStopsArray, this);
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
 		
-		allBusStops = new List("Остановки", Choice.IMPLICIT);
-		allBusStops.setCommandListener(this);
-		allBusStops.addCommand(cmdSelect);
-		allBusStops.addCommand(cmdShowBookMarks);
-		allBusStops.addCommand(cmdMainHelpPage);
-		allBusStops.addCommand(cmdOptions);
-		allBusStops.addCommand(cmdExit);
+		loadFavorites();
 		
-		for (int i = 0; i < busStops.length; i++)
-		{
-			allBusStops.append(busStops[i].name, null);
-		}
-
-		for (int i = 0; i < allBusStops.size(); i++)
-			allBusStops.setFont(i, Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize));
+		//showStartupScreen();
 		
-		loadBookmarks();
-		
-		showStartupScreen();
+		display.setCurrent(scheduleBoard);
 	}
 	
 	void showStartupScreen()
 	{
-		switch (Options.startupScreen)
-		{
-		default:
-		case Options.BOOKMARK_SCREEN:
-			display.setCurrent(getBookmarks());
-			break;
-		case Options.BOOKMARKS_SCHED:
-			showBookmarkSchedule(0);
-			break;
-		case Options.ALL_BUSSTOPS_SCREEN:
-			display.setCurrent(getAllBusStopsScreen());
-			break;
-		case Options.ALL_BUSSTOPS_SCHED:
-			showAllBusStopsSchedule(0);
-			break;
-		}
-	}
-	
-	Displayable getAllBusStopsScreen()
-	{
-		for (int i = 0; i < busStops.length; i++)
-		{
-			allBusStops.set(i, busStops[i].name, busStops[i].bookmarked ? Images.heart : null);
-		}
-		return allBusStops;
+//		switch (Options.startupScreen)
+//		{
+//		default:
+//		case Options.BOOKMARK_SCREEN:
+//			showFavBusStopsList();
+//			break;
+//		case Options.BOOKMARKS_SCHED:
+//			showFavBusStopsList();
+//			break;
+//		case Options.ALL_BUSSTOPS_SCREEN:
+//			showAllBusStopsList();
+//			break;
+//		case Options.ALL_BUSSTOPS_SCHED:
+//			showAllBusStopsList();
+//			break;
+//		}
 	}
 }

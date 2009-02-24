@@ -6,7 +6,7 @@ import java.util.Vector;
 public class ScheduleLoader
 {
 	public BusStop[] busStops;
-	private Bus[] buses;
+	public Bus[] buses;
 	private Vector schedules;
 	
 	void Debug(String x)

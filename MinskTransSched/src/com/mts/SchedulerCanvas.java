@@ -3,6 +3,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
@@ -13,16 +16,20 @@ import com.options.Options;
 import com.options.OptionsListener;
 
 
-public class SchedulerCanvas extends Canvas implements OptionsListener
+public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
+	static final Command cmdShowBusStopsList = new Command("Спис. остановок", Command.OK, 1); 
+	static final Command cmdResetFilter = new Command("Сбросить фильтр", Command.OK, 1); 
+	static final Command cmdAddBusFilter = new Command("По автобусу", Command.OK, 1); 
+	static final Command cmdBusStopFilter = new Command("По остановке", Command.OK, 1); 
+	
 	BusStop[] busStops = null;
+	int currentBusStopIndex = 0;
 	
 	MultiLineText m_MultiLineText;
 	int savedViewportTop;
 
 	ScheduleBuilder m_ScheduleBuilder;
-	
-	int m_CurrentSchedule = 0;
 	
 	Timer m_RefreshTimer;
 	
@@ -39,34 +46,116 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		foreColorB = b;
 	}
 	
-	public void setBusStation(int index)
+	public void setBusStops(BusStop[] stops, BusStop sel)
 	{
-		m_CurrentSchedule = index;
-		m_ScheduleBuilder.Station = busStops[index];
+		busStops = stops;
+		currentBusStopIndex = 0;
+		if(sel != null)
+		{
+			for (int i = 0; i < busStops.length; i++)
+			{
+				if(busStops[i] == sel)
+				{
+					currentBusStopIndex = i;
+					break;
+				}
+			}
+		}
+		m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
 		RefreshScheduleText();
 	}
 	
-	public void setBusStops(BusStop[] stops)
+	public void selectBusStop(BusStop sel)
 	{
-		busStops = stops;
-		m_CurrentSchedule = 0;
-		RefreshScheduleText();
+		MinskTransSchedMidlet.display.setCurrent(this);
+
+		for (int i = 0; i < busStops.length; i++)
+		{
+			if(busStops[i] == sel)
+			{
+				currentBusStopIndex = i;
+				RefreshScheduleText();
+				break;
+			}
+		}
 	}
 	
 	public int getBusStation()
 	{
-		return m_CurrentSchedule;
+		return currentBusStopIndex;
 	}
 
-	public SchedulerCanvas(BusStop[] stops)
+	CommandListener parentCL;
+	
+	void showCurrBusStopsList()
 	{
+		// TODO: select current busstop
+		BusStopsList list = new BusStopsList("Остановки", busStops, this); 
+		MinskTransSchedMidlet.display.setCurrent(list);
+	}
+
+	void showBusesFilterList()
+	{
+		MinskTransSchedMidlet.display.setCurrent(new BusesFilter(this));
+	}
+
+	void showBusStopsFilterList()
+	{
+		MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(this));
+	}
+
+	public void commandAction(Command cmd, Displayable d)
+	{
+		boolean handled = false;
+		
+		if(d == this)
+		{
+			if(cmd == cmdShowBusStopsList)
+			{
+				showCurrBusStopsList();
+				handled = true;
+			}
+			else if(cmd == cmdResetFilter)
+			{
+				BusStop cur = busStops[currentBusStopIndex];
+				setBusStops(MinskTransSchedMidlet.allBusStopsArray, cur);
+				filter.setBusesFilter(null);
+				filter.setBusStopsFilter(null);
+				handled = true;
+			}
+			else if(cmd == cmdAddBusFilter)
+			{
+				showBusesFilterList();
+			}
+			else if(cmd == cmdBusStopFilter)
+			{
+				showBusStopsFilterList();
+			}
+		}
+		if(handled == false)
+			parentCL.commandAction(cmd, d);
+	}
+
+	public SchedulerCanvas(BusStop[] stops, CommandListener parent)
+	{
+		parentCL = parent;
+		
+		this.setCommandListener(this);
+		addCommand(MinskTransSchedMidlet.cmdExit);
+		addCommand(MinskTransSchedMidlet.cmdMainHelpPage);
+		addCommand(MinskTransSchedMidlet.cmdOptions);
+		addCommand(cmdShowBusStopsList);
+		addCommand(cmdResetFilter);
+		addCommand(cmdAddBusFilter);
+		addCommand(cmdBusStopFilter);
+
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
 		
 		busStops = stops;
 		
 		m_ScheduleBuilder = new ScheduleBuilder();
-		m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
+		m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
 		
 		TimerTask tt = new TimerTask()
 		{
@@ -166,13 +255,13 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		}
 		else if(cmd == CmdDef.cmdBusStopPrev)
 		{
-			m_CurrentSchedule = (m_CurrentSchedule + busStops.length - 1) % busStops.length;
-			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
+			currentBusStopIndex = (currentBusStopIndex + busStops.length - 1) % busStops.length;
+			m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
 		}
 		else if(cmd == CmdDef.cmdBusStopNext)
 		{
-			m_CurrentSchedule = (m_CurrentSchedule + 1) % busStops.length;
-			m_ScheduleBuilder.Station = busStops[m_CurrentSchedule];
+			currentBusStopIndex = (currentBusStopIndex + 1) % busStops.length;
+			m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
 		}
 		else if(cmd == CmdDef.cmdWindowDecrease)
 		{
@@ -215,11 +304,11 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			try{
 				if(m_ScheduleBuilder.Station != null)
 				{
-					m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
+					m_ScheduleBuilder.Station.favorite = !m_ScheduleBuilder.Station.favorite;
 	
 					RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
 					byte[] rec = new byte[3];
-					rec[0] = (byte)(m_ScheduleBuilder.Station.bookmarked ? 1 : 0);
+					rec[0] = (byte)(m_ScheduleBuilder.Station.favorite ? 1 : 0);
 					rec[1] = (byte)(m_ScheduleBuilder.Station.id / 256);
 					rec[2] = (byte)(m_ScheduleBuilder.Station.id % 256);
 					if(m_ScheduleBuilder.Station.bookmarkRecord != -1)
@@ -233,7 +322,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 			catch(Exception ex)
 			{
 				// restore
-				m_ScheduleBuilder.Station.bookmarked = !m_ScheduleBuilder.Station.bookmarked;
+				m_ScheduleBuilder.Station.favorite = !m_ScheduleBuilder.Station.favorite;
 			}
 		}
 		else if(cmd == CmdDef.cmdToggleFullSchedule)
@@ -252,11 +341,12 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		}
 		else if(cmd == CmdDef.cmdShowBookmarks)
 		{
-			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowBookMarks, this);
+			showCurrBusStopsList();
+//			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowFavBusStops, this);
 		}
 		else if(cmd == CmdDef.cmdShowAllBusStops)
 		{
-			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowAllBusStops, this);
+//			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowAllBusStops, this);
 		}
 		else if(cmd == CmdDef.cmdScheduleFullScreen)
 		{
@@ -310,5 +400,22 @@ public class SchedulerCanvas extends Canvas implements OptionsListener
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
 		RefreshScheduleText(true);
+	}
+
+	Filter filter = new Filter();
+	public void setBusesFilter(Bus[] f)
+	{
+		filter.setBusesFilter(f);
+		BusStop cur = busStops[currentBusStopIndex];
+		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), cur);
+		MinskTransSchedMidlet.display.setCurrent(this);
+	}
+
+	public void setBusStopsFilter(BusStop[] f)
+	{
+		filter.setBusStopsFilter(f);
+		BusStop cur = busStops[currentBusStopIndex];
+		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), cur);
+		MinskTransSchedMidlet.display.setCurrent(this);
 	}
 }

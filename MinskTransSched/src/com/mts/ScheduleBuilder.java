@@ -79,7 +79,7 @@ public class ScheduleBuilder
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
-		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + (Station.bookmarked ? "* " : "") + Station.name);
+		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + (Station.favorite ? "* " : "") + Station.name);
 		
 		if(isFullSchedule())
 		{
