@@ -45,8 +45,6 @@ public class BusStopsFilter extends List implements CommandListener
 		scheduleBoard = board;
 
 		commandAction(cmdShowCurrent, this);
-
-		selectCurrrent();
 	}
 	
 	void createList()
@@ -86,32 +84,43 @@ public class BusStopsFilter extends List implements CommandListener
 	Hashtable current;
 	void selectCurrrent()
 	{
-		if(scheduleBoard.filter.busStopsFilter == null && scheduleBoard.filter.busesFilter == null)
-			setSelectedIndex(0, true);
-		
-		if(current == null)
-		{
-			current = new Hashtable();
-			for (int i = 0; i < scheduleBoard.busStops.length; i++)
-			{
-				current.put(scheduleBoard.busStops[i], scheduleBoard.busStops[i]);
-			}
-		}
-		
-		boolean favs = true;
-		for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
-		{
-			BusStop bs = MinskTransSchedMidlet.allBusStopsArray[i];
-			if(bs.favorite != current.containsKey(bs))
-			{
-				favs = false;
-				break;
-			}
-		}
-		
-		if(favs)
-			setSelectedIndex(1, true);
-
+//		if(scheduleBoard.filter.busStopsFilter == null && scheduleBoard.filter.busesFilter == null)
+//		{
+//			setSelectedIndex(0, true);
+//			return;
+//		}
+//		
+//		if(current == null)
+//		{
+//			current = new Hashtable();
+//			for (int i = 0; i < scheduleBoard.busStops.length; i++)
+//			{
+//				current.put(scheduleBoard.busStops[i], scheduleBoard.busStops[i]);
+//			}
+//		}
+//		
+//		boolean favs = true;
+//		int favCount = 0;
+//		for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
+//		{
+//			BusStop bs = MinskTransSchedMidlet.allBusStopsArray[i];
+//			if(bs.favorite)
+//				favCount++;
+//			if(bs.favorite != current.containsKey(bs))
+//			{
+//				favs = false;
+//				break;
+//			}
+//		}
+//		
+//		if(favs && favCount > 0)
+//		{
+//			setSelectedIndex(1, true);
+//			return;
+//		}
+//
+		setSelectedIndex(0, false);
+		setSelectedIndex(1, false);
 		for (int i = 0; i < busStops.length; i++)
 		{
 			BusStop bs = busStops[i]; 
@@ -177,7 +186,9 @@ public class BusStopsFilter extends List implements CommandListener
 		}
 		else if(cmd == cmdSelectAll)
 		{
-			for (int i = 0; i < size(); i++)
+			setSelectedIndex(0, false);
+			setSelectedIndex(1, false);
+			for (int i = 2; i < size(); i++)
 			{
 				setSelectedIndex(i, true);
 			}

@@ -46,8 +46,6 @@ public class BusesFilter extends List implements CommandListener
 		scheduleBoard = board;
 
 		commandAction(cmdShowCurrent, this);
-		
-		selectCurrrent();
 	}
 	
 	void createList()
@@ -86,24 +84,30 @@ public class BusesFilter extends List implements CommandListener
 	
 	void selectCurrrent()
 	{
-		if(scheduleBoard.filter.busStopsFilter == null && scheduleBoard.filter.busesFilter == null)
-			setSelectedIndex(0, true);
-
+//		if(scheduleBoard.filter.busStopsFilter == null && scheduleBoard.filter.busesFilter == null)
+//			setSelectedIndex(0, true);
+//
 		Hashtable h = scheduleBoard.filter.getFilteredBusesHash();
+//
+//		boolean favs = true;
+//		int favCount = 0;
+//		for (int i = 0; i < MinskTransSchedMidlet.allBusesArray.length; i++)
+//		{
+//			Bus b = MinskTransSchedMidlet.allBusesArray[i];
+//			if(b.favorite)
+//				favCount++;
+//			if(b.favorite != h.containsKey(b))
+//			{
+//				favs = false;
+//				break;
+//			}
+//		}
+//		
+//		if(favs && favCount > 0)
+//			setSelectedIndex(1, true);
 
-		boolean favs = true;
-		for (int i = 0; i < MinskTransSchedMidlet.allBusesArray.length; i++)
-		{
-			Bus b = MinskTransSchedMidlet.allBusesArray[i];
-			if(b.favorite != h.containsKey(b))
-			{
-				favs = false;
-				break;
-			}
-		}
-		
-		if(favs)
-			setSelectedIndex(1, true);
+		setSelectedIndex(0, false);
+		setSelectedIndex(1, false);
 
 		for (int i = 0; i < buses.length; i++)
 		{
@@ -166,6 +170,15 @@ public class BusesFilter extends List implements CommandListener
 			for (int i = 0; i < size(); i++)
 			{
 				setSelectedIndex(i, false);
+			}
+		}
+		else if(cmd == cmdSelectAll)
+		{
+			setSelectedIndex(0, false);
+			setSelectedIndex(1, false);
+			for (int i = 2; i < size(); i++)
+			{
+				setSelectedIndex(i, true);
 			}
 		}
 		else if(cmd == cmdToggleFavorite)

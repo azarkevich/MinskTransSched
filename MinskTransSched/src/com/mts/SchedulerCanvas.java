@@ -57,9 +57,18 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		setFullScreenMode(fullScreen);
 		
 		// start with favorites
-		filter.setBusesFilter(filter.getFavorites(MinskTransSchedMidlet.allBusesArray));
-		filter.setBusStopsFilter(filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray));
-		busStops = filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray);
+		Bus[] favBuses = filter.getFavorites(MinskTransSchedMidlet.allBusesArray);
+		BusStop[] favBS = filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray);
+		if(favBuses.length > 0 && favBS.length > 0)
+		{
+			filter.setBusesFilter(favBuses);
+			filter.setBusStopsFilter(favBS);
+			busStops = filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray);
+		}
+		else
+		{
+			busStops = MinskTransSchedMidlet.allBusStopsArray;
+		}
 		
 		scheduleBuilder = new ScheduleBuilder(filter);
 		
