@@ -27,7 +27,8 @@ public class OptionsStoreManager
 				Options.defWindowSizeStep = dis.readShort();
 				Options.defWindowShiftStep = dis.readShort();
 
-				Options.startupScreen = dis.readByte();
+				// was: startup screen
+				dis.readByte();
 				
 				Options.fontSize = dis.readInt();
 				Options.fontFace = dis.readInt();
@@ -98,7 +99,7 @@ public class OptionsStoreManager
 				dos.writeShort(Options.defWindowSizeStep);
 				dos.writeShort(Options.defWindowShiftStep);
 				
-				dos.writeByte(Options.startupScreen);
+				dos.writeByte(0);
 
 				dos.writeInt(Options.fontSize);
 				dos.writeInt(Options.fontFace);

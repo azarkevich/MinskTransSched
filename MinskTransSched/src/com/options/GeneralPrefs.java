@@ -3,7 +3,6 @@ package com.options;
 import javax.microedition.lcdui.*;
 
 import com.mts.MinskTransSchedMidlet;
-import com.resources.Images;
 
 public class GeneralPrefs extends Form implements CommandListener
 {
@@ -24,8 +23,6 @@ public class GeneralPrefs extends Form implements CommandListener
 	TextField tfDefWindowSizeStep = null;
 	TextField tfDefWindowShiftStep = null;
 	
-	ChoiceGroup startupScreen = null;
-
 	ChoiceGroup fontSize = null;
 	ChoiceGroup fontFace = null;
 	
@@ -62,12 +59,6 @@ public class GeneralPrefs extends Form implements CommandListener
 		
 		append(new Spacer(0, 5));
 
-		String choices[] = { "Список fav.", "Список всех", "Расписание fav.", "Расписание всех" };
-		Image[] imgs = {Images.heart, null, null, null}; 
-		startupScreen = new ChoiceGroup("Стартовый экран", Choice.POPUP, choices, imgs);
-
-		append(startupScreen);
-		
 		scrollSize = new TextField("Скорость скролирования", "", 3, TextField.DECIMAL);
 		append(scrollSize);
 
@@ -138,8 +129,6 @@ public class GeneralPrefs extends Form implements CommandListener
 		tfDefWindowShiftStep.setString("" + Options.defWindowShiftStep);
 		scrollSize.setString("" + Options.scrollSize);
 		
-		startupScreen.setSelectedIndex(Options.startupScreen, true);
-		
 		switch (Options.fontSize)
 		{
 		default:
@@ -201,7 +190,6 @@ public class GeneralPrefs extends Form implements CommandListener
 		Options.defWindowShift = Short.parseShort(tfDefWindowShift.getString());
 		Options.defWindowSizeStep = Short.parseShort(tfDefWindowSizeStep.getString());
 		Options.defWindowShiftStep = Short.parseShort(tfDefWindowShiftStep.getString());
-		Options.startupScreen = (byte)startupScreen.getSelectedIndex();
 
 		Options.fontSize = GetFontSize();
 		Options.fontFace = GetFontFace();

@@ -38,6 +38,48 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	public int foreColor = 255 << 8;
 	
+
+	public SchedulerCanvas(CommandListener parent)
+	{
+		parentCL = parent;
+		
+		this.setCommandListener(this);
+		addCommand(MinskTransSchedMidlet.cmdExit);
+		addCommand(MinskTransSchedMidlet.cmdMainHelpPage);
+		addCommand(MinskTransSchedMidlet.cmdOptions);
+		addCommand(cmdShowBusStopsList);
+		addCommand(cmdResetFilter);
+		addCommand(cmdAddBusFilter);
+		addCommand(cmdBusStopFilter);
+		addCommand(cmdOther);
+
+		fullScreen = Options.fullScreen;
+		setFullScreenMode(fullScreen);
+		
+		// start with favorites
+		filter.setBusesFilter(filter.getFavorites(MinskTransSchedMidlet.allBusesArray));
+		filter.setBusStopsFilter(filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray));
+		busStops = filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray);
+		
+		scheduleBuilder = new ScheduleBuilder(filter);
+		
+		TimerTask tt = new TimerTask()
+		{
+			public void run()
+			{
+				RefreshScheduleText(true);
+			}
+		};
+		refreshTimer = new Timer();
+		refreshTimer.schedule(tt, 10*1000, 10*1000);
+
+		multiLineText = new MultiLineText();
+
+		setForeColor();
+
+		RefreshScheduleText();
+	}
+
 	public void setBusStops(BusStop[] stops, BusStop sel)
 	{
 		busStops = stops;
@@ -53,7 +95,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 				}
 			}
 		}
-		scheduleBuilder.Station = busStops[currentBusStopIndex];
 		RefreshScheduleText();
 	}
 	
@@ -66,7 +107,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			if(busStops[i] == sel)
 			{
 				currentBusStopIndex = i;
-				scheduleBuilder.Station = busStops[currentBusStopIndex];
 				RefreshScheduleText();
 				break;
 			}
@@ -80,10 +120,16 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	CommandListener parentCL;
 	
+	BusStop getCurrentBusStop()
+	{
+		if(currentBusStopIndex >= busStops.length)
+			return null;
+		return busStops[currentBusStopIndex];
+	}
+	
 	void showCurrBusStopsList()
 	{
-		// TODO: select current busstop
-		BusStopsList list = new BusStopsList("Остановки", busStops, this, scheduleBuilder.Station); 
+		BusStopsList list = new BusStopsList("Остановки", busStops, this, getCurrentBusStop()); 
 		MinskTransSchedMidlet.display.setCurrent(list);
 	}
 
@@ -114,6 +160,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 				setBusStops(MinskTransSchedMidlet.allBusStopsArray, cur);
 				filter.setBusesFilter(null);
 				filter.setBusStopsFilter(null);
+				setForeColor();
+				RefreshScheduleText();
 				handled = true;
 			}
 			else if(cmd == cmdAddBusFilter)
@@ -127,43 +175,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		if(handled == false)
 			parentCL.commandAction(cmd, d);
-	}
-
-	public SchedulerCanvas(CommandListener parent)
-	{
-		parentCL = parent;
-		
-		this.setCommandListener(this);
-		addCommand(MinskTransSchedMidlet.cmdExit);
-		addCommand(MinskTransSchedMidlet.cmdMainHelpPage);
-		addCommand(MinskTransSchedMidlet.cmdOptions);
-		addCommand(cmdShowBusStopsList);
-		addCommand(cmdResetFilter);
-		addCommand(cmdAddBusFilter);
-		addCommand(cmdBusStopFilter);
-		addCommand(cmdOther);
-
-		fullScreen = Options.fullScreen;
-		setFullScreenMode(fullScreen);
-		
-		busStops = MinskTransSchedMidlet.allBusStopsArray;
-		
-		scheduleBuilder = new ScheduleBuilder(filter);
-		scheduleBuilder.Station = busStops[currentBusStopIndex];
-		
-		TimerTask tt = new TimerTask()
-		{
-			public void run()
-			{
-				RefreshScheduleText(true);
-			}
-		};
-		refreshTimer = new Timer();
-		refreshTimer.schedule(tt, 10*1000, 10*1000);
-
-		multiLineText = new MultiLineText();
-
-		RefreshScheduleText();
 	}
 
 	public void paint(Graphics g)
@@ -191,7 +202,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 		multiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
-				scheduleBuilder.GetScheduleText());
+				scheduleBuilder.GetScheduleText(getCurrentBusStop()));
 		
 		multiLineText.viewportTop = savedViewportTop;
 
@@ -249,13 +260,13 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == CmdDef.cmdBusStopPrev)
 		{
-			currentBusStopIndex = (currentBusStopIndex + busStops.length - 1) % busStops.length;
-			scheduleBuilder.Station = busStops[currentBusStopIndex];
+			if(busStops.length != 0)
+				currentBusStopIndex = (currentBusStopIndex + busStops.length - 1) % busStops.length;
 		}
 		else if(cmd == CmdDef.cmdBusStopNext)
 		{
-			currentBusStopIndex = (currentBusStopIndex + 1) % busStops.length;
-			scheduleBuilder.Station = busStops[currentBusStopIndex];
+			if(busStops.length != 0)
+				currentBusStopIndex = (currentBusStopIndex + 1) % busStops.length;
 		}
 		else if(cmd == CmdDef.cmdWindowDecrease)
 		{
@@ -295,7 +306,9 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == CmdDef.cmdToggleFavorite)
 		{
-			scheduleBuilder.Station.toggleFavorite();
+			BusStop bs = getCurrentBusStop();
+			if(bs != null)
+				bs.toggleFavorite();
 		}
 		else if(cmd == CmdDef.cmdToggleFullSchedule)
 		{
@@ -379,6 +392,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		filter.setBusesFilter(f);
 		BusStop cur = busStops[currentBusStopIndex];
 		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), cur);
+		setForeColor();
 		MinskTransSchedMidlet.display.setCurrent(this);
 	}
 
@@ -387,6 +401,15 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		filter.setBusStopsFilter(f);
 		BusStop cur = busStops[currentBusStopIndex];
 		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), cur);
+		setForeColor();
 		MinskTransSchedMidlet.display.setCurrent(this);
+	}
+	
+	void setForeColor()
+	{
+		if(filter.busesFilter == null && filter.busStopsFilter == null)
+			foreColor = 255 << 16 | 255 << 8 | 255;
+		else
+			foreColor = 0 << 16 | 255 << 8 | 0;
 	}
 }

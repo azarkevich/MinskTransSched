@@ -17,13 +17,12 @@ public class BusStopsFilter extends List implements CommandListener
 	static final Command cmdShowFavorites = new Command("Только избранные", Command.OK, 1);
 	static final Command cmdShowAll = new Command("Все", Command.OK, 1);
 	static final Command cmdSelectCurrent = new Command("Выбрать текущие", Command.OK, 1);
-	static final Command cmdSelectNone = new Command("Сбросить выбранные", Command.OK, 1);
-	static final Command cmdHelp = new Command("Помощь", Command.HELP, 1);
+	static final Command cmdSelectNone = new Command("Сбросить всё", Command.OK, 1);
+	static final Command cmdSelectAll = new Command("Выбрать всё", Command.OK, 1);
 
 	SchedulerCanvas scheduleBoard;
 	BusStop[] busStops;
 	BusStop[] lastBusStopsList;
-	boolean showAll = false;
 	public BusStopsFilter(SchedulerCanvas board)
 	{
 		super(null, List.MULTIPLE);
@@ -40,12 +39,14 @@ public class BusStopsFilter extends List implements CommandListener
 		addCommand(cmdToggleFavorite);
 		addCommand(cmdSelectCurrent);
 		addCommand(cmdSelectNone);
-		addCommand(cmdHelp);
+		addCommand(cmdSelectAll);
+		addCommand(MinskTransSchedMidlet.cmdHelp);
 
 		scheduleBoard = board;
 
-		// TODO apply filter from options
 		commandAction(cmdShowCurrent, this);
+
+		selectCurrrent();
 	}
 	
 	void createList()
@@ -87,7 +88,6 @@ public class BusStopsFilter extends List implements CommandListener
 	{
 		if(scheduleBoard.filter.busStopsFilter == null && scheduleBoard.filter.busesFilter == null)
 			setSelectedIndex(0, true);
-		// TODO: select if selected only favorites
 		
 		if(current == null)
 		{
@@ -97,6 +97,21 @@ public class BusStopsFilter extends List implements CommandListener
 				current.put(scheduleBoard.busStops[i], scheduleBoard.busStops[i]);
 			}
 		}
+		
+		boolean favs = true;
+		for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
+		{
+			BusStop bs = MinskTransSchedMidlet.allBusStopsArray[i];
+			if(bs.favorite != current.containsKey(bs))
+			{
+				favs = false;
+				break;
+			}
+		}
+		
+		if(favs)
+			setSelectedIndex(1, true);
+
 		for (int i = 0; i < busStops.length; i++)
 		{
 			BusStop bs = busStops[i]; 
@@ -113,8 +128,8 @@ public class BusStopsFilter extends List implements CommandListener
 		{
 			boolean selectAll = isSelected(0);
 
-			// select all of all == reset busstops filter
-			if(selectAll && showAll)
+			// select all == reset busstops filter
+			if(selectAll)
 			{
 				scheduleBoard.setBusStopsFilter(null);
 				return;
@@ -125,17 +140,17 @@ public class BusStopsFilter extends List implements CommandListener
 			Vector v = new Vector();
 			if(selectFavorites)
 			{
-				for (int i = 0; i < busStops.length; i++)
+				for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
 				{
-					if(busStops[i].favorite)
-						v.addElement(busStops[i]);
+					if(MinskTransSchedMidlet.allBusStopsArray[i].favorite)
+						v.addElement(MinskTransSchedMidlet.allBusStopsArray[i]);
 				}
 			}
 
 			// add selected buses
 			for (int i = 2; i < this.size(); i++)
 			{
-				if(selectAll || this.isSelected(i))
+				if(this.isSelected(i))
 				{
 					v.addElement(busStops[i - 2]);
 				}
@@ -160,6 +175,13 @@ public class BusStopsFilter extends List implements CommandListener
 				setSelectedIndex(i, false);
 			}
 		}
+		else if(cmd == cmdSelectAll)
+		{
+			for (int i = 0; i < size(); i++)
+			{
+				setSelectedIndex(i, true);
+			}
+		}
 		else if(cmd == cmdToggleFavorite)
 		{
 			for (int i = 2; i < size(); i++)
@@ -175,30 +197,28 @@ public class BusStopsFilter extends List implements CommandListener
 		else if(cmd == cmdShowCurrent)
 		{
 			this.setTitle("Текущие остановки");
-			showAll = false;
 			busStops = scheduleBoard.filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray);
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)
 		{
 			this.setTitle("Избранные остановки");
-			showAll = false;
 			busStops = scheduleBoard.filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray);
 			createList();
 		}
 		else if(cmd == cmdShowAll)
 		{
 			this.setTitle("Все остановки");
-			showAll = true;
 			busStops = MinskTransSchedMidlet.allBusStopsArray;
 			createList();
 		}
-		else if(cmd == cmdHelp)
+		else if(cmd == MinskTransSchedMidlet.cmdHelp)
 		{
 			MinskTransSchedMidlet.display.setCurrent(new HelpCanvasSimple(helpText, this));
 		}
 	}
 
+	// TODO move to common help
 	public final static String helpText = 
 		" Выбор остановок для фильтрации\n" +
 		" Доступны следующие пункты меню:\n" +
@@ -207,16 +227,14 @@ public class BusStopsFilter extends List implements CommandListener
 		" 'Только текущие' - показать остановки, которые отображаются в окне расписания(отфильтрованные)\n" +
 		" 'Только избранные' - показать все избранные остановки\n" +
 		" 'Выбрать текущие' - выбрать остановки, которые отображаются в окне расписания\n" +
-		" 'Сбросить выбранные' - сбросить все отметки\n" +
+		" 'Выбрать все' - выбрать все видимые\n" +
+		" 'Сбросить все' - сбросить все отметки\n" +
 		" 'Помощь' - тут ясно.\n" +
 		"\n" +
 		" Внимание! В окне расписания появится только те остановки, которые были выбраны тут и проходят фильтр по транспорту! Т.е. " +
 		"выбрав тут ВСЕ и 51 автобус, получим все остановки на которых останавливается 51 автобус. Если фильтр по транспорту не выбран, будут отображены " +
 		"выбранные здесь остановки в точности\n" +
 		"\n" +
-		" Винмание2! Элемент списка 'Все' и 'Избранные' отностится к текущему списку. Выбрав 'Только текущие' в меню и пункт 'Все' в списке " +
-		"будут выбраны все текущие. Т.е. ничего не изменится. Выбрав 'Все' в меню и 'Все' в списке всё равно получим не все-все " +
-		"остановки при наличии фильтра по транспорту.\n"
+		" Винмание2! Элемент списка 'Все' и 'Избранные' отностится к общему списку остановок, а не к отображаемому в данный момент\n"
 		;
-
 }

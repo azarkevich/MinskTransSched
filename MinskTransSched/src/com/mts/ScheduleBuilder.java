@@ -72,11 +72,8 @@ public class ScheduleBuilder
 		return (showFull != SCHED_FULL_NOTIME) && showTimeDiff;
 	}
 
-	public String GetScheduleText()
+	public String GetScheduleText(BusStop busStop)
 	{
-		if(Station == null)
-			return "<not set station>";
-		
 		StringBuffer sb = new StringBuffer();
 
 		Calendar cal = GetCalendar();
@@ -85,16 +82,54 @@ public class ScheduleBuilder
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
-		sb.append(GetUserDayTypeString() + " " + FormatXTime(now, ":") + ", " + (Station.favorite ? "* " : "") + Station.name);
+		String busStopName = busStop == null ? "<нет остановки>" : busStop.name;  
+		sb.append(GetUserDayTypeString());
+
+		sb.append(" ");
+		sb.append(FormatXTime(now, ":"));
 		
+		sb.append(" ");
+		
+		if(busStop != null && busStop.favorite)
+			sb.append("* ");
+		
+		sb.append(busStopName);
+
+		if(showDescription)
+			sb.append("\n" + busStop.description);
+
+		if(filter.busesFilter != null || filter.busStopsFilter != null)
+		{
+			if(showDescription)
+			{
+				sb.append("\nФильтр:");
+				if(filter.busesFilter != null)
+					sb.append("Трансп.");
+				if(filter.busesFilter != null && filter.busStopsFilter != null)
+					sb.append(", ");
+				if(filter.busStopsFilter != null)
+					sb.append("Остан.");
+			}
+			else
+			{
+				sb.append(" /");
+				if(filter.busesFilter != null)
+					sb.append("Т");
+				if(filter.busStopsFilter != null)
+					sb.append("О");
+				sb.append(" /");
+			}
+		}
+		
+		if(busStop == null)
+			return sb.toString();
+
 		if(isFullSchedule())
 		{
 			sb.append("\nПолное расписание\n");
 		}
 		else
 		{
-			if(showDescription)
-				sb.append("\n" + Station.description);
 			sb.append("\nОкно: ");
 			if(showDescription)
 				sb.append("Размер:");
@@ -122,7 +157,7 @@ public class ScheduleBuilder
 			sb.append("\n");
 		}
 		
-		Schedule[] busOnStation = filter.FilterIt(Station.schedules);
+		Schedule[] busOnStation = filter.FilterIt(busStop.schedules);
 		
 		// bus flow
 		if(showBusFlow)
@@ -323,8 +358,6 @@ public class ScheduleBuilder
 	public short WindowSize = Options.defWindowSize;
 	public short WindowShift = Options.defWindowShift;
 	public short schedShift = 0;
-	
-	public BusStop Station;
 	
 	public int UserDayType = DAY_AUTO;
 

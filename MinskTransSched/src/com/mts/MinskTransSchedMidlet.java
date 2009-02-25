@@ -259,6 +259,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		allBusesArray = loader.buses;
 
 		loadBusStopsFavorites();
+		loadBusesFavorites();
 
 		Images.load();
 		

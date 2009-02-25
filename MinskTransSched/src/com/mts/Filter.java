@@ -1,5 +1,6 @@
 package com.mts;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -12,14 +13,9 @@ public class Filter
 	{
 	}
 
-	public Filter(Hashtable busesFilter, Hashtable busStopsFilter)
-	{
-		this.busesFilter = busesFilter;
-		this.busStopsFilter = busStopsFilter;
-	}
-
 	public void setBusesFilter(Bus[] buses)
 	{
+		filteredBusesHash = null;
 		if(buses == null)
 		{
 			busesFilter = null;
@@ -29,12 +25,14 @@ public class Filter
 		busesFilter = new Hashtable(buses.length);
 		for (int i = 0; i < buses.length; i++)
 		{
-			busesFilter.put(buses[i], buses[i]);
+			if(busesFilter.containsKey(buses[i]) == false)
+				busesFilter.put(buses[i], buses[i]);
 		}
 	}
 	
 	public void setBusStopsFilter(BusStop[] busStops)
 	{
+		filteredBusesHash = null;
 		if(busStops == null)
 		{
 			busStopsFilter = null;
@@ -44,23 +42,56 @@ public class Filter
 		busStopsFilter = new Hashtable(busStops.length);
 		for (int i = 0; i < busStops.length; i++)
 		{
-			busStopsFilter.put(busStops[i], busStops[i]);
+			if(busStopsFilter.containsKey(busStops[i]) == false)
+				busStopsFilter.put(busStops[i], busStops[i]);
 		}
 	}
 	
-	public BusStop[] FilterIt(BusStop[] all)
+	Hashtable filteredBusesHash;
+
+	public Hashtable getFilteredBusesHash()
 	{
-		return FilterIt(all, false);
+		if(filteredBusesHash != null)
+			return filteredBusesHash;
+		
+		// put all buses which can appear in schedule with current filter
+		BusStop[] bss = FilterIt(MinskTransSchedMidlet.allBusStopsArray);
+		filteredBusesHash = new Hashtable();
+		for (int i = 0; i < bss.length; i++)
+		{
+			BusStop bs = bss[i];
+			Schedule[] filteredScheds = FilterIt(bs.schedules);
+			for (int j = 0; j < filteredScheds.length; j++)
+			{
+				Bus b = filteredScheds[j].bus;
+				if(filteredBusesHash.containsKey(b) == false)
+					filteredBusesHash.put(b, b);
+			}
+		}
+		return filteredBusesHash;
 	}
 	
-	public BusStop[] FilterIt(BusStop[] all, boolean onlyFavorites)
+	public Bus[] getFilteredBuses()
+	{
+		Hashtable busesHash = getFilteredBusesHash();
+		
+		Bus[] ret = new Bus[busesHash.size()];
+		int i = 0;
+		Enumeration en = busesHash.keys();
+		while(en.hasMoreElements())
+		{
+			Bus b = (Bus)en.nextElement();
+			ret[i++] = b;
+		}
+		return ret;
+	}
+	
+	public BusStop[] FilterIt(BusStop[] all)
 	{
 		Vector v = new Vector();
 		for (int i = 0; i < all.length; i++)
 		{
 			BusStop bs = all[i];
-			if(onlyFavorites && bs.favorite == false)
-				continue;
 			
 			if(busStopsFilter != null && !busStopsFilter.containsKey(bs))
 				continue;
@@ -100,6 +131,23 @@ public class Filter
 		}
 		
 		BusStop[] ret = new BusStop[v.size()];
+		v.copyInto(ret);
+		return ret;
+	}
+	
+	public Bus[] getFavorites(Bus[] all)
+	{
+		Vector v = new Vector();
+		for (int i = 0; i < all.length; i++)
+		{
+			Bus b = all[i];
+			if(b.favorite == false)
+				continue;
+
+			v.addElement(b);
+		}
+		
+		Bus[] ret = new Bus[v.size()];
 		v.copyInto(ret);
 		return ret;
 	}
