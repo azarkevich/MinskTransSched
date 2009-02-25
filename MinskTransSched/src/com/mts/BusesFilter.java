@@ -1,27 +1,38 @@
 package com.mts;
 
+import java.util.Vector;
+
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
+
+import com.resources.Images;
 
 public class BusesFilter extends List implements CommandListener
 {
 	SchedulerCanvas scheduleBoard;
 	public BusesFilter(SchedulerCanvas board)
 	{
-		super("Автобусы", List.IMPLICIT);
+		super("Автобусы", List.MULTIPLE);
 		scheduleBoard = board;
 		
 		setCommandListener(this);
 		addCommand(MinskTransSchedMidlet.cmdSelect);
 		addCommand(MinskTransSchedMidlet.cmdBack);
-		
+
 		append("Все автобусы", null);
-		append("Избр. автобусы", null);
+//		if(scheduleBoard.filter.busesFilter == null)
+//			setSelectedIndex(0, true);
+		
+		append("Избр. автобусы", Images.hearts);
+		
 		for (int i = 0; i < MinskTransSchedMidlet.allBusesArray.length; i++)
 		{
-			append(MinskTransSchedMidlet.allBusesArray[i].name, null);
+			Bus b = MinskTransSchedMidlet.allBusesArray[i];
+			append(b.name, null);
+			if(scheduleBoard.filter.busesFilter != null && scheduleBoard.filter.busesFilter.containsKey(b))
+				setSelectedIndex(i + 2, true);
 		}
 	}
 	
@@ -29,28 +40,29 @@ public class BusesFilter extends List implements CommandListener
 	{
 		if(cmd == MinskTransSchedMidlet.cmdSelect || cmd == List.SELECT_COMMAND)
 		{
-			int sel = getSelectedIndex();
-			if(sel == -1)
+			if(isSelected(0))
 			{
-				// TODO: error ??
+				scheduleBoard.setBusesFilter(null);
 			}
 			else
 			{
-				if(sel == 0)
+				Vector v = new Vector();
+				if(isSelected(1))
 				{
-					// all buses
-					scheduleBoard.setBusesFilter(null);
+					// TODO: add fav buses
 				}
-				else if(sel == 1)
+				// add selected buses
+				for (int i = 2; i < this.size(); i++)
 				{
-					// TODO: here must be favorited buses
-					scheduleBoard.setBusesFilter(null);
+					if(this.isSelected(i))
+					{
+						v.addElement(MinskTransSchedMidlet.allBusesArray[i - 2]);
+					}
 				}
-				else
-				{
-					Bus bus = MinskTransSchedMidlet.allBusesArray[sel - 2];
-					scheduleBoard.setBusesFilter(new Bus[] { bus });
-				}
+				// copy to array
+				Bus[] buses = new Bus[v.size()];
+				v.copyInto(buses);
+				scheduleBoard.setBusesFilter(buses);
 			}
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdBack)

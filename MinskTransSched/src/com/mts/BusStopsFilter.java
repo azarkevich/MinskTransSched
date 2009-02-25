@@ -14,7 +14,7 @@ public class BusStopsFilter extends List implements CommandListener
 	SchedulerCanvas scheduleBoard;
 	public BusStopsFilter(SchedulerCanvas board)
 	{
-		super("Фильтр по остановкам", List.IMPLICIT);
+		super("Фильтр по остановкам", List.MULTIPLE);
 		scheduleBoard = board;
 		
 		setCommandListener(this);
@@ -22,10 +22,18 @@ public class BusStopsFilter extends List implements CommandListener
 		addCommand(MinskTransSchedMidlet.cmdBack);
 		
 		append("Все остановки", null);
-		append("Избр. остановки", null);
+//		if(scheduleBoard.filter.busStopsFilter == null)
+//			setSelectedIndex(0, true);
+		
+		// TODO: select if selected only favorites
+		append("Избр. остановки", Images.hearts);
+		
 		for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
 		{
-			append(MinskTransSchedMidlet.allBusStopsArray[i].name, MinskTransSchedMidlet.allBusStopsArray[i].favorite ? Images.heart : null);
+			BusStop bs = MinskTransSchedMidlet.allBusStopsArray[i]; 
+			append(bs.name, bs.favorite ? Images.heart : null);
+			if(scheduleBoard.filter.busStopsFilter != null && scheduleBoard.filter.busStopsFilter.containsKey(bs))
+				setSelectedIndex(i + 2, true);
 		}
 	}
 	
@@ -33,36 +41,35 @@ public class BusStopsFilter extends List implements CommandListener
 	{
 		if(cmd == MinskTransSchedMidlet.cmdSelect || cmd == List.SELECT_COMMAND)
 		{
-			int sel = getSelectedIndex();
-			if(sel == -1)
+			if(isSelected(0))
 			{
-				// TODO: error
+				scheduleBoard.setBusStopsFilter(null);
 			}
 			else
 			{
-				if(sel == 0)
+				Vector v = new Vector();
+				// add favorites if selected
+				if(isSelected(1))
 				{
-					// all buses
-					scheduleBoard.setBusStopsFilter(null);
-				}
-				else if(sel == 1)
-				{
-					// TODO: here must be favorited buses
-					Vector favV = new Vector();
 					for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
 					{
 						if(MinskTransSchedMidlet.allBusStopsArray[i].favorite)
-							favV.addElement(MinskTransSchedMidlet.allBusStopsArray[i]);
+							v.addElement(MinskTransSchedMidlet.allBusStopsArray[i]);
 					}
-					BusStop[] fav = new BusStop[favV.size()];
-					favV.copyInto(fav);
-					scheduleBoard.setBusStopsFilter(fav);
 				}
-				else
+
+				// add selected buses
+				for (int i = 2; i < this.size(); i++)
 				{
-					BusStop busStop = MinskTransSchedMidlet.allBusStopsArray[sel - 2];
-					scheduleBoard.setBusStopsFilter(new BusStop[] { busStop });
+					if(this.isSelected(i))
+					{
+						v.addElement(MinskTransSchedMidlet.allBusStopsArray[i - 2]);
+					}
 				}
+				// copy to array
+				BusStop[] busStops = new BusStop[v.size()];
+				v.copyInto(busStops);
+				scheduleBoard.setBusStopsFilter(busStops);
 			}
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdBack)

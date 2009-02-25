@@ -220,7 +220,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		
 		Images.load();
 		
-		scheduleBoard = new SchedulerCanvas(allBusStopsArray, this);
+		scheduleBoard = new SchedulerCanvas(this);
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
 		

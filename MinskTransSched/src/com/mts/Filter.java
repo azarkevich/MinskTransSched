@@ -80,6 +80,7 @@ public class Filter
 			Schedule sched = all[i];
 			if(busesFilter != null && !busesFilter.containsKey(sched.bus))
 				continue;
+			v.addElement(sched);
 		}
 		
 		Schedule[] ret = new Schedule[v.size()];

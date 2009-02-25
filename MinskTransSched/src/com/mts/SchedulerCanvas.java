@@ -136,7 +136,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			parentCL.commandAction(cmd, d);
 	}
 
-	public SchedulerCanvas(BusStop[] stops, CommandListener parent)
+	public SchedulerCanvas(CommandListener parent)
 	{
 		parentCL = parent;
 		
@@ -152,7 +152,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
 		
-		busStops = stops;
+		busStops = MinskTransSchedMidlet.allBusStopsArray;
 		
 		m_ScheduleBuilder = new ScheduleBuilder(filter);
 		m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
@@ -402,7 +402,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		RefreshScheduleText(true);
 	}
 
-	Filter filter = new Filter();
+	public Filter filter = new Filter();
 	public void setBusesFilter(Bus[] f)
 	{
 		filter.setBusesFilter(f);
