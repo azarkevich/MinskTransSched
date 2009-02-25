@@ -1,4 +1,4 @@
-package text;
+package com.text;
 
 public class TextChunk
 {

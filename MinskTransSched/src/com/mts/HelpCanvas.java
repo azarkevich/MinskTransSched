@@ -2,23 +2,13 @@ package com.mts;
 import javax.microedition.lcdui.*;
 
 import com.options.Options;
+import com.text.MultiLineText;
 
 
 public class HelpCanvas extends Canvas
 {
-	MultiLineText m_MultiLineText;
+	MultiLineText multiLineText;
 
-	int foreColorR = 0;
-	int foreColorG = 255;
-	int foreColorB = 0;
-	
-	public void setForeColor(int r, int g, int b)
-	{
-		foreColorR = r;
-		foreColorG = g;
-		foreColorB = b;
-	}
-	
 	public final static String mainHelpText = 
 		"Расписание автобусов г.Минска\n" +
 		"Состоит из 4 основных экранов:\n" +
@@ -90,18 +80,18 @@ public class HelpCanvas extends Canvas
 	
 	public void paint(Graphics g)
 	{
-		if(m_MultiLineText == null)
+		if(multiLineText == null)
 		{
-			m_MultiLineText = new MultiLineText();
-			m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
+			multiLineText = new MultiLineText();
+			multiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 					Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
 					text);
 		}
 
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.setColor(foreColorR, foreColorG, foreColorB);
-		m_MultiLineText.DrawMultStr(g);
+		g.setColor(0, 255, 0);
+		multiLineText.DrawMultStr(g);
 	}
 
 	protected void keyPressed(int keyCode)
@@ -116,19 +106,19 @@ public class HelpCanvas extends Canvas
 	
 	private void OnKeyEvent(int keyCode, boolean repeated)
 	{
-		if(m_MultiLineText != null)
+		if(multiLineText != null)
 		{
 			if (keyCode == getKeyCode(Canvas.UP))
 			{
-				m_MultiLineText.MoveUp(Options.scrollSize);
+				multiLineText.MoveUp(Options.scrollSize);
 			}
 			else if (keyCode == getKeyCode(Canvas.DOWN))
 			{
-				m_MultiLineText.MoveDown(Options.scrollSize);
+				multiLineText.MoveDown(Options.scrollSize);
 			}
 			else
 			{
-				m_MultiLineText.MoveDown(1);
+				multiLineText.MoveDown(1);
 			}
 			repaint();
 		}

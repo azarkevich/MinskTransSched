@@ -7,10 +7,17 @@ public class Filter
 {
 	Hashtable busesFilter;
 	Hashtable busStopsFilter;
+
 	public Filter()
 	{
 	}
-	
+
+	public Filter(Hashtable busesFilter, Hashtable busStopsFilter)
+	{
+		this.busesFilter = busesFilter;
+		this.busStopsFilter = busStopsFilter;
+	}
+
 	public void setBusesFilter(Bus[] buses)
 	{
 		if(buses == null)
@@ -43,10 +50,18 @@ public class Filter
 	
 	public BusStop[] FilterIt(BusStop[] all)
 	{
+		return FilterIt(all, false);
+	}
+	
+	public BusStop[] FilterIt(BusStop[] all, boolean onlyFavorites)
+	{
 		Vector v = new Vector();
 		for (int i = 0; i < all.length; i++)
 		{
 			BusStop bs = all[i];
+			if(onlyFavorites && bs.favorite == false)
+				continue;
+			
 			if(busStopsFilter != null && !busStopsFilter.containsKey(bs))
 				continue;
 
@@ -65,6 +80,23 @@ public class Filter
 			}
 			if(add)
 				v.addElement(bs);
+		}
+		
+		BusStop[] ret = new BusStop[v.size()];
+		v.copyInto(ret);
+		return ret;
+	}
+	
+	public BusStop[] getFavorites(BusStop[] all)
+	{
+		Vector v = new Vector();
+		for (int i = 0; i < all.length; i++)
+		{
+			BusStop bs = all[i];
+			if(bs.favorite == false)
+				continue;
+
+			v.addElement(bs);
 		}
 		
 		BusStop[] ret = new BusStop[v.size()];

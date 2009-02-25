@@ -299,17 +299,17 @@ public class CmdDef
 			CmdDef.KEY_ACTION_PRESS_FIRST,
 			'6'); 
 
-	public static CmdDef cmdShowBookmarks = new CmdDef(
+	public static CmdDef cmdShowCurrentBusStops = new CmdDef(
 			15,
-			"Спис. избранное",
-			"Пеерход к списку избранных остановок",
+			"Тек. Остановки",
+			"Отображает текущий(отфильтрованый) список остановок для быстрого перехода по ним.",
 			CmdDef.KEY_ACTION_RELEASE_SHORT,
 			Canvas.FIRE, true);
 	
-	public static CmdDef cmdShowAllBusStops = new CmdDef(
+	public static CmdDef cmdShowBusesFilter = new CmdDef(
 			16,
-			"Все остановки",
-			"Переход к списку всех остановок",
+			"Фильтр по автобусам",
+			"Отображение списка автобусов для фильтрации по ним.",
 			CmdDef.KEY_ACTION_RELEASE_LONG,
 			Canvas.FIRE, true);
 	

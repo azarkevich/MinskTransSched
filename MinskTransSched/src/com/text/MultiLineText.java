@@ -1,4 +1,4 @@
-package com.mts;
+package com.text;
 import java.util.Vector;
 import javax.microedition.lcdui.*;
 

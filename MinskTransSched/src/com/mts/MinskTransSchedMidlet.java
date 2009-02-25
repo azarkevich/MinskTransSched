@@ -167,7 +167,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 	{
 	}
 	
-	void loadFavorites()
+	void loadBusStopsFavorites()
 	{
 		try{
 			RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
@@ -184,6 +184,7 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 					}
 	
 					int id = rec[1] * 256 + rec[2];
+					// TODO: use hashtable
 					for (int b = 0; b < allBusStopsArray.length; b++)
 					{
 						if(allBusStopsArray[b].id == id)
@@ -205,6 +206,45 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 		}
 	}
 
+	void loadBusesFavorites()
+	{
+		try{
+			RecordStore rsBuses = RecordStore.openRecordStore("bmBuses", true);
+			for(int i=0;i<rsBuses.getNextRecordID();i++)
+			{
+				int recId = i + 1;
+				try{
+					byte[] rec = rsBuses.getRecord(recId);
+					if(rec.length != 3)
+					{
+						rsBuses.deleteRecord(recId);
+						i--;
+						continue;
+					}
+	
+					int id = rec[1] * 256 + rec[2];
+					// TODO: use hashtable
+					for (int b = 0; b < allBusesArray.length; b++)
+					{
+						if(allBusesArray[b].id == id)
+						{
+							allBusesArray[b].favorite = (rec[0] == 1);
+							allBusesArray[b].bookmarkRecord = recId;
+							break;
+						}
+					}
+				}
+				catch(InvalidRecordIDException ex)
+				{
+				}
+			}
+			rsBuses.closeRecordStore();
+		}
+		catch(Exception ex)
+		{
+		}
+	}
+	
 	protected void startApp() throws MIDletStateChangeException
 	{
 		display = Display.getDisplay(this);
@@ -217,14 +257,16 @@ public class MinskTransSchedMidlet extends MIDlet implements CommandListener
 
 		allBusStopsArray = loader.busStops;
 		allBusesArray = loader.buses;
-		
+
+		loadBusStopsFavorites();
+
 		Images.load();
 		
 		scheduleBoard = new SchedulerCanvas(this);
+		scheduleBoard.addCommand(cmdOptions);
+		scheduleBoard.addCommand(cmdMainHelpPage);
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
-		
-		loadFavorites();
 		
 		//showStartupScreen();
 		

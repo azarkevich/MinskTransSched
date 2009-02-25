@@ -5,7 +5,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 import com.mts.MinskTransSchedMidlet;
-import com.mts.MultiLineText;
+import com.text.MultiLineText;
 
 public class DefineKey extends Canvas
 {

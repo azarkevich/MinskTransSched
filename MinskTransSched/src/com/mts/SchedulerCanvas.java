@@ -8,43 +8,35 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
-import javax.microedition.rms.RecordStore;
 
 import com.options.CmdDef;
 import com.options.KeyCommands;
 import com.options.Options;
 import com.options.OptionsListener;
+import com.text.MultiLineText;
 
 
 public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
 	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 1); 
-	static final Command cmdResetFilter = new Command("Сбросить фильтр", Command.OK, 1); 
-	static final Command cmdAddBusFilter = new Command("По автобусу фильтр", Command.OK, 1); 
-	static final Command cmdBusStopFilter = new Command("По остановке фильтр", Command.OK, 1); 
+	static final Command cmdAddBusFilter = new Command("По автобусу фильтр", Command.OK, 2); 
+	static final Command cmdBusStopFilter = new Command("По остановке фильтр", Command.OK, 2); 
+	static final Command cmdResetFilter = new Command("Сбросить фильтр", Command.OK, 3); 
+	static final Command cmdOther = new Command("Другое", Command.OK, 100);
 	
 	BusStop[] busStops = null;
 	int currentBusStopIndex = 0;
 	
-	MultiLineText m_MultiLineText;
+	MultiLineText multiLineText;
 	int savedViewportTop;
 
-	ScheduleBuilder m_ScheduleBuilder;
+	ScheduleBuilder scheduleBuilder;
 	
-	Timer m_RefreshTimer;
+	Timer refreshTimer;
 	
 	boolean fullScreen = false;
 
-	int foreColorR = 0;
-	int foreColorG = 255;
-	int foreColorB = 0;
-	
-	public void setForeColor(int r, int g, int b)
-	{
-		foreColorR = r;
-		foreColorG = g;
-		foreColorB = b;
-	}
+	public int foreColor = 255 << 8;
 	
 	public void setBusStops(BusStop[] stops, BusStop sel)
 	{
@@ -61,7 +53,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 				}
 			}
 		}
-		m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
+		scheduleBuilder.Station = busStops[currentBusStopIndex];
 		RefreshScheduleText();
 	}
 	
@@ -74,6 +66,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			if(busStops[i] == sel)
 			{
 				currentBusStopIndex = i;
+				scheduleBuilder.Station = busStops[currentBusStopIndex];
 				RefreshScheduleText();
 				break;
 			}
@@ -90,7 +83,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	void showCurrBusStopsList()
 	{
 		// TODO: select current busstop
-		BusStopsList list = new BusStopsList("Остановки", busStops, this); 
+		BusStopsList list = new BusStopsList("Остановки", busStops, this, scheduleBuilder.Station); 
 		MinskTransSchedMidlet.display.setCurrent(list);
 	}
 
@@ -148,14 +141,15 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		addCommand(cmdResetFilter);
 		addCommand(cmdAddBusFilter);
 		addCommand(cmdBusStopFilter);
+		addCommand(cmdOther);
 
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
 		
 		busStops = MinskTransSchedMidlet.allBusStopsArray;
 		
-		m_ScheduleBuilder = new ScheduleBuilder(filter);
-		m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
+		scheduleBuilder = new ScheduleBuilder(filter);
+		scheduleBuilder.Station = busStops[currentBusStopIndex];
 		
 		TimerTask tt = new TimerTask()
 		{
@@ -164,23 +158,23 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 				RefreshScheduleText(true);
 			}
 		};
-		m_RefreshTimer = new Timer();
-		m_RefreshTimer.schedule(tt, 10*1000, 10*1000);
+		refreshTimer = new Timer();
+		refreshTimer.schedule(tt, 10*1000, 10*1000);
 
-		m_MultiLineText = new MultiLineText();
+		multiLineText = new MultiLineText();
 
 		RefreshScheduleText();
 	}
 
 	public void paint(Graphics g)
 	{
-		if(m_MultiLineText == null)
+		if(multiLineText == null)
 			return;
 
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.setColor(foreColorR, foreColorG, foreColorB);
-		m_MultiLineText.DrawMultStr(g);
+		g.setColor(foreColor);
+		multiLineText.DrawMultStr(g);
 	}
 	
 	private void RefreshScheduleText()
@@ -190,16 +184,16 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	
 	private void RefreshScheduleText(boolean savePosition)
 	{
-		if(savePosition && m_MultiLineText != null)
-			savedViewportTop = m_MultiLineText.viewportTop;
+		if(savePosition && multiLineText != null)
+			savedViewportTop = multiLineText.viewportTop;
 		else
 			savedViewportTop = 0;
 
-		m_MultiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
+		multiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
-				m_ScheduleBuilder.GetScheduleText());
+				scheduleBuilder.GetScheduleText());
 		
-		m_MultiLineText.viewportTop = savedViewportTop;
+		multiLineText.viewportTop = savedViewportTop;
 
 		repaint();
 	}
@@ -231,122 +225,99 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		
 		if(cmd == CmdDef.cmdScrollUp)
 		{
-			m_MultiLineText.MoveUp(Options.scrollSize);
+			multiLineText.MoveUp(Options.scrollSize);
 			repaint();
 			return;
 		}
 		else if(cmd == CmdDef.cmdScrollDown)
 		{
-			m_MultiLineText.MoveDown(Options.scrollSize);
+			multiLineText.MoveDown(Options.scrollSize);
 			repaint();
 			return;
 		}
 		else if(cmd == CmdDef.cmdScrollUpPage)
 		{
-			m_MultiLineText.PageUp();
+			multiLineText.PageUp();
 			repaint();
 			return;
 		}
 		else if(cmd == CmdDef.cmdScrollDownPage)
 		{
-			m_MultiLineText.PageDown();
+			multiLineText.PageDown();
 			repaint();
 			return;
 		}
 		else if(cmd == CmdDef.cmdBusStopPrev)
 		{
 			currentBusStopIndex = (currentBusStopIndex + busStops.length - 1) % busStops.length;
-			m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
+			scheduleBuilder.Station = busStops[currentBusStopIndex];
 		}
 		else if(cmd == CmdDef.cmdBusStopNext)
 		{
 			currentBusStopIndex = (currentBusStopIndex + 1) % busStops.length;
-			m_ScheduleBuilder.Station = busStops[currentBusStopIndex];
+			scheduleBuilder.Station = busStops[currentBusStopIndex];
 		}
 		else if(cmd == CmdDef.cmdWindowDecrease)
 		{
-			m_ScheduleBuilder.WindowSize -= Options.defWindowSizeStep;
-			if(m_ScheduleBuilder.WindowSize < 0)
-				m_ScheduleBuilder.WindowSize = 0;
+			scheduleBuilder.WindowSize -= Options.defWindowSizeStep;
+			if(scheduleBuilder.WindowSize < 0)
+				scheduleBuilder.WindowSize = 0;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdWindowIncrease)
 		{
-			m_ScheduleBuilder.WindowSize += Options.defWindowSizeStep;
+			scheduleBuilder.WindowSize += Options.defWindowSizeStep;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdWindowShiftDecrease)
 		{
-			m_ScheduleBuilder.WindowShift -= Options.defWindowShiftStep;
+			scheduleBuilder.WindowShift -= Options.defWindowShiftStep;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdWindowShiftIncrease)
 		{
-			m_ScheduleBuilder.WindowShift += Options.defWindowShiftStep;
+			scheduleBuilder.WindowShift += Options.defWindowShiftStep;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdToggleDayType)
 		{
-			m_ScheduleBuilder.ShiftDayType();
+			scheduleBuilder.ShiftDayType();
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdToggleDetailedDescription)
 		{
-			m_ScheduleBuilder.showDescription = !m_ScheduleBuilder.showDescription;
+			scheduleBuilder.showDescription = !scheduleBuilder.showDescription;
 		}
 		else if(cmd == CmdDef.cmdToggleFavorite)
 		{
-			try{
-				if(m_ScheduleBuilder.Station != null)
-				{
-					m_ScheduleBuilder.Station.favorite = !m_ScheduleBuilder.Station.favorite;
-	
-					RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
-					byte[] rec = new byte[3];
-					rec[0] = (byte)(m_ScheduleBuilder.Station.favorite ? 1 : 0);
-					rec[1] = (byte)(m_ScheduleBuilder.Station.id / 256);
-					rec[2] = (byte)(m_ScheduleBuilder.Station.id % 256);
-					if(m_ScheduleBuilder.Station.bookmarkRecord != -1)
-						bmBusStops.setRecord(m_ScheduleBuilder.Station.bookmarkRecord, rec, 0, rec.length);
-					else
-						m_ScheduleBuilder.Station.bookmarkRecord = bmBusStops.addRecord(rec, 0, rec.length);
-					
-					bmBusStops.closeRecordStore();
-				}
-			}
-			catch(Exception ex)
-			{
-				// restore
-				m_ScheduleBuilder.Station.favorite = !m_ScheduleBuilder.Station.favorite;
-			}
+			scheduleBuilder.Station.toggleFavorite();
 		}
 		else if(cmd == CmdDef.cmdToggleFullSchedule)
 		{
-			m_ScheduleBuilder.toggleFullSched(); 
+			scheduleBuilder.toggleFullSched(); 
 		}
 		else if(cmd == CmdDef.cmdScheduleReset)
 		{
-			m_ScheduleBuilder.WindowShift = Options.defWindowShift;
-			m_ScheduleBuilder.WindowSize = Options.defWindowSize;
-			m_ScheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
-			m_ScheduleBuilder.schedShift = 0;
-			m_ScheduleBuilder.showFull = ScheduleBuilder.SCHED_FULL_NONE;
-			m_ScheduleBuilder.showTimeDiff = true;
-			m_ScheduleBuilder.showDescription = false;
+			scheduleBuilder.WindowShift = Options.defWindowShift;
+			scheduleBuilder.WindowSize = Options.defWindowSize;
+			scheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
+			scheduleBuilder.schedShift = 0;
+			scheduleBuilder.showFull = ScheduleBuilder.SCHED_FULL_NONE;
+			scheduleBuilder.showTimeDiff = true;
+			scheduleBuilder.showDescription = false;
 		}
-		else if(cmd == CmdDef.cmdShowBookmarks)
+		else if(cmd == CmdDef.cmdShowCurrentBusStops)
 		{
 			showCurrBusStopsList();
-//			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowFavBusStops, this);
 		}
-		else if(cmd == CmdDef.cmdShowAllBusStops)
+		else if(cmd == CmdDef.cmdShowBusesFilter)
 		{
-//			MinskTransSchedMidlet.midlet.commandAction(MinskTransSchedMidlet.cmdShowAllBusStops, this);
+			showBusesFilterList();
 		}
 		else if(cmd == CmdDef.cmdScheduleFullScreen)
 		{
@@ -357,37 +328,37 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == CmdDef.cmdSchedShiftDecrease)
 		{
-			m_ScheduleBuilder.schedShift--;
+			scheduleBuilder.schedShift--;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftIncrease)
 		{
-			m_ScheduleBuilder.schedShift++;
+			scheduleBuilder.schedShift++;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftDecrease10)
 		{
-			m_ScheduleBuilder.schedShift -= 10;
+			scheduleBuilder.schedShift -= 10;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdSchedShiftIncrease10)
 		{
-			m_ScheduleBuilder.schedShift+=10;
+			scheduleBuilder.schedShift+=10;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdToggleSchedShowTimeDiff)
 		{
-			m_ScheduleBuilder.showTimeDiff = !m_ScheduleBuilder.showTimeDiff;
+			scheduleBuilder.showTimeDiff = !scheduleBuilder.showTimeDiff;
 			RefreshScheduleText(true);
 			return;
 		}
 		else if(cmd == CmdDef.cmdToggleBusFlow)
 		{
-			m_ScheduleBuilder.showBusFlow = !m_ScheduleBuilder.showBusFlow;
+			scheduleBuilder.showBusFlow = !scheduleBuilder.showBusFlow;
 		}
 
 		RefreshScheduleText();
@@ -395,8 +366,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	
 	public void OptionsUpdated()
 	{
-		m_ScheduleBuilder.WindowShift = Options.defWindowShift;
-		m_ScheduleBuilder.WindowSize = Options.defWindowSize;
+		scheduleBuilder.WindowShift = Options.defWindowShift;
+		scheduleBuilder.WindowSize = Options.defWindowSize;
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
 		RefreshScheduleText(true);

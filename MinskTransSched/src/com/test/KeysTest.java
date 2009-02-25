@@ -3,8 +3,8 @@ package com.test;
 
 import javax.microedition.lcdui.*;
 
-import com.mts.MultiLineText;
 import com.options.Options;
+import com.text.MultiLineText;
 
 public class KeysTest extends Canvas
 {
