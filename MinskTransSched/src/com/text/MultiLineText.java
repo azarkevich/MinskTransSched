@@ -11,7 +11,7 @@ public class MultiLineText
 	int regionHeight;
 	int lineHeight;
 	public int textHeight;
-	Vector vecLines;    
+	Vector vecLines = new Vector();    
 
 	public void  MoveDown(int lines)
 	{
@@ -70,7 +70,7 @@ public class MultiLineText
 		regionWidth=width;
 		regionHeight=height;
 		font = f;
-		vecLines = new Vector(1);
+		vecLines.removeAllElements();
 		lineHeight = font.getHeight();
 		viewportTop=0;
 
@@ -148,7 +148,7 @@ public class MultiLineText
 	}
 
 	public boolean justifyCenter = false; 
-	public void DrawMultStr(Graphics g)
+	public void Draw(Graphics g)
 	{
 		// save clip & font
 		int clipX = g.getClipX();

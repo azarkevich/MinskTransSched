@@ -37,6 +37,10 @@ public class OptionsStoreManager
 				Options.scrollSize = dis.readInt();
 				
 				Options.fullScreen = dis.readBoolean();
+
+				Options.showExitCommand = dis.readBoolean();
+				Options.showHelpCommand = dis.readBoolean();
+				Options.showAboutCommand = dis.readBoolean();
 			}
 			catch(InvalidRecordIDException ex)
 			{
@@ -108,6 +112,9 @@ public class OptionsStoreManager
 				dos.writeInt(Options.scrollSize);
 
 				dos.writeBoolean(Options.fullScreen);
+				dos.writeBoolean(Options.showExitCommand);
+				dos.writeBoolean(Options.showHelpCommand);
+				dos.writeBoolean(Options.showAboutCommand);
 
 				dos.flush();
 

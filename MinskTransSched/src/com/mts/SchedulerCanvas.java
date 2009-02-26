@@ -13,17 +13,18 @@ import com.options.CmdDef;
 import com.options.KeyCommands;
 import com.options.Options;
 import com.options.OptionsListener;
+import com.options.OptionsMenu;
 import com.text.MultiLineText;
 
 
 public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
-	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 1); 
-	static final Command cmdAddBusFilter = new Command("По автобусу фильтр", Command.OK, 2); 
-	static final Command cmdBusStopFilter = new Command("По остановке фильтр", Command.OK, 2); 
-	static final Command cmdResetFilter = new Command("Сбросить фильтр", Command.OK, 3); 
-	static final Command cmdOther = new Command("Другое", Command.OK, 100);
-	
+	static final Command cmdFilter = new Command("Фильтр", Command.OK, 1); 
+	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 2); 
+	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
+	final static Command cmdExit = new Command("Выход", Command.EXIT, 2);
+	final static Command cmdAbout = new Command("О программе", Command.EXIT, 2);
+
 	BusStop[] busStops = null;
 	int currentBusStopIndex = 0;
 	
@@ -39,38 +40,25 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	public int foreColor = 255 << 8;
 	
 
-	public SchedulerCanvas(CommandListener parent)
+	public SchedulerCanvas()
 	{
-		parentCL = parent;
+		super();
 		
-		this.setCommandListener(this);
-		addCommand(MinskTransSchedMidlet.cmdExit);
-		addCommand(MinskTransSchedMidlet.cmdMainHelpPage);
-		addCommand(MinskTransSchedMidlet.cmdOptions);
+		setCommandListener(this);
+		
+		if(Options.showExitCommand)
+			addCommand(cmdExit);
+		if(Options.showHelpCommand)
+			addCommand(MinskTransSchedMidlet.cmdHelp);
+		if(Options.showAboutCommand)
+			addCommand(cmdAbout);
+		
+		addCommand(cmdOptions);
 		addCommand(cmdShowBusStopsList);
-		addCommand(cmdResetFilter);
-		addCommand(cmdAddBusFilter);
-		addCommand(cmdBusStopFilter);
-		addCommand(cmdOther);
-
+		addCommand(cmdFilter);
+		
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
-		
-		// start with favorites
-		Bus[] favBuses = filter.getFavorites(MinskTransSchedMidlet.allBusesArray);
-		BusStop[] favBS = filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray);
-		if(favBuses.length > 0 && favBS.length > 0)
-		{
-			filter.setBusesFilter(favBuses);
-			filter.setBusStopsFilter(favBS);
-			busStops = filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray);
-		}
-		else
-		{
-			busStops = MinskTransSchedMidlet.allBusStopsArray;
-		}
-		
-		scheduleBuilder = new ScheduleBuilder(filter);
 		
 		TimerTask tt = new TimerTask()
 		{
@@ -84,9 +72,28 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 		multiLineText = new MultiLineText();
 
-		setForeColor();
+		scheduleBuilder = new ScheduleBuilder(filter);
 
-		RefreshScheduleText();
+		// start with favorites
+		setFilterToFavorites();
+	}
+
+	public void setFilterToFavorites()
+	{
+		Bus[] favBuses = filter.getFavorites(MinskTransSchedMidlet.allBusesArray);
+		if(favBuses.length > 0)
+		{
+			filter.setBusesFilter(favBuses);
+		}
+
+		BusStop[] favBS = filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray);
+		if(favBS.length > 0)
+		{
+			filter.setBusStopsFilter(favBS);
+		}
+		setForeColor();
+		
+		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), null);
 	}
 
 	public void setBusStops(BusStop[] stops, BusStop sel)
@@ -127,8 +134,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		return currentBusStopIndex;
 	}
 
-	CommandListener parentCL;
-	
 	BusStop getCurrentBusStop()
 	{
 		if(currentBusStopIndex >= busStops.length)
@@ -142,48 +147,50 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		MinskTransSchedMidlet.display.setCurrent(list);
 	}
 
-	void showBusesFilterList()
+	public void showBusesFilter()
 	{
 		MinskTransSchedMidlet.display.setCurrent(new BusesFilter(this));
 	}
 
-	void showBusStopsFilterList()
+	public void showBusStopsFilter()
 	{
 		MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(this));
 	}
 
 	public void commandAction(Command cmd, Displayable d)
 	{
-		boolean handled = false;
-		
-		if(d == this)
+		if(cmd == cmdFilter)
 		{
-			if(cmd == cmdShowBusStopsList)
-			{
-				showCurrBusStopsList();
-				handled = true;
-			}
-			else if(cmd == cmdResetFilter)
-			{
-				BusStop cur = busStops[currentBusStopIndex];
-				setBusStops(MinskTransSchedMidlet.allBusStopsArray, cur);
-				filter.setBusesFilter(null);
-				filter.setBusStopsFilter(null);
-				setForeColor();
-				RefreshScheduleText();
-				handled = true;
-			}
-			else if(cmd == cmdAddBusFilter)
-			{
-				showBusesFilterList();
-			}
-			else if(cmd == cmdBusStopFilter)
-			{
-				showBusStopsFilterList();
-			}
+			MinskTransSchedMidlet.display.setCurrent(new FilterMenu(this));
 		}
-		if(handled == false)
-			parentCL.commandAction(cmd, d);
+		else if(cmd == cmdShowBusStopsList)
+		{
+			showCurrBusStopsList();
+		}
+		else if(cmd == cmdOptions)
+		{
+			MinskTransSchedMidlet.display.setCurrent(new OptionsMenu(this));
+		}
+		else if(cmd == MinskTransSchedMidlet.cmdHelp)
+		{
+			MinskTransSchedMidlet.display.setCurrent(new HelpCanvasSimple(HelpCanvas.mainHelpText, this));
+		}
+		else if(cmd == cmdExit)
+		{
+			MinskTransSchedMidlet.midlet.notifyDestroyed();
+		}
+		else if(cmd == cmdAbout)
+		{
+			MinskTransSchedMidlet.display.setCurrent(new About(this));
+		}
+	}
+
+	public void resetFilter()
+	{
+		filter.setBusesFilter(null);
+		filter.setBusStopsFilter(null);
+		setForeColor();
+		setBusStops(MinskTransSchedMidlet.allBusStopsArray, getCurrentBusStop());
 	}
 
 	public void paint(Graphics g)
@@ -194,7 +201,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(foreColor);
-		multiLineText.DrawMultStr(g);
+		multiLineText.Draw(g);
 	}
 	
 	private void RefreshScheduleText()
@@ -339,7 +346,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == CmdDef.cmdShowBusesFilter)
 		{
-			showBusesFilterList();
+			showBusesFilter();
 		}
 		else if(cmd == CmdDef.cmdScheduleFullScreen)
 		{
@@ -392,6 +399,23 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		scheduleBuilder.WindowSize = Options.defWindowSize;
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
+
+		try{
+			removeCommand(cmdExit);
+			removeCommand(MinskTransSchedMidlet.cmdHelp);
+			removeCommand(cmdAbout);
+			
+			if(Options.showExitCommand)
+				addCommand(cmdExit);
+			if(Options.showHelpCommand)
+				addCommand(MinskTransSchedMidlet.cmdHelp);
+			if(Options.showAboutCommand)
+				addCommand(cmdAbout);
+		}
+		catch(Exception e)
+		{
+		}
+
 		RefreshScheduleText(true);
 	}
 

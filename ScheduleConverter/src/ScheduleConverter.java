@@ -229,6 +229,8 @@ public class ScheduleConverter
 			
 			//sort schedules by busStops then by bus
 			Collections.sort(schedules);
+			Collections.sort(buses);
+			Collections.sort(busStops);
 			
 			System.out.println("DATA VALID.");
 

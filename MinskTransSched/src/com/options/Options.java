@@ -16,4 +16,8 @@ public class Options
 	public static int scrollSize = 1;
 	
 	public static boolean fullScreen = true;
+	
+	public static boolean showExitCommand = true;
+	public static boolean showHelpCommand = true;
+	public static boolean showAboutCommand = true;
 }

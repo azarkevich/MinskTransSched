@@ -8,14 +8,15 @@ public class GeneralPrefs extends Form implements CommandListener
 {
 	public void commandAction(Command cmd, Displayable d)
 	{
-		boolean handled = false;
 		if(cmd == MinskTransSchedMidlet.cmdOK)
 		{
 			SaveSettings();
+			MinskTransSchedMidlet.display.setCurrent(next);
 		}
-		
-		if(handled == false)
-			parentCL.commandAction(cmd, d);
+		else if(cmd == MinskTransSchedMidlet.cmdCancel)
+		{
+			MinskTransSchedMidlet.display.setCurrent(next);
+		}
 	}
 
 	TextField tfDefWindowSize = null;
@@ -31,17 +32,20 @@ public class GeneralPrefs extends Form implements CommandListener
 	TextField scrollSize = null;
 
 	ChoiceGroup fullScreenMode = null;
+	ChoiceGroup addExitMenuCG = null;
 
-	CommandListener parentCL;
-	public GeneralPrefs(CommandListener parent)
+	Displayable next;
+
+	public GeneralPrefs(Displayable next)
 	{
 		super("Настройки");
 		
-		parentCL = parent;
+		this.next = next;
 
-		this.addCommand(MinskTransSchedMidlet.cmdOK);
-		this.addCommand(MinskTransSchedMidlet.cmdBack);
-		this.setCommandListener(this);
+		addCommand(MinskTransSchedMidlet.cmdOK);
+		addCommand(MinskTransSchedMidlet.cmdCancel);
+
+		setCommandListener(this);
 
 		append(new StringItem(null, "Настройки окна расписания (мин.)"));
 		
@@ -62,6 +66,14 @@ public class GeneralPrefs extends Form implements CommandListener
 		scrollSize = new TextField("Скорость скролирования", "", 3, TextField.DECIMAL);
 		append(scrollSize);
 
+		String fullScreen[] = { "Полноэкрнанное", "Обычное" };
+		fullScreenMode = new ChoiceGroup("Расписание", Choice.POPUP, fullScreen, null);
+		append(fullScreenMode);
+
+		String addExitMenu[] = { "Добавлять 'Выход'", "Добавлять 'Помощь'", "Добавлять 'О программе'" };
+		addExitMenuCG = new ChoiceGroup("Меню", Choice.MULTIPLE, addExitMenu, null);
+		append(addExitMenuCG);
+		
 		String fontSizes[] = { "Малый", "Средний", "Большой" };
 		fontSize = new ChoiceGroup("Размер шрифта", Choice.POPUP, fontSizes, null);
 		append(fontSize);
@@ -86,10 +98,6 @@ public class GeneralPrefs extends Form implements CommandListener
 		lastFontFace = FontExample.fontFace;
 		lastFontSize = FontExample.fontSize;
 		
-		String fullScreen[] = { "Полноэкрнанное", "Обычное" };
-		fullScreenMode = new ChoiceGroup("Расписание", Choice.POPUP, fullScreen, null);
-		append(fullScreenMode);
-
 		LoadSettings();
 
 		UpdateFontExample();
@@ -158,6 +166,12 @@ public class GeneralPrefs extends Form implements CommandListener
 		}
 		
 		fullScreenMode.setSelectedIndex(Options.fullScreen ? 0 : 1, true);
+		if(Options.showExitCommand)
+			addExitMenuCG.setSelectedIndex(0, true);
+		if(Options.showHelpCommand)
+			addExitMenuCG.setSelectedIndex(1, true);
+		if(Options.showAboutCommand)
+			addExitMenuCG.setSelectedIndex(2, true);
 	}
 	
 	int GetFontSize()
@@ -198,6 +212,10 @@ public class GeneralPrefs extends Form implements CommandListener
 
 		Options.fullScreen = (fullScreenMode.getSelectedIndex() == 0) ? true : false;
 
+		Options.showExitCommand = addExitMenuCG.isSelected(0); 
+		Options.showHelpCommand = addExitMenuCG.isSelected(1); 
+		Options.showAboutCommand = addExitMenuCG.isSelected(2); 
+		
 		OptionsStoreManager.SaveSettings();
 		
 		for (int i = 0; i < MinskTransSchedMidlet.optionsListeners.length; i++)

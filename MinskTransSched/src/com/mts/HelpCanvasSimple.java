@@ -38,7 +38,7 @@ public class HelpCanvasSimple extends Canvas implements CommandListener
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(0, 255, 0);
-		multiLineText.DrawMultStr(g);
+		multiLineText.Draw(g);
 	}
 
 	protected void keyPressed(int keyCode)

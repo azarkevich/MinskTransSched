@@ -3,6 +3,7 @@ package com.options;
 import javax.microedition.lcdui.*;
 
 import com.mts.HelpCanvas;
+import com.mts.HelpCanvasSimple;
 import com.mts.MinskTransSchedMidlet;
 
 public class ControlPrefs extends List implements CommandListener
@@ -15,14 +16,12 @@ public class ControlPrefs extends List implements CommandListener
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		boolean handled = false;
 		if(cmd == cmdDescription)
 		{
 			CmdDef c = all[this.getSelectedIndex()];
 			Alert a = new Alert(null);
 			a.setString(c.description + "\n" + c.getKeyHashName(true, "<нет>"));
 			MinskTransSchedMidlet.display.setCurrent(a);
-			handled = true;
 		}
 		else if(d == actionTypeList)
 		{
@@ -38,13 +37,10 @@ public class ControlPrefs extends List implements CommandListener
 				onKeyActionAssigned(c, newHash);
 				
 				MinskTransSchedMidlet.display.setCurrent(this);
-
-				handled = true;
 			}
 			else if(cmd == MinskTransSchedMidlet.cmdCancel)
 			{
 				MinskTransSchedMidlet.display.setCurrent(this);
-				handled = true;
 			}
 		}
 		else if(cmd == cmdChangeKey || cmd == List.SELECT_COMMAND)
@@ -57,26 +53,16 @@ public class ControlPrefs extends List implements CommandListener
 			
 			keyDefiner.setData(c, sel);
 			MinskTransSchedMidlet.display.setCurrent(keyDefiner);
-			handled = true;
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdHelp)
 		{
-			if(helpCanvas == null)
-			{
-				helpCanvas = new HelpCanvas(HelpCanvas.defineKeyText);
-				helpCanvas.addCommand(MinskTransSchedMidlet.cmdBack);
-				helpCanvas.addCommand(MinskTransSchedMidlet.cmdExit);
-				helpCanvas.setCommandListener(this);
-			}
-			MinskTransSchedMidlet.display.setCurrent(helpCanvas);
-			handled = true;
+			MinskTransSchedMidlet.display.setCurrent(new HelpCanvasSimple(HelpCanvas.defineKeyText, this));
 		}
 		else if(cmd == cmdRestore)
 		{
 			int sel = this.getSelectedIndex();
 			all[sel].setDefaultKeyHash();
 			set(sel, all[sel].name + ": " + all[sel].getKeyHashName(true, "<нет>"), null);
-			handled = true;
 		}
 		else if(cmd == cmdRestoreAll)
 		{
@@ -84,8 +70,6 @@ public class ControlPrefs extends List implements CommandListener
 			CmdDef.resetAllKeyHashes();
 			loadItems();
 			setSelectedIndex(sel, true);
-
-			handled = true;
 		}
 		else if(cmd == cmdDelete)
 		{
@@ -96,40 +80,36 @@ public class ControlPrefs extends List implements CommandListener
 			c.setKeyHash(0);
 
 			set(sel, c.name + ": " + c.getKeyHashName(true, "<нет>"), null);
-			
-			handled = true;
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdOK)
 		{
 			if(checkConflicts())
+			{
 				OptionsStoreManager.SaveSettings();
-			else
-				handled = true;
+
+				for (int i = 0; i < MinskTransSchedMidlet.optionsListeners.length; i++)
+					MinskTransSchedMidlet.optionsListeners[i].OptionsUpdated();
+				
+				MinskTransSchedMidlet.display.setCurrent(next);
+			}
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdCancel)
 		{
+			// TODO: READ only control prefs
 			OptionsStoreManager.ReadSettings();
+			MinskTransSchedMidlet.display.setCurrent(next);
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdBack && d == helpCanvas)
-		{
-			MinskTransSchedMidlet.display.setCurrent(this);
-			handled = true;
-		}
-		
-		if(handled == false)
-			parentCL.commandAction(cmd, d);
 	}
 
 	List actionTypeList;
 	DefineKey keyDefiner;
-	CommandListener parentCL;
-	HelpCanvas helpCanvas;
 	CmdDef[] all;
-	public ControlPrefs(CommandListener clParent)
+	Displayable next;
+	public ControlPrefs(Displayable next)
 	{
 		super("Настройки управления", List.IMPLICIT);
 		
-		parentCL = clParent;
+		this.next = next;
 		
 		setFitPolicy(Choice.TEXT_WRAP_ON);
 		

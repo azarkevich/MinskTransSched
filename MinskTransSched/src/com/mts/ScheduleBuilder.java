@@ -97,29 +97,6 @@ public class ScheduleBuilder
 
 		if(showDescription)
 			sb.append("\n" + busStop.description);
-
-		if(filter.busesFilter != null || filter.busStopsFilter != null)
-		{
-			if(showDescription)
-			{
-				sb.append("\nФильтр:");
-				if(filter.busesFilter != null)
-					sb.append("Трансп.");
-				if(filter.busesFilter != null && filter.busStopsFilter != null)
-					sb.append(", ");
-				if(filter.busStopsFilter != null)
-					sb.append("Остан.");
-			}
-			else
-			{
-				sb.append(" /");
-				if(filter.busesFilter != null)
-					sb.append("Т");
-				if(filter.busStopsFilter != null)
-					sb.append("О");
-				sb.append(" /");
-			}
-		}
 		
 		if(busStop == null)
 			return sb.toString();
