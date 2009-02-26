@@ -45,31 +45,11 @@ public class ScheduleBuilder
 	public boolean showDescription = false;
 	public boolean showTimeDiff = true;
 	public boolean showBusFlow = false;
+	public boolean showFull = false;
 	
-	public void toggleFullSched()
-	{
-		showFull = (showFull + 1) % 3;
-		
-		// SCHED_FULL_SIMPLE same as SCHED_FULL_NOTIME if showTimeDiff == false,
-		// so toggle again
-		if(showFull == SCHED_FULL_SIMPLE && showTimeDiff == false)
-			toggleFullSched();
-	}
-	
-	public static final int SCHED_FULL_NONE = 0; 
-	public static final int SCHED_FULL_SIMPLE = 1; 
-	public static final int SCHED_FULL_NOTIME = 2; 
-
-	public int showFull = SCHED_FULL_NONE;
-	
-	boolean isFullSchedule()
-	{
-		return (showFull != SCHED_FULL_NONE);
-	}
-
 	boolean isShowTimeDiff()
 	{
-		return (showFull != SCHED_FULL_NOTIME) && showTimeDiff;
+		return showTimeDiff;
 	}
 
 	public String GetScheduleText(BusStop busStop)
@@ -101,7 +81,7 @@ public class ScheduleBuilder
 		if(busStop == null)
 			return sb.toString();
 
-		if(isFullSchedule())
+		if(showFull)
 		{
 			sb.append("\nПолное расписание\n");
 		}
@@ -174,10 +154,10 @@ public class ScheduleBuilder
 				// shift schedule
 				minTime += schedShift;
 
-				if(minTime < beginWindow && !isFullSchedule())
+				if(minTime < beginWindow && !showFull)
 					continue;
 
-				if(minTime <= endWindow || isFullSchedule())
+				if(minTime <= endWindow || showFull)
 				{
 					if(lastBus != b)
 					{
@@ -210,7 +190,6 @@ public class ScheduleBuilder
 
 			for (int i = 0; i < busOnStation.length; i++)
 			{
-				boolean schedEmpty = true;
 				Schedule sched = busOnStation[i];
 				sb.append(sched.bus.name);
 				sb.append(": ");
@@ -236,26 +215,34 @@ public class ScheduleBuilder
 					sb.append("\n");
 				
 				short[] times = GetSchedTimes(sched, cal);
-				for (int j = 0; j < times.length; j++)
+				calcFirstLastIndexes(times, beginWindow, endWindow);
+				
+				if(showFull)
 				{
-					int time = times[j] + schedShift; 
-					if(time < beginWindow && !isFullSchedule())
-						continue;
-	
-					if(time <= endWindow || isFullSchedule())
+					int currentHour = -1;
+					for (int j = firstIndex; j < aboveLastIndex; j++)
 					{
-						FormatBusTime(now, time, sb);
-						
-						schedEmpty = false;
-					}
-					else
-					{
-						if(schedEmpty)
+						int time = times[j] + schedShift;
+						int hour = time / 60;
+						if(hour != currentHour)
 						{
-							sb.append(">>");
-							FormatBusTime(now, time, sb);
+							sb.append("\n ");
+							sb.append(FormatNum(hour));
+							currentHour = hour;
+							sb.append(":");
 						}
-						break;
+						sb.append(" ");
+						sb.append(FormatNum(time % 60));
+					}
+				}
+				else
+				{
+					for (int j = firstIndex; j < aboveLastIndex; j++)
+					{
+						if(times[j] > endWindow)
+							sb.append(">>");
+	
+						FormatBusTime(now, times[j] + schedShift, sb);
 					}
 				}
 				sb.append("\n");
@@ -264,6 +251,31 @@ public class ScheduleBuilder
 		}
 		
 		return sb.toString();
+	}
+
+	int firstIndex = 0;
+	int aboveLastIndex = 0;
+	void calcFirstLastIndexes(short[] times, int beginTime, int endTime)
+	{
+		if(showFull)
+		{
+			firstIndex = 0;
+			aboveLastIndex = times.length;
+			return;
+		}
+
+		for (firstIndex = 0; firstIndex < times.length; firstIndex++)
+		{
+			if(times[firstIndex] >= beginTime)
+				break;
+		}
+		for (aboveLastIndex = firstIndex; aboveLastIndex < times.length; aboveLastIndex++)
+		{
+			if(times[aboveLastIndex] > endTime)
+				break;
+		}
+		if(aboveLastIndex == firstIndex)
+			aboveLastIndex++;
 	}
 	
 	short[] GetSchedTimes(Schedule sched, Calendar cal)
