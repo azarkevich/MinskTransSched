@@ -266,12 +266,12 @@ public class ScheduleBuilder
 
 		for (firstIndex = 0; firstIndex < times.length; firstIndex++)
 		{
-			if(times[firstIndex] >= beginTime)
+			if(times[firstIndex] + schedShift >= beginTime)
 				break;
 		}
 		for (aboveLastIndex = firstIndex; aboveLastIndex < times.length; aboveLastIndex++)
 		{
-			if(times[aboveLastIndex] > endTime)
+			if(times[aboveLastIndex] + schedShift > endTime)
 				break;
 		}
 		if(aboveLastIndex == firstIndex)

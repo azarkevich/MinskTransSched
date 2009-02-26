@@ -306,10 +306,10 @@ public class CmdDef
 			CmdDef.KEY_ACTION_RELEASE_SHORT,
 			Canvas.FIRE, true);
 	
-	public static CmdDef cmdShowBusesFilter = new CmdDef(
+	public static CmdDef cmdShowFilterMenu = new CmdDef(
 			16,
-			"Фильтр по автобусам",
-			"Отображение списка автобусов для фильтрации по ним.",
+			"Меню фильтра",
+			"Отображение меню фильтра",
 			CmdDef.KEY_ACTION_RELEASE_LONG,
 			Canvas.FIRE, true);
 	
