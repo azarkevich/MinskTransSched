@@ -50,7 +50,7 @@ public class OptionsStoreManager
 			catch(IOException ex)
 			{
 				hasErrors = true;
-				System.out.println(ex.toString());
+//				System.out.println(ex.toString());
 			}
 
 			try
@@ -79,7 +79,7 @@ public class OptionsStoreManager
 		}
 		catch(RecordStoreException ex)
 		{
-			System.out.println(ex.toString());
+//			System.out.println(ex.toString());
 			hasErrors = true;
 		}
 		

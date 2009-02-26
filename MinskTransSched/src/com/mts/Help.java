@@ -94,6 +94,12 @@ public class Help extends Canvas implements CommandListener
 		" Винмание! Элемент списка 'Все' и 'Избранные' отностится к полному списку, а не к отображаемому в данный момент\n"
 		;
 
+	public final static String favManagerHelp = 
+		" Выбор остановок/транспорта как избранное.\n" +
+		"\n" +
+		" Отметьте элементы, которые вы хотите изменить и выберите пункт меню 'Изменить'. Избранные станут обычными, обычные избранными."
+		;
+	
 	public void commandAction(Command command, Displayable displayable)
 	{
 		MinskTransSchedMidlet.display.setCurrent(next);

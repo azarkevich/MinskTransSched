@@ -128,11 +128,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			}
 		}
 	}
-	
-	public int getBusStation()
-	{
-		return currentBusStopIndex;
-	}
 
 	BusStop getCurrentBusStop()
 	{
@@ -149,12 +144,12 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	public void showBusesFilter()
 	{
-		MinskTransSchedMidlet.display.setCurrent(new BusesFilter(this));
+		MinskTransSchedMidlet.display.setCurrent(new BusesFilter(this, false));
 	}
 
 	public void showBusStopsFilter()
 	{
-		MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(this));
+		MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(this, false));
 	}
 
 	public void commandAction(Command cmd, Displayable d)
@@ -423,8 +418,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	public void setBusesFilter(Bus[] f)
 	{
 		filter.setBusesFilter(f);
-		BusStop cur = busStops[currentBusStopIndex];
-		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), cur);
+		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
 		MinskTransSchedMidlet.display.setCurrent(this);
 	}
@@ -432,8 +426,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	public void setBusStopsFilter(BusStop[] f)
 	{
 		filter.setBusStopsFilter(f);
-		BusStop cur = busStops[currentBusStopIndex];
-		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), cur);
+		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
 		MinskTransSchedMidlet.display.setCurrent(this);
 	}
