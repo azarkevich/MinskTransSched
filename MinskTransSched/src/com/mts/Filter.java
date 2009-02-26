@@ -1,24 +1,28 @@
 package com.mts;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 public class Filter
 {
-	Hashtable busesFilter;
+	BusStop[] busStops;
 	Hashtable busStopsFilter;
+
+	Bus[] buses;
+	Hashtable busesFilter;
 
 	public Filter()
 	{
 	}
 
-	public void setBusesFilter(Bus[] buses)
+	public void setBusesFilter(Bus[] filter)
 	{
+		buses = filter;
 		filteredBusesHash = null;
 		if(buses == null)
 		{
 			busesFilter = null;
+			buses = new Bus[0];
 			return;
 		}
 		
@@ -30,12 +34,14 @@ public class Filter
 		}
 	}
 	
-	public void setBusStopsFilter(BusStop[] busStops)
+	public void setBusStopsFilter(BusStop[] filter)
 	{
+		busStops = filter;
 		filteredBusesHash = null;
 		if(busStops == null)
 		{
 			busStopsFilter = null;
+			busStops = new BusStop[0];
 			return;
 		}
 		
@@ -69,21 +75,6 @@ public class Filter
 			}
 		}
 		return filteredBusesHash;
-	}
-	
-	public Bus[] getFilteredBuses()
-	{
-		Hashtable busesHash = getFilteredBusesHash();
-		
-		Bus[] ret = new Bus[busesHash.size()];
-		int i = 0;
-		Enumeration en = busesHash.keys();
-		while(en.hasMoreElements())
-		{
-			Bus b = (Bus)en.nextElement();
-			ret[i++] = b;
-		}
-		return ret;
 	}
 	
 	public BusStop[] FilterIt(BusStop[] all)

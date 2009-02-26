@@ -173,7 +173,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdHelp)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new HelpCanvasSimple(HelpCanvasSimple.mainHelpText, this));
+			MinskTransSchedMidlet.display.setCurrent(new Help(Help.mainHelpText, this));
 		}
 		else if(cmd == cmdExit)
 		{

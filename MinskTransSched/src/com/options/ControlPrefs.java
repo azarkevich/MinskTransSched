@@ -2,7 +2,7 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
-import com.mts.HelpCanvasSimple;
+import com.mts.Help;
 import com.mts.MinskTransSchedMidlet;
 
 public class ControlPrefs extends List implements CommandListener
@@ -55,7 +55,7 @@ public class ControlPrefs extends List implements CommandListener
 		}
 		else if(cmd == MinskTransSchedMidlet.cmdHelp)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new HelpCanvasSimple(HelpCanvasSimple.defineKeyText, this));
+			MinskTransSchedMidlet.display.setCurrent(new Help(Help.defineKeyText, this));
 		}
 		else if(cmd == cmdRestore)
 		{

@@ -5,6 +5,8 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
 
+import com.resources.Images;
+
 public class FilterMenu extends List implements CommandListener
 {
 	static final Command cmdBusFilter = new Command("По автобусу фильтр", Command.OK, 2); 
@@ -27,9 +29,9 @@ public class FilterMenu extends List implements CommandListener
 		addCommand(cmdBusStopFilter);
 		addCommand(cmdBusFilter);
 		
-		append("Сбросить", null);
-		append("По избранным", null);
-		append("По автобусу", null);
+		append("Сбросить", Images.stop);
+		append("По избранным", Images.hearts);
+		append("По автобусу", Images.bus);
 		append("По остановке", null);
 	}
 

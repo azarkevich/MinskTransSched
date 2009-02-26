@@ -5,7 +5,7 @@ import com.options.Options;
 import com.text.MultiLineText;
 
 
-public class HelpCanvasSimple extends Canvas implements CommandListener
+public class Help extends Canvas implements CommandListener
 {
 	public final static String mainHelpText = 
 		"Расписание транспорта г.Минска\n" +
@@ -64,6 +64,36 @@ public class HelpCanvasSimple extends Canvas implements CommandListener
 		" Удачи вам понять предыдущий абзац и не сломать мозг!" 
 		;
 	
+	public final static String transportHelp = 
+		" Выбор транспорта для фильтрации\n" +
+		" Доступны следующие пункты меню:\n" +
+		" 'Выбранное в избранное' - неспотря на название, инвертирует 'избранность' отмеченных элементов транспорта.\n" +
+		" 'Все' - показать весь транспорт\n" +
+		" 'Только текущий' - показать текущий фильтр\n" +
+		" 'Только избранный' - показать весь транспорт\n" +
+		" 'Выбрать текущий' - выбрать транспорт, который отображается в окне расписания\n" +
+		" 'Сбросить выбранный' - сбросить все отметки\n" +
+		" 'Помощь' - тут ясно.\n" +
+		"\n" +
+		" Винмание! Элемент списка 'Все' и 'Избранные' отностится к полному списку, а не к отображаемому в данный момент\n"
+		;
+
+	public final static String stopsHelp = 
+		" Выбор остановок для фильтрации.\n" +
+		" (Текущий фильтр - фильтр, который действует в данный момент.)\n" +
+		" Доступны следующие пункты меню:\n" +
+		" 'Выбранное в избранное' - неспотря на название, инвертирует 'избранность' отмеченных остановок.\n" +
+		" 'Все' - показать все остановки\n" +
+		" 'Только текущие' - показать остановки, которые отображаются в окне расписания(отфильтрованные)\n" +
+		" 'Только избранные' - показать все избранные остановки\n" +
+		" 'Выбрать текущие' - отметить остановки, входящие в текущий фильтр\n" +
+		" 'Выбрать все' - выбрать все видимые\n" +
+		" 'Сбросить все' - сбросить все отметки\n" +
+		" 'Помощь' - тут ясно.\n" +
+		"\n" +
+		" Винмание! Элемент списка 'Все' и 'Избранные' отностится к полному списку, а не к отображаемому в данный момент\n"
+		;
+
 	public void commandAction(Command command, Displayable displayable)
 	{
 		MinskTransSchedMidlet.display.setCurrent(next);
@@ -73,7 +103,7 @@ public class HelpCanvasSimple extends Canvas implements CommandListener
 
 	public String text; 
 	Displayable next;
-	public HelpCanvasSimple(String text, Displayable next)
+	public Help(String text, Displayable next)
 	{
 		this.text = text;
 		this.next = next;
