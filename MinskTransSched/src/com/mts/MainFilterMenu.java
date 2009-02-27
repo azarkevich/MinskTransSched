@@ -7,7 +7,7 @@ import javax.microedition.lcdui.List;
 
 import com.resources.Images;
 
-public class FilterMenu extends List implements CommandListener
+public class MainFilterMenu extends List implements CommandListener
 {
 	static final Command cmdBusFilter = new Command("По автобусу фильтр", Command.OK, 2); 
 	static final Command cmdBusStopFilter = new Command("По остановке фильтр", Command.OK, 2); 
@@ -15,7 +15,7 @@ public class FilterMenu extends List implements CommandListener
 
 	SchedulerCanvas schedBoard;
 
-	public FilterMenu(SchedulerCanvas schedBoard)
+	public MainFilterMenu(SchedulerCanvas schedBoard)
 	{
 		super("Фильтр", List.IMPLICIT);
 

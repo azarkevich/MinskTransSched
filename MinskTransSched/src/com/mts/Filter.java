@@ -22,7 +22,6 @@ public class Filter
 		if(buses == null)
 		{
 			busesFilter = null;
-			buses = new Bus[0];
 			return;
 		}
 		
@@ -41,7 +40,6 @@ public class Filter
 		if(busStops == null)
 		{
 			busStopsFilter = null;
-			busStops = new BusStop[0];
 			return;
 		}
 		

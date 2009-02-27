@@ -198,7 +198,7 @@ public class BusesFilter extends List implements CommandListener
 		{
 			this.setTitle("Текущий фильтр");
 			
-			buses = scheduleBoard.filter.buses;
+			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : MinskTransSchedMidlet.allBusesArray;
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)

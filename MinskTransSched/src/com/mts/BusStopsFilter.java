@@ -197,7 +197,7 @@ public class BusStopsFilter extends List implements CommandListener
 		else if(cmd == cmdShowCurrent)
 		{
 			this.setTitle("Текущие остановки");
-			busStops = scheduleBoard.filter.busStops;
+			busStops = scheduleBoard.filter.busStops != null ? scheduleBoard.filter.busStops : MinskTransSchedMidlet.allBusStopsArray;
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)

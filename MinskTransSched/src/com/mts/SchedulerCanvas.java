@@ -156,7 +156,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	{
 		if(cmd == cmdFilter)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new FilterMenu(this));
+			MinskTransSchedMidlet.display.setCurrent(new MainFilterMenu(this));
 		}
 		else if(cmd == cmdShowBusStopsList)
 		{
@@ -341,7 +341,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == CmdDef.cmdShowFilterMenu)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new FilterMenu(this));
+			MinskTransSchedMidlet.display.setCurrent(new MainFilterMenu(this));
 		}
 		else if(cmd == CmdDef.cmdScheduleFullScreen)
 		{
