@@ -3,8 +3,8 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
-import OM.Bus;
-import OM.BusStop;
+import com.OM.Bus;
+import com.OM.BusStop;
 
 import com.options.*;
 import com.resources.Images;

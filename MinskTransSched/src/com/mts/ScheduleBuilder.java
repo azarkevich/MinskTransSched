@@ -2,9 +2,7 @@ package com.mts;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import OM.Bus;
-import OM.BusStop;
-import OM.Schedule;
+import com.OM.*;
 
 import com.options.Options;
 

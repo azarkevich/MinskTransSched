@@ -3,9 +3,7 @@ package com.mts;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import OM.Bus;
-import OM.BusStop;
-import OM.Schedule;
+import com.OM.*;
 
 public class Filter
 {
