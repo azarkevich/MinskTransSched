@@ -1,6 +1,10 @@
-package com.mts;
+package com.resources;
 import java.io.*;
 import java.util.Vector;
+
+import OM.Bus;
+import OM.BusStop;
+import OM.Schedule;
 
 
 public class ScheduleLoader

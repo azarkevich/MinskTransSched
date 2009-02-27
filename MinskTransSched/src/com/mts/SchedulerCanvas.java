@@ -9,6 +9,9 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
+import OM.Bus;
+import OM.BusStop;
+
 import com.options.CmdDef;
 import com.options.KeyCommands;
 import com.options.Options;

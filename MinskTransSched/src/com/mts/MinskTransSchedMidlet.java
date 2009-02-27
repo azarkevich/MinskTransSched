@@ -3,8 +3,12 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
+import OM.Bus;
+import OM.BusStop;
+
 import com.options.*;
 import com.resources.Images;
+import com.resources.ScheduleLoader;
 
 
 public class MinskTransSchedMidlet extends MIDlet

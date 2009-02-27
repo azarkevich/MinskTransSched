@@ -1,4 +1,4 @@
-package com.mts;
+package OM;
 
 import javax.microedition.rms.RecordStore;
 
