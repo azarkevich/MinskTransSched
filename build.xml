@@ -38,8 +38,8 @@
 
 			<property name="publish.dir" value="c:\Apache-2.0.59\htdocs\mt" />
 			
-			<copy file="bin/${city}TransSched_v${version.jar}.jad" todir="${publish.dir}" />
-			<copy file="bin/${city}TransSched_v${version.jar}.jar" todir="${publish.dir}" />
+			<copy file="bin/${city}TransSched-${version.jar}.jad" todir="${publish.dir}" />
+			<copy file="bin/${city}TransSched-${version.jar}.jar" todir="${publish.dir}" />
 	</target>
 
 	<target name="build" depends="-initialize,getversion">
@@ -66,12 +66,12 @@
 
 			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
 
-			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched_v${version.jar}.jad" />
-			<move file="bin/MinskTransSched.jar" tofile="bin/${city}TransSched_v${version.jar}.jar" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched-${version.jar}.jad" />
+			<move file="bin/MinskTransSched.jar" tofile="bin/${city}TransSched-${version.jar}.jar" />
 			
-			<replaceregexp file="bin/${city}TransSched_v${version.jar}.jad"
+			<replaceregexp file="bin/${city}TransSched-${version.jar}.jad"
                          match="MIDlet-Jar-URL:.*"
-                         replace="MIDlet-Jar-URL: ${city}TransSched_v${version.jar}.jar"
+                         replace="MIDlet-Jar-URL: ${city}TransSched-${version.jar}.jar"
                          byline="true"/>
 	</target>
 
@@ -92,8 +92,8 @@
 		</svn>
 	
 		<tar destfile="${path.build.output}/TransSched.tar" basedir="${path.build}" />
-		<bzip2 destfile="${path.build.output}/TransSched_v${version.jar}.src.tar.bz2" src="${path.build.output}/TransSched.tar"/>
-		<zip destfile="${path.build.output}/TransSched_v${version.jar}.src.zip" basedir="${path.build}"/>
+		<bzip2 destfile="${path.build.output}/TransSched-${version.jar}.src.tar.bz2" src="${path.build.output}/TransSched.tar"/>
+		<zip destfile="${path.build.output}/TransSched-${version.jar}.src.zip" basedir="${path.build}"/>
 
 		<delete file="${path.build.output}/TransSched.tar"/>
 
