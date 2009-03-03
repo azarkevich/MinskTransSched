@@ -17,6 +17,7 @@ public class ScheduleConverter
 	Vector<BusStop> busStops = null;
 	Vector<Schedule> schedules = new Vector<Schedule>();
 	Vector<DerivedSchedule> derSchedules = new Vector<DerivedSchedule>();
+	Vector<FilterDef> filters = new Vector<FilterDef>();
 
 	int Convert(String[] args)
 	{
@@ -30,11 +31,12 @@ public class ScheduleConverter
 			String outDir = null;
 
 			Charset c = Charset.forName("UTF-8");
-			
+
+			// load stops
 			for (int i = 0; i < args.length; i++)
 			{
 				String arg = args[i];
-				
+
 				if(arg.compareTo("-c") == 0)
 				{
 					i++;
@@ -43,17 +45,8 @@ public class ScheduleConverter
 					c = Charset.forName(args[i]);
 					continue;
 				}
-
-				if(arg.compareTo("-o") == 0)
-				{
-					i++;
-					if(i == args.length)
-						throw new Exception("Argument -o not supplied with parameter.");
-					outDir = args[i];
-					continue;
-				}
-
-				if(busStops == null)
+				
+				if(arg.endsWith(".stop"))
 				{
 					busStops = new Vector<BusStop>();
 					CsvReader r = new CsvReader(arg, ';', c);
@@ -70,8 +63,23 @@ public class ScheduleConverter
 					System.out.println("BusStops: " + arg);
 					continue;
 				}
+			}
+			
+			// load transport
+			for (int i = 0; i < args.length; i++)
+			{
+				String arg = args[i];
 
-				if(buses == null)
+				if(arg.compareTo("-c") == 0)
+				{
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument -c not supplied with parameter.");
+					c = Charset.forName(args[i]);
+					continue;
+				}
+				
+				if(arg.endsWith(".tr"))
 				{
 					buses = new Vector<Bus>();
 					CsvReader r = new CsvReader(arg, ';', c);
@@ -102,15 +110,64 @@ public class ScheduleConverter
 					System.out.println("Buses: " + arg);
 					continue;
 				}
-				
-				try
+			}
+			
+			// load transport
+			for (int i = 0; i < args.length; i++)
+			{
+				String arg = args[i];
+
+				if(arg.compareTo("-c") == 0)
 				{
-					ParseScheduleFile(arg, c);
-					System.out.println("Schedule: " + arg);
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument -c not supplied with parameter.");
+					c = Charset.forName(args[i]);
+					continue;
 				}
-				catch(Exception ex)
+				
+				// load filters
+				if(arg.endsWith(".flt"))
 				{
-					throw new Exception("File " + arg + "\n" + ex.toString(), ex);
+					ParseFiltersFile(arg, c);
+					System.out.println("Filters: " + arg);
+				}
+			}
+			
+			// load schedultes
+			for (int i = 0; i < args.length; i++)
+			{
+				String arg = args[i];
+				
+				if(arg.compareTo("-c") == 0)
+				{
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument -c not supplied with parameter.");
+					c = Charset.forName(args[i]);
+					continue;
+				}
+
+				if(arg.compareTo("-o") == 0)
+				{
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument -o not supplied with parameter.");
+					outDir = args[i];
+					continue;
+				}
+				// load filters
+				if(arg.endsWith(".txt"))
+				{
+					try
+					{
+						ParseScheduleFile(arg, c);
+						System.out.println("Schedule: " + arg);
+					}
+					catch(Exception ex)
+					{
+						throw new Exception("File " + arg + "\n" + ex.toString(), ex);
+					}
 				}
 			}
 			
@@ -248,6 +305,7 @@ public class ScheduleConverter
 				WriteBusStops(outDir + "/busStops");
 				WriteSchedules(outDir + "/scheds");
 				WriteDerivedSchedules(outDir + "/dscheds");
+				WriteFilters(outDir + "/filters");
 				System.out.println("DATA STORED.");
 			}
 		}
@@ -407,6 +465,60 @@ public class ScheduleConverter
 		}
 	}
 	
+	void ParseFiltersFile(String file, Charset c) throws Exception
+	{
+		FilterDef f = null;
+
+		LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(file), c));
+		String line;
+		while((line = lnr.readLine()) != null)
+		{
+			try{
+				line = line.replaceAll("\\s+", " ").trim();
+				if(line.length() == 0)
+					continue;
+
+				if(line.startsWith("#"))
+					continue;
+				
+				if(line.startsWith("\\filter"))
+				{
+					String name = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					f = FindFilter(name);
+					continue;
+				}
+
+				if(f == null)
+					throw new Exception("Filter name not defined");
+
+				if(line.startsWith("\\stop"))
+				{
+					String name = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					BusStop bs = FindBusStop(name);
+					f.stops.add(bs);
+					continue;
+				}
+				
+				if(line.startsWith("\\bus"))
+				{
+					String buses = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					String[] busArr = buses.split("\\s");
+					for (int i = 0; i < busArr.length; i++)
+					{
+						Bus b = FindBus(busArr[i]);
+						f.transport.add(b);
+					}
+					continue;
+				}
+			}
+			catch(Exception ex)
+			{
+				int lineNo = lnr.getLineNumber();
+				throw new Exception("Error in " + file + ":" + lineNo + "\n" + ex.getMessage(), ex);
+			}
+		}
+	}
+
 	Bus FindBus(String busName) throws Exception
 	{
 		for (int i = 0; i < buses.size(); i++)
@@ -427,6 +539,19 @@ public class ScheduleConverter
 		throw new Exception("Can't find bus stop '" + busStopName + "'");
 	}
 	
+	FilterDef FindFilter(String name) throws Exception
+	{
+		for (int i = 0; i < filters.size(); i++)
+		{
+			if(name.compareTo(filters.get(i).name) == 0)
+				return filters.get(i);
+		}
+		FilterDef fd = new FilterDef();
+		fd.name = name;
+		filters.add(fd);
+		return fd;
+	}
+
 	BusStop FindBusStop(int busStopId) throws Exception
 	{
 		for (int i = 0; i < busStops.size(); i++)
@@ -629,6 +754,37 @@ public class ScheduleConverter
 			dos.writeByte(sched.dayTo);
 			dos.writeByte(sched.baseBusStop);
 			dos.writeByte(sched.shift);
+		}
+
+		dos.flush();
+		dos.close();
+	}
+
+	void WriteFilters(String file) throws Exception
+	{
+		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
+		
+		if(filters.size() > Byte.MAX_VALUE)
+			throw new Exception("filters.size() exceed store size");
+		
+		dos.writeByte(filters.size());
+
+		for (int i = 0; i < filters.size(); i++)
+		{
+			FilterDef fd = filters.get(i);
+
+			dos.writeUTF(fd.name);
+
+			dos.writeShort(fd.transport.size());
+			for (int j = 0; j < fd.transport.size(); j++)
+			{
+				dos.writeShort(fd.transport.get(j).id);
+			}
+			dos.writeShort(fd.stops.size());
+			for (int j = 0; j < fd.stops.size(); j++)
+			{
+				dos.writeShort(fd.stops.get(j).id);
+			}
 		}
 
 		dos.flush();

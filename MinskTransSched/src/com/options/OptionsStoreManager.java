@@ -1,8 +1,14 @@
 package com.options;
 
 import java.io.*;
+import java.util.Vector;
 
 import javax.microedition.rms.*;
+
+import com.OM.Bus;
+import com.OM.BusStop;
+import com.OM.FilterDef;
+import com.mts.TransSched;
 
 
 public class OptionsStoreManager
@@ -164,6 +170,109 @@ public class OptionsStoreManager
 		catch(Exception ex)
 		{
 			//System.out.println(ex.toString());
+		}
+	}
+	
+	public static FilterDef[] LoadCustomFilterDefinitions()
+	{
+		FilterDef[] ret = new FilterDef[0];
+		try{
+			RecordStore filters = RecordStore.openRecordStore("filters", true);
+	
+			Vector v = new Vector(filters.getNumRecords());
+
+			for (int i = 0; i < filters.getNumRecords(); i++)
+			{
+				try{
+					int recId = i + 1;
+					byte[] rec = filters.getRecord(recId);
+					
+					ByteArrayInputStream bais = new ByteArrayInputStream(rec);
+					DataInputStream dis = new DataInputStream(bais);
+
+					FilterDef fd = readFilterDef(dis);
+					fd.recordId = recId;
+					v.addElement(fd);
+				}
+				catch(Exception e)
+				{
+					
+				}
+			}
+			ret = new FilterDef[v.size()];
+			v.copyInto(ret);
+		}
+		catch(RecordStoreNotOpenException e)
+		{
+		}
+		catch(RecordStoreException e)
+		{
+		}
+		return ret;
+	}
+	
+	public static FilterDef readFilterDef(DataInput dis) throws IOException
+	{
+		FilterDef fd = new FilterDef();
+		
+		fd.name = dis.readUTF();
+		int transportCount = dis.readShort();
+		if(transportCount > 0)
+		{
+			fd.transport = new Bus[transportCount];
+			for (int j = 0; j < transportCount; j++)
+			{
+				int id = dis.readShort();
+				fd.transport[j] = (Bus)TransSched.id2transport.get(new Integer(id));
+			}
+		}
+
+		int stopsCount = dis.readShort();
+		if(stopsCount > 0)
+		{
+			fd.stops = new BusStop[stopsCount];
+			for (int j = 0; j < stopsCount; j++)
+			{
+				int id = dis.readShort();
+				fd.stops[j] = (BusStop)TransSched.id2stop.get(new Integer(id));
+			}
+		}
+		return fd;
+	}
+	
+	public static void SaveCustomFilterDefinitions(FilterDef fd)
+	{
+		try{
+			RecordStore filters = RecordStore.openRecordStore("filters", true);
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
+			DataOutputStream dos = new DataOutputStream(baos);
+
+			dos.writeUTF(fd.name);
+			
+			dos.writeShort(fd.transport.length);
+			for (int i = 0; i < fd.transport.length; i++)
+			{
+				dos.writeShort(fd.transport[i].id);
+			}
+
+			dos.writeShort(fd.stops.length);
+			for (int i = 0; i < fd.stops.length; i++)
+			{
+				dos.writeShort(fd.stops[i].id);
+			}
+			
+			dos.flush();
+
+			byte[] rec = baos.toByteArray();
+			
+			if(fd.recordId == -1)
+				fd.recordId = filters.addRecord(rec, 0, rec.length);
+			else
+				filters.setRecord(fd.recordId, rec, 0, rec.length);
+		}
+		catch(Exception e)
+		{
 		}
 	}
 }

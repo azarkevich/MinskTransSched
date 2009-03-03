@@ -1,10 +1,13 @@
 package com.mts;
+import java.util.Hashtable;
+
 import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
 import com.OM.Bus;
 import com.OM.BusStop;
+import com.OM.FilterDef;
 
 import com.options.*;
 import com.resources.Images;
@@ -14,7 +17,13 @@ import com.resources.ScheduleLoader;
 public class TransSched extends MIDlet
 {
 	public static BusStop[] allBusStopsArray;
+	public static Hashtable id2stop;
+	
 	public static Bus[] allBusesArray;
+	public static Hashtable id2transport;
+
+	public static FilterDef[] customFilters;
+	public static FilterDef[] predefinedFilters;
 
 	public final static Command cmdSelect = new Command("Выбрать", Command.OK, 1);
 	public final static Command cmdHelp = new Command("Помощь", Command.HELP, 1);
@@ -50,16 +59,9 @@ public class TransSched extends MIDlet
 					}
 	
 					int id = rec[1] * 256 + rec[2];
-					// TODO: use hashtable
-					for (int b = 0; b < allBusStopsArray.length; b++)
-					{
-						if(allBusStopsArray[b].id == id)
-						{
-							allBusStopsArray[b].favorite = (rec[0] == 1);
-							allBusStopsArray[b].bookmarkRecord = recId;
-							break;
-						}
-					}
+					BusStop bs = (BusStop)id2stop.get(new Integer(id));
+					bs.favorite = (rec[0] == 1);
+					bs.bookmarkRecord = recId;
 				}
 				catch(InvalidRecordIDException ex)
 				{
@@ -89,16 +91,9 @@ public class TransSched extends MIDlet
 					}
 	
 					int id = rec[1] * 256 + rec[2];
-					// TODO: use hashtable
-					for (int b = 0; b < allBusesArray.length; b++)
-					{
-						if(allBusesArray[b].id == id)
-						{
-							allBusesArray[b].favorite = (rec[0] == 1);
-							allBusesArray[b].bookmarkRecord = recId;
-							break;
-						}
-					}
+					Bus b = (Bus)id2transport.get(new Integer(id));
+					b.favorite = (rec[0] == 1);
+					b.bookmarkRecord = recId;
 				}
 				catch(InvalidRecordIDException ex)
 				{
@@ -130,13 +125,29 @@ public class TransSched extends MIDlet
 		loader.Load();
 
 		allBusStopsArray = loader.busStops;
+		id2stop = new Hashtable(allBusStopsArray.length);
+		for (int i = 0; i < allBusStopsArray.length; i++)
+		{
+			id2stop.put(new Integer(allBusStopsArray[i].id), allBusStopsArray[i]);
+		}
+
 		allBusesArray = loader.buses;
+		id2transport = new Hashtable(allBusesArray.length);
+		for (int i = 0; i < allBusesArray.length; i++)
+		{
+			id2transport.put(new Integer(allBusesArray[i].id), allBusesArray[i]);
+		}
+
+		loader.LoadFiltersPub();
 
 		loadBusStopsFavorites();
 		loadBusesFavorites();
 
-		Images.load();
+		predefinedFilters = loader.filters;
+		customFilters = OptionsStoreManager.LoadCustomFilterDefinitions();
 		
+		Images.load();
+
 		scheduleBoard = new SchedulerCanvas();
 		display.setCurrent(scheduleBoard);
 		

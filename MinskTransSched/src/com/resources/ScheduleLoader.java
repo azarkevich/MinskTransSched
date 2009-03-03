@@ -3,11 +3,13 @@ import java.io.*;
 import java.util.Vector;
 
 import com.OM.*;
+import com.options.OptionsStoreManager;
 
 public class ScheduleLoader
 {
 	public BusStop[] busStops;
 	public Bus[] buses;
+	public FilterDef[] filters;
 	private Vector schedules;
 	
 	void Debug(String x)
@@ -101,7 +103,6 @@ public class ScheduleLoader
 		}
 		dis.close();
 	}
-
 	
 	void LoadDerivedSchedules() throws Exception
 	{
@@ -142,6 +143,19 @@ public class ScheduleLoader
 
 			dstSched.setTimes(dayTo, dstTimes);
 			dstSched.setFrom(dayTo, srcSched.busStop.name + " +" + shift + "m");
+		}
+		dis.close();
+	}
+	
+	void LoadFilters() throws Exception
+	{
+		// load 'filters'
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/filters"));
+		int count = dis.readByte();
+		filters = new FilterDef[count];
+		for (int i = 0; i < count; i++)
+		{
+			filters[i] = OptionsStoreManager.readFilterDef(dis);
 		}
 		dis.close();
 	}
@@ -214,6 +228,18 @@ public class ScheduleLoader
 						stop.schedules[count++] = sched;
 				}
 			}
+		}
+		catch(Exception ex)
+		{
+			Debug(ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+	
+	public void LoadFiltersPub()
+	{
+		try{
+			LoadFilters();
 		}
 		catch(Exception ex)
 		{

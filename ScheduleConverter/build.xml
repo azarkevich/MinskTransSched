@@ -34,7 +34,7 @@
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
     <target name="run">
         <java classname="ScheduleConverter" failonerror="true" fork="yes">
-            <arg line="-o ../MinskTransSched/res/ -c cp1251 ../data/${city}/busstops.csv ../data/${city}/buses.csv ../data/${city}/*.txt"/>
+            <arg line="-o ../MinskTransSched/res/ -c cp1251 ../data/${city}/*"/>
             <classpath refid="ScheduleConverter.classpath"/>
         </java>
     </target>

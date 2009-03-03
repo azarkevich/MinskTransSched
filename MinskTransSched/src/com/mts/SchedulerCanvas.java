@@ -11,6 +11,7 @@ import javax.microedition.lcdui.Graphics;
 
 import com.OM.Bus;
 import com.OM.BusStop;
+import com.OM.FilterDef;
 
 import com.options.CmdDef;
 import com.options.KeyCommands;
@@ -434,6 +435,15 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		TransSched.display.setCurrent(this);
 	}
 	
+	public void setFilter(FilterDef fd)
+	{
+		filter.setBusesFilter(fd.transport);
+		filter.setBusStopsFilter(fd.stops);
+		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
+		setForeColor();
+		TransSched.display.setCurrent(this);
+	}
+
 	void setForeColor()
 	{
 		if(filter.busesFilter == null && filter.busStopsFilter == null)
