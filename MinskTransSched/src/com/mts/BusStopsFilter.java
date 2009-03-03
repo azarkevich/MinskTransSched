@@ -28,17 +28,15 @@ public class BusStopsFilter extends List implements CommandListener
 	BusStop[] busStops;
 	BusStop[] lastBusStopsList;
 	boolean favoritesManager;
-	int listBase;
 	public BusStopsFilter(SchedulerCanvas board, boolean favoritesManager)
 	{
 		super(null, List.MULTIPLE);
 		
 		this.favoritesManager = favoritesManager;
-		listBase = favoritesManager ? 0 : 2;
 
 		setCommandListener(this);
-		addCommand(MinskTransSchedMidlet.cmdBack);
-		addCommand(MinskTransSchedMidlet.cmdHelp);
+		addCommand(TransSched.cmdBack);
+		addCommand(TransSched.cmdHelp);
 
 		if(favoritesManager)
 		{
@@ -46,7 +44,7 @@ public class BusStopsFilter extends List implements CommandListener
 		}
 		else
 		{
-			addCommand(MinskTransSchedMidlet.cmdOK);
+			addCommand(TransSched.cmdOK);
 
 			addCommand(cmdShowCurrent);
 			addCommand(cmdShowFavorites);
@@ -69,17 +67,10 @@ public class BusStopsFilter extends List implements CommandListener
 	void createList()
 	{
 		Hashtable restoreSelectionVector = null;
-		boolean selectAll = false;
-		boolean selectFavorites = false;
 		if(size() > 0 && lastBusStopsList != null)
 		{
-			if(favoritesManager == false)
-			{
-				selectAll = isSelected(0);
-				selectFavorites = isSelected(1);
-			}
 			restoreSelectionVector = new Hashtable();
-			for (int i = listBase; i < size(); i++)
+			for (int i = 0; i < size(); i++)
 			{
 				if(isSelected(i))
 					restoreSelectionVector.put(lastBusStopsList[i], lastBusStopsList[i]);
@@ -89,13 +80,6 @@ public class BusStopsFilter extends List implements CommandListener
 
 		lastBusStopsList = busStops;
 
-		if(favoritesManager == false)
-		{
-			append("Все", null);
-			setSelectedIndex(0, selectAll);
-			append("Избранные", Images.hearts);
-			setSelectedIndex(1, selectFavorites);
-		}
 		for (int i = 0; i < busStops.length; i++)
 		{
 			BusStop bs = busStops[i]; 
@@ -107,49 +91,24 @@ public class BusStopsFilter extends List implements CommandListener
 	
 	void selectCurrrent()
 	{
-		if(favoritesManager == false)
-		{
-			setSelectedIndex(0, false);
-			setSelectedIndex(1, false);
-		}
 		for (int i = 0; i < busStops.length; i++)
 		{
 			BusStop bs = busStops[i]; 
-			setSelectedIndex(listBase + i, scheduleBoard.filter.busStopsFilter.containsKey(bs));
+			setSelectedIndex(i, scheduleBoard.filter.busStopsFilter.containsKey(bs));
 		}
 	}
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == MinskTransSchedMidlet.cmdOK)
+		if(cmd == TransSched.cmdOK)
 		{
-			boolean selectAll = isSelected(0);
-
-			// select all == reset busstops filter
-			if(selectAll)
-			{
-				scheduleBoard.setBusStopsFilter(null);
-				return;
-			}
-			
-			boolean selectFavorites = isSelected(1);
-
 			Vector v = new Vector();
-			if(selectFavorites)
-			{
-				for (int i = 0; i < MinskTransSchedMidlet.allBusStopsArray.length; i++)
-				{
-					if(MinskTransSchedMidlet.allBusStopsArray[i].favorite)
-						v.addElement(MinskTransSchedMidlet.allBusStopsArray[i]);
-				}
-			}
-
 			// add selected buses
-			for (int i = listBase; i < this.size(); i++)
+			for (int i = 0; i < this.size(); i++)
 			{
 				if(this.isSelected(i))
 				{
-					v.addElement(busStops[i - listBase]);
+					v.addElement(busStops[i]);
 				}
 			}
 			// copy to array
@@ -157,9 +116,9 @@ public class BusStopsFilter extends List implements CommandListener
 			v.copyInto(busStops);
 			scheduleBoard.setBusStopsFilter(busStops);
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdBack)
+		else if(cmd == TransSched.cmdBack)
 		{
-			MinskTransSchedMidlet.display.setCurrent(scheduleBoard);
+			TransSched.display.setCurrent(scheduleBoard);
 		}
 		else if(cmd == cmdSelectCurrent)
 		{
@@ -174,23 +133,18 @@ public class BusStopsFilter extends List implements CommandListener
 		}
 		else if(cmd == cmdSelectAll)
 		{
-			if(favoritesManager == false)
-			{
-				setSelectedIndex(0, false);
-				setSelectedIndex(1, false);
-			}
-			for (int i = listBase; i < size(); i++)
+			for (int i = 0; i < size(); i++)
 			{
 				setSelectedIndex(i, true);
 			}
 		}
 		else if(cmd == cmdToggleFavorite)
 		{
-			for (int i = listBase; i < size(); i++)
+			for (int i = 0; i < size(); i++)
 			{
 				if(isSelected(i))
 				{
-					BusStop bs = busStops[i - listBase]; 
+					BusStop bs = busStops[i]; 
 					bs.toggleFavorite();
 					set(i, bs.name, bs.favorite ? Images.heart : null);
 				}
@@ -199,27 +153,27 @@ public class BusStopsFilter extends List implements CommandListener
 		else if(cmd == cmdShowCurrent)
 		{
 			this.setTitle("Текущие остановки");
-			busStops = scheduleBoard.filter.busStops != null ? scheduleBoard.filter.busStops : MinskTransSchedMidlet.allBusStopsArray;
+			busStops = scheduleBoard.filter.busStops != null ? scheduleBoard.filter.busStops : TransSched.allBusStopsArray;
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)
 		{
 			this.setTitle("Избранные остановки");
-			busStops = scheduleBoard.filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray);
+			busStops = scheduleBoard.filter.getFavorites(TransSched.allBusStopsArray);
 			createList();
 		}
 		else if(cmd == cmdShowAll)
 		{
 			this.setTitle("Все остановки");
-			busStops = MinskTransSchedMidlet.allBusStopsArray;
+			busStops = TransSched.allBusStopsArray;
 			createList();
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdHelp)
+		else if(cmd == TransSched.cmdHelp)
 		{
 			if(favoritesManager)
-				MinskTransSchedMidlet.display.setCurrent(new Help(Help.favManagerHelp, this));
+				TransSched.display.setCurrent(new Help(Help.favManagerHelp, this));
 			else
-				MinskTransSchedMidlet.display.setCurrent(new Help(Help.stopsHelp, this));
+				TransSched.display.setCurrent(new Help(Help.stopsHelp, this));
 		}
 	}
 }

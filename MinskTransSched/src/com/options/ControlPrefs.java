@@ -3,7 +3,7 @@ package com.options;
 import javax.microedition.lcdui.*;
 
 import com.mts.Help;
-import com.mts.MinskTransSchedMidlet;
+import com.mts.TransSched;
 
 public class ControlPrefs extends List implements CommandListener
 {
@@ -20,11 +20,11 @@ public class ControlPrefs extends List implements CommandListener
 			CmdDef c = all[this.getSelectedIndex()];
 			Alert a = new Alert(null);
 			a.setString(c.description + "\n" + c.getKeyHashName(true, "<нет>"));
-			MinskTransSchedMidlet.display.setCurrent(a);
+			TransSched.display.setCurrent(a);
 		}
 		else if(d == actionTypeList)
 		{
-			if(cmd == MinskTransSchedMidlet.cmdSelect || cmd == List.SELECT_COMMAND)
+			if(cmd == TransSched.cmdSelect || cmd == List.SELECT_COMMAND)
 			{
 				CmdDef c = all[this.getSelectedIndex()];
 
@@ -35,11 +35,11 @@ public class ControlPrefs extends List implements CommandListener
 				int newHash = CmdDef.getKeyHash(keyCode, isGameCode, actionCode).intValue();
 				onKeyActionAssigned(c, newHash);
 				
-				MinskTransSchedMidlet.display.setCurrent(this);
+				TransSched.display.setCurrent(this);
 			}
-			else if(cmd == MinskTransSchedMidlet.cmdCancel)
+			else if(cmd == TransSched.cmdCancel)
 			{
-				MinskTransSchedMidlet.display.setCurrent(this);
+				TransSched.display.setCurrent(this);
 			}
 		}
 		else if(cmd == cmdChangeKey || cmd == List.SELECT_COMMAND)
@@ -51,11 +51,11 @@ public class ControlPrefs extends List implements CommandListener
 				keyDefiner = new DefineKey(this);
 			
 			keyDefiner.setData(c, sel);
-			MinskTransSchedMidlet.display.setCurrent(keyDefiner);
+			TransSched.display.setCurrent(keyDefiner);
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdHelp)
+		else if(cmd == TransSched.cmdHelp)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new Help(Help.defineKeyText, this));
+			TransSched.display.setCurrent(new Help(Help.defineKeyText, this));
 		}
 		else if(cmd == cmdRestore)
 		{
@@ -80,23 +80,23 @@ public class ControlPrefs extends List implements CommandListener
 
 			set(sel, c.name + ": " + c.getKeyHashName(true, "<нет>"), null);
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdOK)
+		else if(cmd == TransSched.cmdOK)
 		{
 			if(checkConflicts())
 			{
 				OptionsStoreManager.SaveSettings();
 
-				for (int i = 0; i < MinskTransSchedMidlet.optionsListeners.length; i++)
-					MinskTransSchedMidlet.optionsListeners[i].OptionsUpdated();
+				for (int i = 0; i < TransSched.optionsListeners.length; i++)
+					TransSched.optionsListeners[i].OptionsUpdated();
 				
-				MinskTransSchedMidlet.display.setCurrent(next);
+				TransSched.display.setCurrent(next);
 			}
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdCancel)
+		else if(cmd == TransSched.cmdCancel)
 		{
 			// TODO: READ only control prefs
 			OptionsStoreManager.ReadSettings();
-			MinskTransSchedMidlet.display.setCurrent(next);
+			TransSched.display.setCurrent(next);
 		}
 	}
 
@@ -114,9 +114,9 @@ public class ControlPrefs extends List implements CommandListener
 		
 		loadItems();
 		
-		addCommand(MinskTransSchedMidlet.cmdOK);
-		addCommand(MinskTransSchedMidlet.cmdCancel);
-		addCommand(MinskTransSchedMidlet.cmdHelp);
+		addCommand(TransSched.cmdOK);
+		addCommand(TransSched.cmdCancel);
+		addCommand(TransSched.cmdHelp);
 		addCommand(cmdChangeKey);
 		addCommand(cmdDescription);
 		addCommand(cmdRestore);
@@ -142,14 +142,14 @@ public class ControlPrefs extends List implements CommandListener
 			actionTypeList.append("Отжатие длинное", null);
 			//actionTypeList.setFitPolicy(ChoiceGroup.TEXT_WRAP_ON);
 
-			actionTypeList.addCommand(MinskTransSchedMidlet.cmdCancel);
-			actionTypeList.addCommand(MinskTransSchedMidlet.cmdSelect);
+			actionTypeList.addCommand(TransSched.cmdCancel);
+			actionTypeList.addCommand(TransSched.cmdSelect);
 			actionTypeList.setCommandListener(this);
 		}
 		
 		actionTypeList.setSelectedIndex(actionCode, true);
 
-		MinskTransSchedMidlet.display.setCurrent(actionTypeList);
+		TransSched.display.setCurrent(actionTypeList);
 	}
 	
 	public void onKeyActionAssigned(CmdDef cmd, int newHash)
@@ -199,7 +199,7 @@ public class ControlPrefs extends List implements CommandListener
 							c2.name + "(" + c2.getKeyHashName(true, "") + ")");
 					a.setTimeout(Alert.FOREVER);
 					a.setType(AlertType.ERROR);
-					MinskTransSchedMidlet.display.setCurrent(a, this);
+					TransSched.display.setCurrent(a, this);
 					return false;
 				}
 			}

@@ -9,12 +9,14 @@ import com.resources.Images;
 
 public class MainFilterMenu extends List implements CommandListener
 {
-	static final Command cmdBusFilter = new Command("По автобусу фильтр", Command.OK, 2); 
-	static final Command cmdBusStopFilter = new Command("По остановке фильтр", Command.OK, 2); 
-	static final Command cmdResetFilter = new Command("Сбросить фильтр", Command.OK, 3); 
-
 	SchedulerCanvas schedBoard;
-
+	
+	int byBus = -1;
+	int byBusStop = -1;
+	int clearFilter = -1;
+	int closeMenu = -1;
+	int favorites = -1;
+	
 	public MainFilterMenu(SchedulerCanvas schedBoard)
 	{
 		super("Фильтр", List.IMPLICIT);
@@ -23,47 +25,56 @@ public class MainFilterMenu extends List implements CommandListener
 
 		setCommandListener(this);
 		
-		addCommand(MinskTransSchedMidlet.cmdBack);
-		addCommand(MinskTransSchedMidlet.cmdSelect);
-		addCommand(cmdResetFilter);
-		addCommand(cmdBusStopFilter);
-		addCommand(cmdBusFilter);
+		addCommand(TransSched.cmdBack);
+		addCommand(TransSched.cmdSelect);
 		
-		append("Сбросить", Images.stop);
-		append("По избранным", Images.hearts);
-		append("По автобусу", Images.bus);
-		append("По остановке", null);
+		if(schedBoard.filter.isEmpty())
+			closeMenu = append("Вернуться", Images.undo);
+		else
+			clearFilter = append("Сбросить", Images.stop);
+		favorites = append("По избранным", Images.hearts);
+		byBus = append("По транспорту", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
+		byBusStop = append("По остановкам", (schedBoard.filter.busStops == null) ? Images.busStopGray : Images.busStop);
 	}
 
 	public void commandAction(Command c, Displayable d)
 	{
-		if(c == MinskTransSchedMidlet.cmdBack)
+		if(c == TransSched.cmdBack)
 		{
-			MinskTransSchedMidlet.display.setCurrent(schedBoard);
+			TransSched.display.setCurrent(schedBoard);
 		}
-		else if(c == MinskTransSchedMidlet.cmdSelect || c == List.SELECT_COMMAND)
+		else if(c == TransSched.cmdSelect || c == List.SELECT_COMMAND)
 		{
 			List l = (List)d;
 			int sel = l.getSelectedIndex();
 			if(sel == -1)
 				return;
 			
-			switch (sel)
+			if(sel == byBus)
 			{
-			case 0:
-				schedBoard.resetFilter();
-				MinskTransSchedMidlet.display.setCurrent(schedBoard);
-				break;
-			case 1:
-				schedBoard.setFilterToFavorites();
-				MinskTransSchedMidlet.display.setCurrent(schedBoard);
-				break;
-			case 2:
 				schedBoard.showBusesFilter();
-				break;
-			case 3:
+			}
+			else if(sel == byBusStop)
+			{
 				schedBoard.showBusStopsFilter();
-				break;
+			}
+			else if(sel == favorites)
+			{
+				schedBoard.setFilterToFavorites();
+				TransSched.display.setCurrent(schedBoard);
+			}
+			else if(sel == clearFilter)
+			{
+				schedBoard.resetFilter();
+				set(clearFilter, "Вернуться", Images.undo);
+				closeMenu = clearFilter;
+				clearFilter = -1;
+				set(byBus, "По транспорту", Images.transportGray);
+				set(byBusStop, "По остановкам", Images.busStopGray);
+			}
+			else if(sel == closeMenu)
+			{
+				TransSched.display.setCurrent(schedBoard);
 			}
 		}
 	}

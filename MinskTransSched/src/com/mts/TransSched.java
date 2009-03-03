@@ -11,7 +11,7 @@ import com.resources.Images;
 import com.resources.ScheduleLoader;
 
 
-public class MinskTransSchedMidlet extends MIDlet
+public class TransSched extends MIDlet
 {
 	public static BusStop[] allBusStopsArray;
 	public static Bus[] allBusesArray;
@@ -24,7 +24,7 @@ public class MinskTransSchedMidlet extends MIDlet
 	public final static Command cmdBack = new Command("Назад", Command.BACK, 1);
 
 	public static Display display;
-	public static MinskTransSchedMidlet midlet;
+	public static TransSched midlet;
 	SchedulerCanvas scheduleBoard;
 	
 	public static OptionsListener[] optionsListeners;

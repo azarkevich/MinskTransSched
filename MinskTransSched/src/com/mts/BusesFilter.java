@@ -18,7 +18,7 @@ public class BusesFilter extends List implements CommandListener
 
 	static final Command cmdShowAll = new Command("Все", Command.OK, 2);
 	static final Command cmdShowCurrent = new Command("Только текущий", Command.OK, 3);
-	static final Command cmdShowFavorites = new Command("Только избранное", Command.OK, 4);
+	static final Command cmdShowFavorites = new Command("Только избранный", Command.OK, 4);
 	
 	static final Command cmdSelectCurrent = new Command("Пом. текущий", Command.OK, 5);
 	static final Command cmdSelectAll = new Command("Пом. всё", Command.OK, 6);
@@ -28,17 +28,15 @@ public class BusesFilter extends List implements CommandListener
 	Bus[] buses;
 	Bus[] lastBusesList;
 	boolean favoritesManager;
-	int listBase;
 	public BusesFilter(SchedulerCanvas board, boolean favoritesManager)
 	{
 		super(null, List.MULTIPLE);
 		
 		this.favoritesManager = favoritesManager;
-		listBase = favoritesManager ? 0 : 2;
 
 		setCommandListener(this);
-		addCommand(MinskTransSchedMidlet.cmdBack);
-		addCommand(MinskTransSchedMidlet.cmdHelp);
+		addCommand(TransSched.cmdBack);
+		addCommand(TransSched.cmdHelp);
 
 		if(favoritesManager)
 		{
@@ -46,7 +44,7 @@ public class BusesFilter extends List implements CommandListener
 		}
 		else
 		{
-			addCommand(MinskTransSchedMidlet.cmdOK);
+			addCommand(TransSched.cmdOK);
 			addCommand(cmdShowCurrent);
 			addCommand(cmdShowFavorites);
 			addCommand(cmdShowAll);
@@ -68,17 +66,10 @@ public class BusesFilter extends List implements CommandListener
 	{
 		// save selection
 		Hashtable restoreSelectionHT = null;
-		boolean selectAll = false;
-		boolean selectFavorites = false;
 		if(size() > 0 && lastBusesList != null)
 		{
-			if(favoritesManager == false)
-			{
-				selectAll = isSelected(0);
-				selectFavorites = isSelected(1);
-			}
 			restoreSelectionHT = new Hashtable();
-			for (int i = listBase; i < size(); i++)
+			for (int i = 0; i < size(); i++)
 			{
 				if(isSelected(i))
 					restoreSelectionHT.put(lastBusesList[i], lastBusesList[i]);
@@ -88,13 +79,6 @@ public class BusesFilter extends List implements CommandListener
 
 		lastBusesList = buses;
 
-		if(favoritesManager == false)
-		{
-			append("Все", null);
-			setSelectedIndex(0, selectAll);
-			append("Избранные", Images.hearts);
-			setSelectedIndex(1, selectFavorites);
-		}
 		for (int i = 0; i < buses.length; i++)
 		{
 			Bus b = buses[i]; 
@@ -106,22 +90,16 @@ public class BusesFilter extends List implements CommandListener
 	
 	void selectCurrrent()
 	{
-		if(favoritesManager == false)
-		{
-			setSelectedIndex(0, false);
-			setSelectedIndex(1, false);
-		}
-
 		for (int i = 0; i < buses.length; i++)
 		{
 			Bus b = buses[i]; 
-			setSelectedIndex(listBase + i, scheduleBoard.filter.busesFilter.containsKey(b));
+			setSelectedIndex(i, scheduleBoard.filter.busesFilter.containsKey(b));
 		}
 	}
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == MinskTransSchedMidlet.cmdOK)
+		if(cmd == TransSched.cmdOK)
 		{
 			boolean selectAll = isSelected(0);
 
@@ -137,19 +115,19 @@ public class BusesFilter extends List implements CommandListener
 			Vector v = new Vector();
 			if(selectFavorites)
 			{
-				for (int i = 0; i < MinskTransSchedMidlet.allBusesArray.length; i++)
+				for (int i = 0; i < TransSched.allBusesArray.length; i++)
 				{
-					if(MinskTransSchedMidlet.allBusesArray[i].favorite)
-						v.addElement(MinskTransSchedMidlet.allBusesArray[i]);
+					if(TransSched.allBusesArray[i].favorite)
+						v.addElement(TransSched.allBusesArray[i]);
 				}
 			}
 
 			// add selected buses
-			for (int i = listBase; i < this.size(); i++)
+			for (int i = 0; i < this.size(); i++)
 			{
 				if(this.isSelected(i))
 				{
-					v.addElement(buses[i - listBase]);
+					v.addElement(buses[i]);
 				}
 			}
 			// copy to array
@@ -157,9 +135,9 @@ public class BusesFilter extends List implements CommandListener
 			v.copyInto(buses);
 			scheduleBoard.setBusesFilter(buses);
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdBack)
+		else if(cmd == TransSched.cmdBack)
 		{
-			MinskTransSchedMidlet.display.setCurrent(scheduleBoard);
+			TransSched.display.setCurrent(scheduleBoard);
 		}
 		else if(cmd == cmdSelectCurrent)
 		{
@@ -174,23 +152,18 @@ public class BusesFilter extends List implements CommandListener
 		}
 		else if(cmd == cmdSelectAll)
 		{
-			if(favoritesManager == false)
-			{
-				setSelectedIndex(0, false);
-				setSelectedIndex(1, false);
-			}
-			for (int i = listBase; i < size(); i++)
+			for (int i = 0; i < size(); i++)
 			{
 				setSelectedIndex(i, true);
 			}
 		}
 		else if(cmd == cmdToggleFavorite)
 		{
-			for (int i = listBase; i < size(); i++)
+			for (int i = 0; i < size(); i++)
 			{
 				if(isSelected(i))
 				{
-					Bus b = buses[i - listBase]; 
+					Bus b = buses[i]; 
 					b.toggleFavorite();
 					set(i, b.name, b.favorite ? Images.heart : null);
 				}
@@ -200,27 +173,27 @@ public class BusesFilter extends List implements CommandListener
 		{
 			this.setTitle("Текущий фильтр");
 			
-			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : MinskTransSchedMidlet.allBusesArray;
+			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : TransSched.allBusesArray;
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)
 		{
 			this.setTitle("Избранный транспорт");
-			buses = scheduleBoard.filter.getFavorites(MinskTransSchedMidlet.allBusesArray);
+			buses = scheduleBoard.filter.getFavorites(TransSched.allBusesArray);
 			createList();
 		}
 		else if(cmd == cmdShowAll)
 		{
 			this.setTitle("Все остановки");
-			buses = MinskTransSchedMidlet.allBusesArray;
+			buses = TransSched.allBusesArray;
 			createList();
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdHelp)
+		else if(cmd == TransSched.cmdHelp)
 		{
 			if(favoritesManager)
-				MinskTransSchedMidlet.display.setCurrent(new Help(Help.favManagerHelp, this));
+				TransSched.display.setCurrent(new Help(Help.favManagerHelp, this));
 			else
-				MinskTransSchedMidlet.display.setCurrent(new Help(Help.transportHelp, this));
+				TransSched.display.setCurrent(new Help(Help.transportHelp, this));
 		}
 	}
 }

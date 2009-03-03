@@ -2,20 +2,20 @@ package com.options;
 
 import javax.microedition.lcdui.*;
 
-import com.mts.MinskTransSchedMidlet;
+import com.mts.TransSched;
 
 public class GeneralPrefs extends Form implements CommandListener
 {
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == MinskTransSchedMidlet.cmdOK)
+		if(cmd == TransSched.cmdOK)
 		{
 			SaveSettings();
-			MinskTransSchedMidlet.display.setCurrent(next);
+			TransSched.display.setCurrent(next);
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdCancel)
+		else if(cmd == TransSched.cmdCancel)
 		{
-			MinskTransSchedMidlet.display.setCurrent(next);
+			TransSched.display.setCurrent(next);
 		}
 	}
 
@@ -42,8 +42,8 @@ public class GeneralPrefs extends Form implements CommandListener
 		
 		this.next = next;
 
-		addCommand(MinskTransSchedMidlet.cmdOK);
-		addCommand(MinskTransSchedMidlet.cmdCancel);
+		addCommand(TransSched.cmdOK);
+		addCommand(TransSched.cmdCancel);
 
 		setCommandListener(this);
 
@@ -218,9 +218,9 @@ public class GeneralPrefs extends Form implements CommandListener
 		
 		OptionsStoreManager.SaveSettings();
 		
-		for (int i = 0; i < MinskTransSchedMidlet.optionsListeners.length; i++)
+		for (int i = 0; i < TransSched.optionsListeners.length; i++)
 		{
-			MinskTransSchedMidlet.optionsListeners[i].OptionsUpdated();
+			TransSched.optionsListeners[i].OptionsUpdated();
 		}
 	}
 }

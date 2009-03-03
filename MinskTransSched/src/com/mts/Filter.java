@@ -13,8 +13,9 @@ public class Filter
 	Bus[] buses;
 	Hashtable busesFilter;
 
-	public Filter()
+	public boolean isEmpty()
 	{
+		return busStops == null && buses == null;
 	}
 
 	public void setBusesFilter(Bus[] filter)
@@ -61,7 +62,7 @@ public class Filter
 			return filteredBusesHash;
 		
 		// put all buses which can appear in schedule with current filter
-		BusStop[] bss = FilterIt(MinskTransSchedMidlet.allBusStopsArray);
+		BusStop[] bss = FilterIt(TransSched.allBusStopsArray);
 		filteredBusesHash = new Hashtable();
 		for (int i = 0; i < bss.length; i++)
 		{

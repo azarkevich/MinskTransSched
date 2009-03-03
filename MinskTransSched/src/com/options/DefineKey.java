@@ -4,7 +4,7 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
-import com.mts.MinskTransSchedMidlet;
+import com.mts.TransSched;
 import com.text.MultiLineText;
 
 public class DefineKey extends Canvas
@@ -38,7 +38,7 @@ public class DefineKey extends Canvas
 				CmdDef.getActionCodeFromKeyHash(cmd.getKeyHash())
 			).intValue();
 
-		MinskTransSchedMidlet.display.setCurrent(parent);
+		TransSched.display.setCurrent(parent);
 		
 		parent.onKeyAssigned(cmd, index, newHash);
 	}

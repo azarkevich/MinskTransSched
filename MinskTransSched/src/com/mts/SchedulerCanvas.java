@@ -52,7 +52,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		if(Options.showExitCommand)
 			addCommand(cmdExit);
 		if(Options.showHelpCommand)
-			addCommand(MinskTransSchedMidlet.cmdHelp);
+			addCommand(TransSched.cmdHelp);
 		if(Options.showAboutCommand)
 			addCommand(cmdAbout);
 		
@@ -83,20 +83,20 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	public void setFilterToFavorites()
 	{
-		Bus[] favBuses = filter.getFavorites(MinskTransSchedMidlet.allBusesArray);
+		Bus[] favBuses = filter.getFavorites(TransSched.allBusesArray);
 		if(favBuses.length > 0)
 		{
 			filter.setBusesFilter(favBuses);
 		}
 
-		BusStop[] favBS = filter.getFavorites(MinskTransSchedMidlet.allBusStopsArray);
+		BusStop[] favBS = filter.getFavorites(TransSched.allBusStopsArray);
 		if(favBS.length > 0)
 		{
 			filter.setBusStopsFilter(favBS);
 		}
 		setForeColor();
 		
-		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), null);
+		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), null);
 	}
 
 	public void setBusStops(BusStop[] stops, BusStop sel)
@@ -119,7 +119,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	
 	public void selectBusStop(BusStop sel)
 	{
-		MinskTransSchedMidlet.display.setCurrent(this);
+		TransSched.display.setCurrent(this);
 
 		for (int i = 0; i < busStops.length; i++)
 		{
@@ -142,24 +142,24 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	void showCurrBusStopsList()
 	{
 		BusStopsList list = new BusStopsList("Остановки", busStops, this, getCurrentBusStop()); 
-		MinskTransSchedMidlet.display.setCurrent(list);
+		TransSched.display.setCurrent(list);
 	}
 
 	public void showBusesFilter()
 	{
-		MinskTransSchedMidlet.display.setCurrent(new BusesFilter(this, false));
+		TransSched.display.setCurrent(new BusesFilter(this, false));
 	}
 
 	public void showBusStopsFilter()
 	{
-		MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(this, false));
+		TransSched.display.setCurrent(new BusStopsFilter(this, false));
 	}
 
 	public void commandAction(Command cmd, Displayable d)
 	{
 		if(cmd == cmdFilter)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new MainFilterMenu(this));
+			TransSched.display.setCurrent(new MainFilterMenu(this));
 		}
 		else if(cmd == cmdShowBusStopsList)
 		{
@@ -167,19 +167,19 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == cmdOptions)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new OptionsMenu(this));
+			TransSched.display.setCurrent(new OptionsMenu(this));
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdHelp)
+		else if(cmd == TransSched.cmdHelp)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new Help(Help.mainHelpText, this));
+			TransSched.display.setCurrent(new Help(Help.mainHelpText, this));
 		}
 		else if(cmd == cmdExit)
 		{
-			MinskTransSchedMidlet.midlet.notifyDestroyed();
+			TransSched.midlet.notifyDestroyed();
 		}
 		else if(cmd == cmdAbout)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new About(this));
+			TransSched.display.setCurrent(new About(this));
 		}
 	}
 
@@ -188,7 +188,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		filter.setBusesFilter(null);
 		filter.setBusStopsFilter(null);
 		setForeColor();
-		setBusStops(MinskTransSchedMidlet.allBusStopsArray, getCurrentBusStop());
+		setBusStops(TransSched.allBusStopsArray, getCurrentBusStop());
 	}
 
 	public void paint(Graphics g)
@@ -344,7 +344,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 		else if(cmd == CmdDef.cmdShowFilterMenu)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new MainFilterMenu(this));
+			TransSched.display.setCurrent(new MainFilterMenu(this));
 		}
 		else if(cmd == CmdDef.cmdScheduleFullScreen)
 		{
@@ -400,13 +400,13 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 		try{
 			removeCommand(cmdExit);
-			removeCommand(MinskTransSchedMidlet.cmdHelp);
+			removeCommand(TransSched.cmdHelp);
 			removeCommand(cmdAbout);
 			
 			if(Options.showExitCommand)
 				addCommand(cmdExit);
 			if(Options.showHelpCommand)
-				addCommand(MinskTransSchedMidlet.cmdHelp);
+				addCommand(TransSched.cmdHelp);
 			if(Options.showAboutCommand)
 				addCommand(cmdAbout);
 		}
@@ -421,17 +421,17 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	public void setBusesFilter(Bus[] f)
 	{
 		filter.setBusesFilter(f);
-		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), getCurrentBusStop());
+		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
-		MinskTransSchedMidlet.display.setCurrent(this);
+		TransSched.display.setCurrent(this);
 	}
 
 	public void setBusStopsFilter(BusStop[] f)
 	{
 		filter.setBusStopsFilter(f);
-		setBusStops(filter.FilterIt(MinskTransSchedMidlet.allBusStopsArray), getCurrentBusStop());
+		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
-		MinskTransSchedMidlet.display.setCurrent(this);
+		TransSched.display.setCurrent(this);
 	}
 	
 	void setForeColor()

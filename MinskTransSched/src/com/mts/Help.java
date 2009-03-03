@@ -102,7 +102,7 @@ public class Help extends Canvas implements CommandListener
 	
 	public void commandAction(Command command, Displayable displayable)
 	{
-		MinskTransSchedMidlet.display.setCurrent(next);
+		TransSched.display.setCurrent(next);
 	}
 
 	MultiLineText multiLineText;
@@ -113,7 +113,7 @@ public class Help extends Canvas implements CommandListener
 	{
 		this.text = text;
 		this.next = next;
-		addCommand(MinskTransSchedMidlet.cmdBack);
+		addCommand(TransSched.cmdBack);
 		setCommandListener(this);
 		setFullScreenMode(Options.fullScreen);
 	}

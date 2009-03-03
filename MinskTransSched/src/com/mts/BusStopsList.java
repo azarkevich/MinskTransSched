@@ -20,8 +20,8 @@ public class BusStopsList extends List implements CommandListener
 		this.busStops = busStops;
 		
 		setCommandListener(this);
-		addCommand(MinskTransSchedMidlet.cmdSelect);
-		addCommand(MinskTransSchedMidlet.cmdBack);
+		addCommand(TransSched.cmdSelect);
+		addCommand(TransSched.cmdBack);
 		
 		for (int i = 0; i < busStops.length; i++)
 		{
@@ -33,13 +33,13 @@ public class BusStopsList extends List implements CommandListener
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == MinskTransSchedMidlet.cmdSelect || cmd == List.SELECT_COMMAND)
+		if(cmd == TransSched.cmdSelect || cmd == List.SELECT_COMMAND)
 		{
 			int sel = getSelectedIndex();
 			if(sel == -1)
 			{
 				// go back without selection
-				MinskTransSchedMidlet.display.setCurrent(scheduleBoard);
+				TransSched.display.setCurrent(scheduleBoard);
 			}
 			else
 			{
@@ -47,9 +47,9 @@ public class BusStopsList extends List implements CommandListener
 				scheduleBoard.selectBusStop(busStop);
 			}
 		}
-		else if(cmd == MinskTransSchedMidlet.cmdBack)
+		else if(cmd == TransSched.cmdBack)
 		{
-			MinskTransSchedMidlet.display.setCurrent(scheduleBoard);
+			TransSched.display.setCurrent(scheduleBoard);
 		}
 	}
 }

@@ -7,7 +7,7 @@ import javax.microedition.lcdui.List;
 
 import com.mts.BusStopsFilter;
 import com.mts.BusesFilter;
-import com.mts.MinskTransSchedMidlet;
+import com.mts.TransSched;
 import com.mts.SchedulerCanvas;
 import com.resources.Images;
 
@@ -28,8 +28,8 @@ public class OptionsMenu extends List implements CommandListener
 
 		setCommandListener(this);
 		
-		addCommand(MinskTransSchedMidlet.cmdBack);
-		addCommand(MinskTransSchedMidlet.cmdSelect);
+		addCommand(TransSched.cmdBack);
+		addCommand(TransSched.cmdSelect);
 		addCommand(cmdGeneral);
 		addCommand(cmdControl);
 		
@@ -42,43 +42,43 @@ public class OptionsMenu extends List implements CommandListener
 
 	public void commandAction(Command c, Displayable d)
 	{
-		if(c == MinskTransSchedMidlet.cmdBack)
+		if(c == TransSched.cmdBack)
 		{
-			MinskTransSchedMidlet.display.setCurrent(schedBoard);
+			TransSched.display.setCurrent(schedBoard);
 		}
-		else if(c == MinskTransSchedMidlet.cmdSelect || c == List.SELECT_COMMAND)
+		else if(c == TransSched.cmdSelect || c == List.SELECT_COMMAND)
 		{
 			switch (((List)d).getSelectedIndex())
 			{
 			case 0:
-				MinskTransSchedMidlet.display.setCurrent(new GeneralPrefs(this));
+				TransSched.display.setCurrent(new GeneralPrefs(this));
 				break;
 			case 1:
-				MinskTransSchedMidlet.display.setCurrent(new ControlPrefs(this));
+				TransSched.display.setCurrent(new ControlPrefs(this));
 				break;
 			case 2:
-				MinskTransSchedMidlet.display.setCurrent(new BusesFilter(schedBoard, true));
+				TransSched.display.setCurrent(new BusesFilter(schedBoard, true));
 				break;
 			case 3:
-				MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(schedBoard, true));
+				TransSched.display.setCurrent(new BusStopsFilter(schedBoard, true));
 				break;
 			}
 		}
 		else if(c == cmdGeneral)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new GeneralPrefs(this));
+			TransSched.display.setCurrent(new GeneralPrefs(this));
 		}
 		else if(c == cmdControl)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new ControlPrefs(this));
+			TransSched.display.setCurrent(new ControlPrefs(this));
 		}
 		else if(c == cmdFavBuses)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new BusesFilter(schedBoard, true));
+			TransSched.display.setCurrent(new BusesFilter(schedBoard, true));
 		}
 		else if(c == cmdFavBusStops)
 		{
-			MinskTransSchedMidlet.display.setCurrent(new BusStopsFilter(schedBoard, true));
+			TransSched.display.setCurrent(new BusStopsFilter(schedBoard, true));
 		}
 	}
 }

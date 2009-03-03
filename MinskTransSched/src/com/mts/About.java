@@ -11,7 +11,7 @@ public class About extends Form implements CommandListener
 {
 	public void commandAction(Command command, Displayable displayable)
 	{
-		MinskTransSchedMidlet.display.setCurrent(next);
+		TransSched.display.setCurrent(next);
 	}
 
 	Displayable next;
@@ -21,7 +21,7 @@ public class About extends Form implements CommandListener
 	
 		this.next = next;
 	
-		addCommand(MinskTransSchedMidlet.cmdOK);
+		addCommand(TransSched.cmdOK);
 		setCommandListener(this);
 		
 		StringItem si;
@@ -29,7 +29,7 @@ public class About extends Form implements CommandListener
 		si.setLayout(Item.LAYOUT_NEWLINE_AFTER);
 		append(si);
 		try{
-			si = new StringItem("Версия", MinskTransSchedMidlet.midlet.getAppProperty("Version"));
+			si = new StringItem("Версия", TransSched.midlet.getAppProperty("Version"));
 			si.setLayout(Item.LAYOUT_NEWLINE_AFTER);
 			append(si);
 		}
