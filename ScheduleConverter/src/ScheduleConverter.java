@@ -61,11 +61,6 @@ public class ScheduleConverter
 					while(r.readRecord())
 					{
 						Bus b = new Bus();
-						b.id = Integer.parseInt(r.get("id"));
-
-						if(b.id > Byte.MAX_VALUE)
-							throw new Exception("Bus ID exceed store size");
-
 						b.name = r.get("name");
 						b.route = r.get("route");
 						
@@ -83,9 +78,6 @@ public class ScheduleConverter
 					while(r.readRecord())
 					{
 						BusStop bs = new BusStop();
-						bs.id = Integer.parseInt(r.get("id"));
-						if(bs.id > Byte.MAX_VALUE)
-							throw new Exception("BusStop ID exceed store size");
 						bs.name = r.get("name");
 						bs.officialName = r.get("officialName");
 						bs.description = r.get("description");
@@ -112,7 +104,7 @@ public class ScheduleConverter
 
 			if(busStops == null)
 				throw new Exception("Bus stops CSV not provided.");
-
+			
 			// remove unused busstops && check duplicates
 			for (int i = 0; i < busStops.size(); i++)
 			{
@@ -334,21 +326,26 @@ public class ScheduleConverter
 					busStop = FindBusStop(vals[0]).id;
 					BusStop srcBusStop = FindBusStop(vals[1]);
 					int shift = Integer.parseInt(vals[2]);
-					String[] days = vals[3].split(" ");
+					String[] daysFrom = vals[3].split(" ");
+					String[] daysTo = daysFrom;
+					if(vals.length > 4)
+						daysTo = vals[4].split(" ");
 
 					if(shift > Byte.MAX_VALUE)
 						throw new Exception("shift exceed store size");
 
-					for (int d = 0; d < days.length; d++)
+					for (int d = 0; d < daysFrom.length; d++)
 					{
-						day = ParseDay(days[d]);
+						int dayFrom = ParseDay(daysFrom[d]);
+						int dayTo = ParseDay(daysTo[d]);
 
 						DerivedSchedule ds = new DerivedSchedule();
 						ds.bus = bus;
 						ds.busStop = busStop;
 						ds.baseBusStop = srcBusStop.id;
 						ds.shift = shift;
-						ds.day = day;
+						ds.dayFrom = dayFrom;
+						ds.dayTo = dayTo;
 						derSchedules.add(ds);
 					}
 
@@ -445,9 +442,11 @@ public class ScheduleConverter
 	
 	Short ParseDay(String s) throws Exception
 	{
-		if(s.compareTo("w") == 0 || s.compareTo("W") == 0)
+		if(s.compareTo("a") == 0)
+			return Schedule.ALLDAY;
+		if(s.compareTo("w") == 0)
 			return Schedule.WORKDAY;
-		else if(s.compareTo("h") == 0 || s.compareTo("H") == 0)
+		else if(s.compareTo("h") == 0)
 			return Schedule.HOLIDAY;
 
 		return Short.parseShort(s);
@@ -610,7 +609,8 @@ public class ScheduleConverter
 
 			dos.writeByte(sched.bus);
 			dos.writeByte(sched.busStop);
-			dos.writeByte(sched.day);
+			dos.writeByte(sched.dayFrom);
+			dos.writeByte(sched.dayTo);
 			dos.writeByte(sched.baseBusStop);
 			dos.writeByte(sched.shift);
 		}

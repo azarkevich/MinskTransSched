@@ -10,7 +10,7 @@
   
 	<taskdef name="svn" classpathref="project.classpath"
 		    classname="org.tigris.subversion.svnant.SvnTask" />
-		    
+
 	<target name="getversion">
 			<property file=".version" />
 
@@ -38,8 +38,8 @@
 
 			<property name="publish.dir" value="c:\Apache-2.0.59\htdocs\mt" />
 			
-			<copy file="bin/MinskTransSched_v${version.jar}.jad" todir="${publish.dir}" />
-			<copy file="bin/MinskTransSched_v${version.jar}.jar" todir="${publish.dir}" />
+			<copy file="bin/${city}TransSched_v${version.jar}.jad" todir="${publish.dir}" />
+			<copy file="bin/${city}TransSched_v${version.jar}.jar" todir="${publish.dir}" />
 	</target>
 
 	<target name="build" depends="-initialize,getversion">
@@ -66,14 +66,12 @@
 
 			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
 
-			<delete file="${path.build.output}/${midlet.file.name}.tar"/>
-
-			<move file="bin/MinskTransSched.jad" tofile="bin/MinskTransSched_v${version.jar}.jad" />
-			<move file="bin/MinskTransSched.jar" tofile="bin/MinskTransSched_v${version.jar}.jar" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched_v${version.jar}.jad" />
+			<move file="bin/MinskTransSched.jar" tofile="bin/${city}TransSched_v${version.jar}.jar" />
 			
-			<replaceregexp file="bin/MinskTransSched_v${version.jar}.jad"
+			<replaceregexp file="bin/${city}TransSched_v${version.jar}.jad"
                          match="MIDlet-Jar-URL:.*"
-                         replace="MIDlet-Jar-URL: MinskTransSched_v${version.jar}.jar"
+                         replace="MIDlet-Jar-URL: ${city}TransSched_v${version.jar}.jar"
                          byline="true"/>
 
 			<antcall target="make-sources" />
@@ -96,11 +94,11 @@
 			<export srcPath="." destPath="${path.build}" />
 		</svn>
 	
-		<tar destfile="${path.build.output}/${midlet.file.name}.tar" basedir="${path.build}" />
-		<bzip2 destfile="${path.build.output}/${midlet.file.name}_v${version.jar}.src.tbz2" src="${path.build.output}/${midlet.file.name}.tar"/>
-		<zip destfile="${path.build.output}/${midlet.file.name}_v${version.jar}.src.zip" basedir="${path.build}"/>
+		<tar destfile="${path.build.output}/TransSched.tar" basedir="${path.build}" />
+		<bzip2 destfile="${path.build.output}/TransSched_v${version.jar}.src.tar.bz2" src="${path.build.output}/TransSched.tar"/>
+		<zip destfile="${path.build.output}/TransSched_v${version.jar}.src.zip" basedir="${path.build}"/>
 
-		<delete file="${path.build.output}/${midlet.file.name}.tar"/>
+		<delete file="${path.build.output}/TransSched.tar"/>
 	</target>
 
 	<target name="clean" description="Clean" depends="-clean-tmp">

@@ -8,18 +8,18 @@ public class Schedule
 	public Bus bus;
 	public BusStop busStop;
 
-	// indexes according to Calendar.SUNDAY ... Calendar.SATURDAY, 8 for work days, 9 for holidays 
-	short[][] m_times = new short[9][];
-	String[] m_from = new String[9];
+	// indexes according to Calendar.SUNDAY ... Calendar.SATURDAY, 8 for work days, 9 for holidays, 0 for alldays 
+	short[][] m_times = new short[10][];
+	String[] m_from = new String[10];
 	
 	public short[] getTimes(int day)
 	{
-		return m_times[day - 1];
+		return m_times[day];
 	}
 
 	public void setTimes(int day, short[] times)
 	{
-		m_times[day - 1] = times;
+		m_times[day] = times;
 	}
 	
 	public static final byte SCHED_FROM_UNKNOWN = 0; 
@@ -28,27 +28,27 @@ public class Schedule
 
 	public String getFrom(int day)
 	{
-		return m_from[day - 1];
+		return m_from[day];
 	}
 	
 	public void setFrom(int day, String schedFrom)
 	{
-		m_from[day - 1] = schedFrom;
+		m_from[day] = schedFrom;
 	}
 
 	static final int[] workdayIndexes = new int[] { 
-		Schedule.WORKDAY - 1,
-		Calendar.MONDAY - 1,
-		Calendar.TUESDAY - 1,
-		Calendar.WEDNESDAY - 1,
-		Calendar.THURSDAY - 1,
-		Calendar.FRIDAY - 1
+			Schedule.WORKDAY,
+			Calendar.MONDAY,
+			Calendar.TUESDAY,
+			Calendar.WEDNESDAY,
+			Calendar.THURSDAY,
+			Calendar.FRIDAY
 		};
 
 	static final int[] holidayIndexes = new int[] { 
-			Schedule.HOLIDAY - 1,
-			Calendar.SUNDAY - 1,
-			Calendar.SATURDAY - 1
+			Schedule.HOLIDAY,
+			Calendar.SUNDAY,
+			Calendar.SATURDAY
 		};
 
 	public void NormalizeDays() throws Exception
@@ -66,6 +66,12 @@ public class Schedule
 			}
 		}
 		
+		if(workTimes == null)
+		{
+			workTimes = m_times[Schedule.ALLDAY];
+			workFrom = m_from[Schedule.ALLDAY];
+		}
+		
 		// guess holiday times
 		short[] holidayTimes = new short[0];
 		String holidayFrom = null;
@@ -79,6 +85,12 @@ public class Schedule
 			}
 		}
 		
+		if(holidayTimes == null)
+		{
+			holidayTimes = m_times[Schedule.ALLDAY];
+			holidayFrom = m_from[Schedule.ALLDAY];
+		}
+
 		// fill empty workdays
 		for (int i = 0; i < workdayIndexes.length; i++)
 		{
@@ -100,6 +112,7 @@ public class Schedule
 		}
 	}
 	
+	public static final int ALLDAY = 0;
 	public static final int WORKDAY = 8;
 	public static final int HOLIDAY = 9;
 }

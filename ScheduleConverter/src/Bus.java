@@ -1,9 +1,18 @@
 
 public class Bus implements Comparable<Bus>
 {
+	static int nextId = 0;
+
 	int id;
 	String name;
 	String route;
+
+	public Bus() throws Exception
+	{
+		id = nextId++;
+		if(id > Byte.MAX_VALUE)
+			throw new Exception("Bus ID exceed store size");
+	}
 
 	public int compareTo(Bus o)
 	{

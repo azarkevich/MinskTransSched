@@ -25,19 +25,9 @@ public class MinskTransSchedMidlet extends MIDlet
 
 	public static Display display;
 	public static MinskTransSchedMidlet midlet;
+	SchedulerCanvas scheduleBoard;
 	
 	public static OptionsListener[] optionsListeners;
-
-	public MinskTransSchedMidlet()
-	{
-		midlet = this;
-		display = Display.getDisplay(this);
-	}
-
-	protected void destroyApp(boolean unconditional)
-	{
-		notifyDestroyed();
-	}
 
 	protected void pauseApp()
 	{
@@ -123,6 +113,16 @@ public class MinskTransSchedMidlet extends MIDlet
 	
 	protected void startApp() throws MIDletStateChangeException
 	{
+		// Return if MIDlet has already been initialized
+		if (midlet != null)
+		{
+			display.setCurrent(midlet.scheduleBoard);
+			return;
+		}
+		
+		midlet = this;
+		display = Display.getDisplay(this);
+
 		OptionsStoreManager.ReadSettings();
 		
 	    // load data
@@ -137,9 +137,15 @@ public class MinskTransSchedMidlet extends MIDlet
 
 		Images.load();
 		
-		SchedulerCanvas scheduleBoard = new SchedulerCanvas();
+		scheduleBoard = new SchedulerCanvas();
 		display.setCurrent(scheduleBoard);
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
+	}
+
+	protected void destroyApp(boolean unconditional)
+	{
+		display.setCurrent(null);
+		notifyDestroyed();
 	}
 }

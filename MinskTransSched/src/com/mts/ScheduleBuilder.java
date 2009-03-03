@@ -91,19 +91,19 @@ public class ScheduleBuilder
 		{
 			sb.append("\nОкно: ");
 			if(showDescription)
-				sb.append("Размер:");
+				sb.append("Размер: ");
 			FormatTimeDiff(endWindow - beginWindow, sb);
 	
 			sb.append("; ");
 			if(showDescription)
-				sb.append("Сдвиг:");
+				sb.append("Сдвиг: ");
 			if(WindowShift > 0)
 				sb.append("+");
 			FormatTimeDiff(WindowShift, sb);
 			
 			sb.append(" ");
 			if(showDescription)
-				sb.append("Диапазон:");
+				sb.append("Диапазон: ");
 			sb.append("[" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
 		}
 		
@@ -200,7 +200,7 @@ public class ScheduleBuilder
 				{
 					if(sched.bus.route.compareTo("") != 0)
 					{
-						sb.append("\nМаршр.:");
+						sb.append("\nМаршр.: ");
 						sb.append(sched.bus.route);
 						needLF = true;
 					}
@@ -208,7 +208,7 @@ public class ScheduleBuilder
 					String schedFrom = GetSchedFrom(sched, cal);
 					if(schedFrom.compareTo("") != 0)
 					{
-						sb.append("\nРасп.:");
+						sb.append("\nРасп.: ");
 						sb.append(schedFrom);
 						needLF = true;
 					}

@@ -107,7 +107,8 @@ public class ScheduleLoader
 			// read data
 			short bus = dis.readByte();
 			short busStop = dis.readByte();
-			int day = dis.readByte();
+			int dayFrom = dis.readByte();
+			int dayTo = dis.readByte();
 			short baseBusStop = dis.readByte();
 			short shift = dis.readByte();
 			
@@ -126,15 +127,15 @@ public class ScheduleLoader
 			}
 			
 			// generate times:
-			short[] srcTimes = srcSched.getTimes(day);
+			short[] srcTimes = srcSched.getTimes(dayFrom);
 			short[] dstTimes = new short[srcTimes.length];
 			for (int j = 0; j < srcTimes.length; j++)
 			{
 				dstTimes[j] = (short)(srcTimes[j] + shift);
 			}
 
-			dstSched.setTimes(day, dstTimes);
-			dstSched.setFrom(day, srcSched.busStop.name + " +" + shift + "m");
+			dstSched.setTimes(dayTo, dstTimes);
+			dstSched.setFrom(dayTo, srcSched.busStop.name + " +" + shift + "m");
 		}
 		dis.close();
 	}

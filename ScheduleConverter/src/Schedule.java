@@ -2,6 +2,7 @@ import java.util.Vector;
 
 public class Schedule implements Comparable<Schedule>
 {
+	public static final int ALLDAY = 8;
 	public static final int WORKDAY = 8;
 	public static final int HOLIDAY = 9;
 
