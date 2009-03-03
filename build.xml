@@ -73,9 +73,6 @@
                          match="MIDlet-Jar-URL:.*"
                          replace="MIDlet-Jar-URL: ${city}TransSched_v${version.jar}.jar"
                          byline="true"/>
-
-			<antcall target="make-sources" />
-			<antcall target="-clean-tmp" />
 	</target>
 
 	<target name="-initialize" description="Initializes the build environment">
@@ -86,7 +83,7 @@
 		<mkdir dir="${path.build.output}" />
 	</target>
 
-	<target name="make-sources" description="Make bzip2/zip archive of sources">
+	<target name="build-sources" depends="getversion" description="Make bzip2/zip archive of sources">
 
 		<delete dir="${path.build}" />
 		
@@ -99,14 +96,13 @@
 		<zip destfile="${path.build.output}/TransSched_v${version.jar}.src.zip" basedir="${path.build}"/>
 
 		<delete file="${path.build.output}/TransSched.tar"/>
+
+		<delete dir="${path.build}" />
 	</target>
 
-	<target name="clean" description="Clean" depends="-clean-tmp">
-		<delete dir="${path.build.output}" />
+	<target name="clean" description="Clean">
 		<ant antfile="build.xml" target="clean" dir="MinskTransSched" />
-	</target>
-
-	<target name="-clean-tmp">
+		<delete dir="${path.build.output}" />
 		<delete dir="${path.build}" />
 	</target>
 </project>
