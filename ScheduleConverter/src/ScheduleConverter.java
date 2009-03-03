@@ -30,111 +30,6 @@ public class ScheduleConverter
 
 			String outDir = null;
 
-			Charset c = Charset.forName("UTF-8");
-
-			// load stops
-			for (int i = 0; i < args.length; i++)
-			{
-				String arg = args[i];
-
-				if(arg.compareTo("-c") == 0)
-				{
-					i++;
-					if(i == args.length)
-						throw new Exception("Argument -c not supplied with parameter.");
-					c = Charset.forName(args[i]);
-					continue;
-				}
-				
-				if(arg.endsWith(".stop"))
-				{
-					busStops = new Vector<BusStop>();
-					CsvReader r = new CsvReader(arg, ';', c);
-					r.readHeaders();
-					while(r.readRecord())
-					{
-						BusStop bs = new BusStop();
-						bs.name = r.get("name");
-						bs.officialName = r.get("officialName");
-						bs.description = r.get("description");
-						
-						busStops.add(bs);
-					}
-					System.out.println("BusStops: " + arg);
-					continue;
-				}
-			}
-			
-			// load transport
-			for (int i = 0; i < args.length; i++)
-			{
-				String arg = args[i];
-
-				if(arg.compareTo("-c") == 0)
-				{
-					i++;
-					if(i == args.length)
-						throw new Exception("Argument -c not supplied with parameter.");
-					c = Charset.forName(args[i]);
-					continue;
-				}
-				
-				if(arg.endsWith(".tr"))
-				{
-					buses = new Vector<Bus>();
-					CsvReader r = new CsvReader(arg, ';', c);
-					r.readHeaders();
-					while(r.readRecord())
-					{
-						Bus b = new Bus();
-						b.name = r.get("name");
-						String start = r.get("start");
-						if(start != null && start.compareTo("") != 0)
-						{
-							BusStop startBS = FindBusStop(start);
-							if(startBS == null)
-								throw new Exception("Undefined start route: " + start);
-							b.startRoute = startBS.id;
-						}
-						String end = r.get("end");
-						if(end != null && end.compareTo("") != 0)
-						{
-							BusStop endBS = FindBusStop(end);
-							if(endBS == null)
-								throw new Exception("Undefined end route: " + end);
-							
-							b.endRoute = endBS.id;
-						}
-						buses.add(b);
-					}
-					System.out.println("Buses: " + arg);
-					continue;
-				}
-			}
-			
-			// load transport
-			for (int i = 0; i < args.length; i++)
-			{
-				String arg = args[i];
-
-				if(arg.compareTo("-c") == 0)
-				{
-					i++;
-					if(i == args.length)
-						throw new Exception("Argument -c not supplied with parameter.");
-					c = Charset.forName(args[i]);
-					continue;
-				}
-				
-				// load filters
-				if(arg.endsWith(".flt"))
-				{
-					ParseFiltersFile(arg, c);
-					System.out.println("Filters: " + arg);
-				}
-			}
-			
-			// load schedultes
 			for (int i = 0; i < args.length; i++)
 			{
 				String arg = args[i];
@@ -142,9 +37,6 @@ public class ScheduleConverter
 				if(arg.compareTo("-c") == 0)
 				{
 					i++;
-					if(i == args.length)
-						throw new Exception("Argument -c not supplied with parameter.");
-					c = Charset.forName(args[i]);
 					continue;
 				}
 
@@ -156,20 +48,19 @@ public class ScheduleConverter
 					outDir = args[i];
 					continue;
 				}
-				// load filters
-				if(arg.endsWith(".txt"))
-				{
-					try
-					{
-						ParseScheduleFile(arg, c);
-						System.out.println("Schedule: " + arg);
-					}
-					catch(Exception ex)
-					{
-						throw new Exception("File " + arg + "\n" + ex.toString(), ex);
-					}
-				}
 			}
+			
+			// load stops
+			LoadStops(args);
+			
+			// load transport
+			LoadTransport(args);
+			
+			// load fiulters
+			LoadFilters(args);
+			
+			// load schedultes
+			LoadSchedules(args);
 			
 			if(buses == null)
 				throw new Exception("Buses CSV not provided.");
@@ -177,7 +68,7 @@ public class ScheduleConverter
 			if(busStops == null)
 				throw new Exception("Bus stops CSV not provided.");
 			
-			// remove unused busstops && check duplicates
+			// check duplicates
 			for (int i = 0; i < busStops.size(); i++)
 			{
 				BusStop bs = busStops.get(i);
@@ -197,38 +88,9 @@ public class ScheduleConverter
 
 				if(namesCount > 1)
 					throw new Exception("Bus Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by Name");
-
-				boolean used = false;
-				for (int j = 0; j < schedules.size(); j++)
-				{
-					if(schedules.get(j).busStop == bs.id)
-					{
-						used = true;
-						break;
-					}
-				}
-				
-				if(used == false)
-				{
-					for (int j = 0; j < derSchedules.size(); j++)
-					{
-						if(derSchedules.get(j).busStop == bs.id || derSchedules.get(j).baseBusStop == bs.id)
-						{
-							used = true;
-							break;
-						}
-					}
-				}
-
-				if(!used)
-				{
-					System.out.println("Remove unused: " + busStops.get(i).name);
-					busStops.remove(i);
-					i--;
-				}
 			}
 			
-			// remove unused buses && check duplicates
+			// check duplicates
 			for (int i = 0; i < buses.size(); i++)
 			{
 				Bus b = buses.get(i);
@@ -248,22 +110,6 @@ public class ScheduleConverter
 
 				if(namesCount > 1)
 					throw new Exception("Bus Stop ID:" + b.id + ", Name:" + b.name + " duplicated by Name");
-
-				boolean used = false;
-				for (int j = 0; j < schedules.size(); j++)
-				{
-					if(schedules.get(j).bus == b.id)
-					{
-						used = true;
-						break;
-					}
-				}
-				if(!used)
-				{
-					System.out.println("Remove unused bus: " + buses.get(i).name);
-					buses.remove(i);
-					i--;
-				}
 			}
 			
 			// fix 'overnight' times: 23.20, 23.55, 0.10 now are 1400, 1435, 10 
@@ -315,6 +161,159 @@ public class ScheduleConverter
 			return -2;
 		}
 		return 0;
+	}
+
+	private void LoadSchedules(String[] args) throws Exception
+	{
+		Charset c = Charset.forName("UTF-8");
+		for (int i = 0; i < args.length; i++)
+		{
+			String arg = args[i];
+			
+			if(arg.compareTo("-c") == 0)
+			{
+				i++;
+				if(i == args.length)
+					throw new Exception("Argument -c not supplied with parameter.");
+				c = Charset.forName(args[i]);
+				continue;
+			}
+
+			// load filters
+			if(arg.endsWith(".txt"))
+			{
+				try
+				{
+					ParseScheduleFile(arg, c);
+					System.out.println("Schedule: " + arg);
+				}
+				catch(Exception ex)
+				{
+					throw new Exception("File " + arg + "\n" + ex.toString(), ex);
+				}
+			}
+		}
+	}
+
+	private void LoadFilters(String[] args) throws Exception
+	{
+		Charset c = Charset.forName("UTF-8");
+
+		for (int i = 0; i < args.length; i++)
+		{
+			String arg = args[i];
+
+			if(arg.compareTo("-c") == 0)
+			{
+				i++;
+				if(i == args.length)
+					throw new Exception("Argument -c not supplied with parameter.");
+				c = Charset.forName(args[i]);
+				continue;
+			}
+			
+			// load filters
+			if(arg.endsWith(".flt"))
+			{
+				ParseFiltersFile(arg, c);
+				System.out.println("Filters: " + arg);
+			}
+		}
+	}
+
+	private void LoadTransport(String[] args) throws Exception,
+			FileNotFoundException, IOException
+	{
+		Charset c = Charset.forName("UTF-8");
+
+		for (int i = 0; i < args.length; i++)
+		{
+			String arg = args[i];
+
+			if(arg.compareTo("-c") == 0)
+			{
+				i++;
+				if(i == args.length)
+					throw new Exception("Argument -c not supplied with parameter.");
+				c = Charset.forName(args[i]);
+				continue;
+			}
+			
+			if(arg.endsWith(".tr"))
+			{
+				buses = new Vector<Bus>();
+				CsvReader r = new CsvReader(arg, ';', c);
+				r.readHeaders();
+				while(r.readRecord())
+				{
+					Bus b = new Bus();
+					b.name = r.get("name");
+					String start = r.get("start");
+					if(start != null && start.compareTo("") != 0)
+					{
+						BusStop startBS = FindBusStop(start);
+						if(startBS == null)
+							throw new Exception("Undefined start route: " + start);
+						b.startRoute = startBS.id;
+					}
+					String end = r.get("end");
+					if(end != null && end.compareTo("") != 0)
+					{
+						BusStop endBS = FindBusStop(end);
+						if(endBS == null)
+							throw new Exception("Undefined end route: " + end);
+						
+						b.endRoute = endBS.id;
+					}
+					buses.add(b);
+				}
+				System.out.println("Buses: " + arg);
+				continue;
+			}
+		}
+	}
+
+	private void LoadStops(String[] args) throws Exception,
+			FileNotFoundException, IOException
+	{
+		Charset c = Charset.forName("UTF-8");
+
+		for (int i = 0; i < args.length; i++)
+		{
+			String arg = args[i];
+
+			if(arg.compareTo("-c") == 0)
+			{
+				i++;
+				if(i == args.length)
+					throw new Exception("Argument -c not supplied with parameter.");
+				c = Charset.forName(args[i]);
+				continue;
+			}
+			
+			if(arg.endsWith(".stop"))
+			{
+				busStops = new Vector<BusStop>();
+				CsvReader r = new CsvReader(arg, ';', c);
+				r.readHeaders();
+				while(r.readRecord())
+				{
+					BusStop bs = new BusStop();
+					bs.name = r.get("name");
+					bs.officialName = r.get("officialName");
+					bs.description = r.get("description");
+					String region = r.get("region");
+					if(region != null && region.isEmpty() == false)
+					{
+						FilterDef fd = FindFilter(region);
+						fd.stops.add(bs);
+					}
+					busStops.add(bs);
+				}
+				System.out.println("BusStops: " + arg);
+				continue;
+			}
+		}
 	}
 	
 	void ShowHelp()

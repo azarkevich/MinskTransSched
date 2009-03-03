@@ -235,6 +235,10 @@ public class OptionsStoreManager
 			{
 				int id = dis.readShort();
 				fd.stops[j] = (BusStop)TransSched.id2stop.get(new Integer(id));
+				if(fd.stops[j] == null)
+				{
+					fd.stops[j] = null;
+				}
 			}
 		}
 		return fd;
