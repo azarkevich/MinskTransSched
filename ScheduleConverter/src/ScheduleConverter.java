@@ -53,23 +53,6 @@ public class ScheduleConverter
 					continue;
 				}
 
-				if(buses == null)
-				{
-					buses = new Vector<Bus>();
-					CsvReader r = new CsvReader(arg, ';', c);
-					r.readHeaders();
-					while(r.readRecord())
-					{
-						Bus b = new Bus();
-						b.name = r.get("name");
-						b.route = r.get("route");
-						
-						buses.add(b);
-					}
-					System.out.println("Buses: " + arg);
-					continue;
-				}
-
 				if(busStops == null)
 				{
 					busStops = new Vector<BusStop>();
@@ -85,6 +68,38 @@ public class ScheduleConverter
 						busStops.add(bs);
 					}
 					System.out.println("BusStops: " + arg);
+					continue;
+				}
+
+				if(buses == null)
+				{
+					buses = new Vector<Bus>();
+					CsvReader r = new CsvReader(arg, ';', c);
+					r.readHeaders();
+					while(r.readRecord())
+					{
+						Bus b = new Bus();
+						b.name = r.get("name");
+						String start = r.get("start");
+						if(start != null && start.compareTo("") != 0)
+						{
+							BusStop startBS = FindBusStop(start);
+							if(startBS == null)
+								throw new Exception("Undefined start route: " + start);
+							b.startRoute = startBS.id;
+						}
+						String end = r.get("end");
+						if(end != null && end.compareTo("") != 0)
+						{
+							BusStop endBS = FindBusStop(end);
+							if(endBS == null)
+								throw new Exception("Undefined end route: " + end);
+							
+							b.endRoute = endBS.id;
+						}
+						buses.add(b);
+					}
+					System.out.println("Buses: " + arg);
 					continue;
 				}
 				
@@ -522,7 +537,8 @@ public class ScheduleConverter
 			Bus bus = buses.get(i);
 			dos.writeByte(bus.id);
 			dos.writeUTF(bus.name);
-			dos.writeUTF(bus.route);
+			dos.writeByte(bus.startRoute);
+			dos.writeByte(bus.endRoute);
 		}
 		dos.flush();
 		dos.close();

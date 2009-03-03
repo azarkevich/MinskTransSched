@@ -6,7 +6,8 @@ public class Bus
 {
 	public short id;
 	public String name;
-	public String route;
+	public BusStop startRoute;
+	public BusStop endRoute;
 	public boolean favorite = false;
 	public int bookmarkRecord = -1;
 	

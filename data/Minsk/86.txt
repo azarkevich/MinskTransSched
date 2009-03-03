@@ -1,5 +1,5 @@
 \bus 86
-\busstop Уручье-4
+\busstop Уручье-4 дс
 \day w
 \from site		
 05	35 50

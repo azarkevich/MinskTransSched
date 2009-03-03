@@ -5,7 +5,8 @@ public class Bus implements Comparable<Bus>
 
 	int id;
 	String name;
-	String route;
+	int startRoute = -1;
+	int endRoute = -1;
 
 	public Bus() throws Exception
 	{

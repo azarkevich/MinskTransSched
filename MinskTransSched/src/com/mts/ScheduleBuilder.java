@@ -195,26 +195,21 @@ public class ScheduleBuilder
 				Schedule sched = busOnStation[i];
 				sb.append(sched.bus.name);
 				sb.append(": ");
-				boolean needLF = false;
 				if(showDescription)
 				{
-					if(sched.bus.route.compareTo("") != 0)
-					{
-						sb.append("\nМаршр.: ");
-						sb.append(sched.bus.route);
-						needLF = true;
-					}
+					sb.append("\nМаршр.: ");
+					sb.append(sched.bus.startRoute == null ? "неизв." : sched.bus.startRoute.name);
+					sb.append(" / ");
+					sb.append(sched.bus.endRoute == null ? "неизв." : sched.bus.endRoute.name);
 					
 					String schedFrom = GetSchedFrom(sched, cal);
 					if(schedFrom.compareTo("") != 0)
 					{
 						sb.append("\nРасп.: ");
 						sb.append(schedFrom);
-						needLF = true;
 					}
 				}
-				if(needLF)
-					sb.append("\n");
+				sb.append("\n");
 				
 				short[] times = GetSchedTimes(sched, cal);
 				calcFirstLastIndexes(times, beginWindow, endWindow);

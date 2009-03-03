@@ -1,5 +1,5 @@
 \bus 99
-\busstop Уручье-4
+\busstop Уручье-4 дс
 \day w
 \from site		
 05	22 29 36 42 48 53 58

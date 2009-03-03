@@ -18,7 +18,7 @@ public class ScheduleLoader
 		busStops[0].schedules = new Schedule[] {};
 	}
 	
-	void LoadBuses() throws IOException
+	void LoadBuses() throws Exception
 	{
 		// load buses
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/buses"));
@@ -29,7 +29,13 @@ public class ScheduleLoader
 			buses[i] = new Bus();
 			buses[i].id = dis.readByte();
 			buses[i].name = dis.readUTF();
-			buses[i].route = dis.readUTF();
+			//System.out.println("Do:" + buses[i].name);
+			byte startRoute = dis.readByte();
+			if(startRoute != -1)
+				buses[i].startRoute = FindBusStop(startRoute);
+			byte endRoute = dis.readByte();
+			if(endRoute != -1)
+				buses[i].endRoute = FindBusStop(endRoute);
 		}
 		dis.close();
 	}
@@ -176,8 +182,8 @@ public class ScheduleLoader
 		try{
 			schedules = new Vector();
 
-			LoadBuses();
 			LoadBusStops();
+			LoadBuses();
 			LoadSchedules();
 			LoadDerivedSchedules();
 
