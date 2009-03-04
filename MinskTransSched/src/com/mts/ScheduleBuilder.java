@@ -208,8 +208,8 @@ public class ScheduleBuilder
 						sb.append("\nРасп.: ");
 						sb.append(schedFrom);
 					}
+					sb.append("\n");
 				}
-				sb.append("\n");
 				
 				short[] times = GetSchedTimes(sched, cal);
 				calcFirstLastIndexes(times, beginWindow, endWindow);
