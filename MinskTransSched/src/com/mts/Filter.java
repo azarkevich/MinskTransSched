@@ -22,9 +22,10 @@ public class Filter
 	{
 		buses = filter;
 		filteredBusesHash = null;
-		if(buses == null)
+		if(buses == null || buses.length == 0)
 		{
 			busesFilter = null;
+			buses = null;
 			return;
 		}
 		
@@ -40,9 +41,10 @@ public class Filter
 	{
 		busStops = filter;
 		filteredBusesHash = null;
-		if(busStops == null)
+		if(busStops == null || busStops.length == 0)
 		{
 			busStopsFilter = null;
+			busStops = null;
 			return;
 		}
 		

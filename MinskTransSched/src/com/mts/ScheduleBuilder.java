@@ -220,7 +220,7 @@ public class ScheduleBuilder
 					for (int j = firstIndex; j < aboveLastIndex; j++)
 					{
 						int time = times[j] + schedShift;
-						int hour = time / 60;
+						int hour = (time / 60) % 24;
 						if(hour != currentHour)
 						{
 							sb.append("\n ");

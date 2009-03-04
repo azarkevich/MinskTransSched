@@ -149,7 +149,10 @@ public class TransSched extends MIDlet
 		Images.load();
 
 		scheduleBoard = new SchedulerCanvas();
-		display.setCurrent(scheduleBoard);
+		if(Options.showStopsListOnStartup)
+			scheduleBoard.showCurrBusStopsList();
+		else
+			display.setCurrent(scheduleBoard);
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
 	}

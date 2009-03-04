@@ -23,11 +23,11 @@ import com.text.MultiLineText;
 
 public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
-	static final Command cmdFilter = new Command("Фильтр", Command.OK, 1); 
-	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 2); 
-	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 2);
-	final static Command cmdExit = new Command("Выход", Command.EXIT, 2);
-	final static Command cmdAbout = new Command("О программе", Command.EXIT, 2);
+	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 1); 
+	static final Command cmdFilter = new Command("Фильтр", Command.OK, 2); 
+	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 3);
+	final static Command cmdAbout = new Command("О программе", Command.EXIT, 4);
+	final static Command cmdExit = new Command("Выход", Command.EXIT, 5);
 
 	BusStop[] busStops = null;
 	int currentBusStopIndex = 0;
@@ -366,15 +366,15 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			RefreshScheduleText(true);
 			return;
 		}
-		else if(cmd == CmdDef.cmdSchedShiftDecrease10)
+		else if(cmd == CmdDef.cmdSchedShiftDecrease20)
 		{
-			scheduleBuilder.schedShift -= 10;
+			scheduleBuilder.schedShift -= 20;
 			RefreshScheduleText(true);
 			return;
 		}
-		else if(cmd == CmdDef.cmdSchedShiftIncrease10)
+		else if(cmd == CmdDef.cmdSchedShiftIncrease20)
 		{
-			scheduleBuilder.schedShift+=10;
+			scheduleBuilder.schedShift += 20;
 			RefreshScheduleText(true);
 			return;
 		}

@@ -332,17 +332,17 @@ public class CmdDef
 			CmdDef.KEY_ACTION_RELEASE_SHORT,
 			Canvas.RIGHT, true);
 
-	public static CmdDef cmdSchedShiftDecrease10 = new CmdDef(
+	public static CmdDef cmdSchedShiftDecrease20 = new CmdDef(
 			20,
-			"Cдвиг распис. -10",
-			"Уменьшить сдвиг расписания на 10 мин",
+			"Cдвиг распис. -20",
+			"Уменьшить сдвиг расписания на 20 мин",
 			CmdDef.KEY_ACTION_RELEASE_LONG,
 			Canvas.LEFT, true);
 
-	public static CmdDef cmdSchedShiftIncrease10 = new CmdDef(
+	public static CmdDef cmdSchedShiftIncrease20 = new CmdDef(
 			21,
-			"Сдвиг распис. +10",
-			"Увеличить сдвиг расписания на 10 мин",
+			"Сдвиг распис. +20",
+			"Увеличить сдвиг расписания на 20 мин",
 			CmdDef.KEY_ACTION_RELEASE_LONG,
 			Canvas.RIGHT, true);
 

@@ -47,6 +47,8 @@ public class OptionsStoreManager
 				Options.showExitCommand = dis.readBoolean();
 				Options.showHelpCommand = dis.readBoolean();
 				Options.showAboutCommand = dis.readBoolean();
+				
+				Options.showStopsListOnStartup = dis.readBoolean();
 			}
 			catch(InvalidRecordIDException ex)
 			{
@@ -122,6 +124,8 @@ public class OptionsStoreManager
 				dos.writeBoolean(Options.showHelpCommand);
 				dos.writeBoolean(Options.showAboutCommand);
 
+				dos.writeBoolean(Options.showStopsListOnStartup);
+				
 				dos.flush();
 
 				byte[] rec = baos.toByteArray();

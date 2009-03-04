@@ -34,6 +34,8 @@ public class GeneralPrefs extends Form implements CommandListener
 	ChoiceGroup fullScreenMode = null;
 	ChoiceGroup addExitMenuCG = null;
 
+	ChoiceGroup startWithStopsList = null;
+
 	Displayable next;
 
 	public GeneralPrefs(Displayable next)
@@ -70,8 +72,12 @@ public class GeneralPrefs extends Form implements CommandListener
 		fullScreenMode = new ChoiceGroup("Расписание", Choice.POPUP, fullScreen, null);
 		append(fullScreenMode);
 
-		String addExitMenu[] = { "Добавлять 'Выход'", "Добавлять 'Помощь'", "Добавлять 'О программе'" };
-		addExitMenuCG = new ChoiceGroup("Меню", Choice.MULTIPLE, addExitMenu, null);
+		String startup[] = { "Расписание", "Список остановок" };
+		startWithStopsList = new ChoiceGroup("Старт", Choice.POPUP, startup, null);
+		append(startWithStopsList);
+		
+		String addExitMenu[] = { "Выход", "Помощь", "О программе" };
+		addExitMenuCG = new ChoiceGroup("Добавлять в меню", Choice.MULTIPLE, addExitMenu, null);
 		append(addExitMenuCG);
 		
 		String fontSizes[] = { "Малый", "Средний", "Большой" };
@@ -172,6 +178,9 @@ public class GeneralPrefs extends Form implements CommandListener
 			addExitMenuCG.setSelectedIndex(1, true);
 		if(Options.showAboutCommand)
 			addExitMenuCG.setSelectedIndex(2, true);
+		
+		startWithStopsList.setSelectedIndex(0, !Options.showStopsListOnStartup);
+		startWithStopsList.setSelectedIndex(1, Options.showStopsListOnStartup);
 	}
 	
 	int GetFontSize()
@@ -216,6 +225,8 @@ public class GeneralPrefs extends Form implements CommandListener
 		Options.showHelpCommand = addExitMenuCG.isSelected(1); 
 		Options.showAboutCommand = addExitMenuCG.isSelected(2); 
 		
+		Options.showStopsListOnStartup = startWithStopsList.isSelected(1); 
+
 		OptionsStoreManager.SaveSettings();
 		
 		for (int i = 0; i < TransSched.optionsListeners.length; i++)

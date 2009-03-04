@@ -20,4 +20,6 @@ public class Options
 	public static boolean showExitCommand = true;
 	public static boolean showHelpCommand = true;
 	public static boolean showAboutCommand = true;
+	
+	public static boolean showStopsListOnStartup = false;
 }
