@@ -16,6 +16,8 @@ import com.resources.ScheduleLoader;
 
 public class TransSched extends MIDlet
 {
+	public static int dayEnd;
+
 	public static BusStop[] allBusStopsArray;
 	public static Hashtable id2stop;
 	
@@ -124,6 +126,8 @@ public class TransSched extends MIDlet
 		ScheduleLoader loader = new ScheduleLoader();
 		loader.Load();
 
+		dayEnd = loader.dayEnd;
+		
 		allBusStopsArray = loader.busStops;
 		id2stop = new Hashtable(allBusStopsArray.length);
 		for (int i = 0; i < allBusStopsArray.length; i++)

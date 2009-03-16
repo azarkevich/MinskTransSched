@@ -14,10 +14,11 @@ public class ScheduleConverter
 	}
 	
 	Vector<Bus> buses = null;
-	Vector<BusStop> busStops = null;
+	Vector<BusStop> stops = null;
 	Vector<Schedule> schedules = new Vector<Schedule>();
 	Vector<DerivedSchedule> derSchedules = new Vector<DerivedSchedule>();
 	Vector<FilterDef> filters = new Vector<FilterDef>();
+	Integer dayEnd;
 
 	int Convert(String[] args)
 	{
@@ -65,18 +66,18 @@ public class ScheduleConverter
 			if(buses == null)
 				throw new Exception("Buses CSV not provided.");
 
-			if(busStops == null)
-				throw new Exception("Bus stops CSV not provided.");
+			if(stops == null)
+				throw new Exception("Stops CSV not provided.");
 			
-			// check duplicates
-			for (int i = 0; i < busStops.size(); i++)
+			// check stops duplicates
+			for (int i = 0; i < stops.size(); i++)
 			{
-				BusStop bs = busStops.get(i);
+				BusStop bs = stops.get(i);
 				int idsCount = 0;
 				int namesCount = 0;
-				for (int j = 0; j < busStops.size(); j++)
+				for (int j = 0; j < stops.size(); j++)
 				{
-					BusStop bsO = busStops.get(j);
+					BusStop bsO = stops.get(j);
 					if(bs.id == bsO.id)
 						idsCount++;
 					if(bs.name.compareTo(bsO.name) == 0)
@@ -84,13 +85,13 @@ public class ScheduleConverter
 				}
 
 				if(idsCount > 1)
-					throw new Exception("Bus Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by ID");
+					throw new Exception("Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by ID");
 
 				if(namesCount > 1)
-					throw new Exception("Bus Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by Name");
+					throw new Exception("Stop ID:" + bs.id + ", Name:" + bs.name + " duplicated by Name");
 			}
 			
-			// check duplicates
+			// check buses duplicates
 			for (int i = 0; i < buses.size(); i++)
 			{
 				Bus b = buses.get(i);
@@ -140,8 +141,37 @@ public class ScheduleConverter
 			//sort schedules by busStops then by bus
 			Collections.sort(schedules);
 			Collections.sort(buses);
-			Collections.sort(busStops);
+			Collections.sort(stops);
 			
+			// find min and max time
+			int minTime = Integer.MAX_VALUE;
+			int maxTime = Integer.MIN_VALUE;
+			for (int i = 0; i < schedules.size(); i++)
+			{
+				Schedule sched = schedules.get(i);
+				int curMinTime = sched.times.get(0);
+				int curMaxTime = sched.times.get(sched.times.size() - 1);
+				if(maxTime < curMaxTime)
+					maxTime = curMaxTime;
+				if(minTime > curMinTime)
+					minTime = curMinTime;
+			}
+			
+			if(maxTime == Integer.MIN_VALUE || minTime == Integer.MAX_VALUE)
+			{
+				throw new Exception("Can't find min/max time");
+			}
+			
+			// day border. at day border begin new day. 
+			dayEnd = (maxTime + 1) % (24 * 60);
+			
+			if(dayEnd > minTime)
+			{
+				throw new Exception("Mim/Max times overlapped. Can't guess day end");
+			}
+			
+			System.out.println("Day end: " + (dayEnd / 60) + "." + (dayEnd % 60));
+
 			System.out.println("DATA VALID.");
 
 			if(outDir != null)
@@ -152,6 +182,7 @@ public class ScheduleConverter
 				WriteSchedules(outDir + "/scheds");
 				WriteDerivedSchedules(outDir + "/dscheds");
 				WriteFilters(outDir + "/filters");
+				WriteSettings(outDir + "/settings");
 				System.out.println("DATA STORED.");
 			}
 		}
@@ -293,7 +324,7 @@ public class ScheduleConverter
 			
 			if(arg.endsWith(".stop"))
 			{
-				busStops = new Vector<BusStop>();
+				stops = new Vector<BusStop>();
 				CsvReader r = new CsvReader(arg, ';', c);
 				r.readHeaders();
 				while(r.readRecord())
@@ -308,7 +339,7 @@ public class ScheduleConverter
 						FilterDef fd = FindFilter(region);
 						fd.stops.add(bs);
 					}
-					busStops.add(bs);
+					stops.add(bs);
 				}
 				System.out.println("BusStops: " + arg);
 				continue;
@@ -530,10 +561,10 @@ public class ScheduleConverter
 	
 	BusStop FindBusStop(String busStopName) throws Exception
 	{
-		for (int i = 0; i < busStops.size(); i++)
+		for (int i = 0; i < stops.size(); i++)
 		{
-			if(busStopName.compareTo(busStops.get(i).name) == 0)
-				return busStops.get(i);
+			if(busStopName.compareTo(stops.get(i).name) == 0)
+				return stops.get(i);
 		}
 		throw new Exception("Can't find bus stop '" + busStopName + "'");
 	}
@@ -553,10 +584,10 @@ public class ScheduleConverter
 
 	BusStop FindBusStop(int busStopId) throws Exception
 	{
-		for (int i = 0; i < busStops.size(); i++)
+		for (int i = 0; i < stops.size(); i++)
 		{
-			if(busStopId == busStops.get(i).id)
-				return busStops.get(i);
+			if(busStopId == stops.get(i).id)
+				return stops.get(i);
 		}
 		throw new Exception("Can't find bus stop #" + busStopId);
 	}
@@ -679,12 +710,12 @@ public class ScheduleConverter
 		// ...
 		
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
-		if(busStops.size() > Byte.MAX_VALUE)
+		if(stops.size() > Byte.MAX_VALUE)
 			throw new Exception("busStops.size() exceed store size");
-		dos.writeByte(busStops.size());
-		for (int i = 0; i < busStops.size(); i++)
+		dos.writeByte(stops.size());
+		for (int i = 0; i < stops.size(); i++)
 		{
-			BusStop busStop = busStops.get(i);
+			BusStop busStop = stops.get(i);
 			dos.writeByte(busStop.id);
 			dos.writeUTF(busStop.name);
 			dos.writeUTF(busStop.description);
@@ -785,6 +816,16 @@ public class ScheduleConverter
 				dos.writeShort(fd.stops.get(j).id);
 			}
 		}
+
+		dos.flush();
+		dos.close();
+	}
+
+	void WriteSettings(String file) throws Exception
+	{
+		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
+		
+		dos.writeShort(dayEnd);
 
 		dos.flush();
 		dos.close();

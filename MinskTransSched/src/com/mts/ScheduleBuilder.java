@@ -1,5 +1,6 @@
 package com.mts;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import com.OM.*;
@@ -61,11 +62,20 @@ public class ScheduleBuilder
 		Calendar cal = GetCalendar();
 		
 		int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+		if(now > 0 && now < TransSched.dayEnd)
+		{
+			// set previous day of week
+			Date d = cal.getTime();
+			d.setTime(d.getTime() - 24*60*60*1000L);
+			cal.setTime(d);
+			
+			now += 24*60;
+		}
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
 		String busStopName = busStop == null ? "<нет остановки>" : busStop.name;  
-		sb.append(GetUserDayTypeString());
+		sb.append(GetUserDayTypeString(cal));
 
 		sb.append(" ");
 		sb.append(FormatXTime(now, ":"));
@@ -80,6 +90,9 @@ public class ScheduleBuilder
 		if(showDescription)
 			sb.append("\n" + busStop.description);
 		
+		if(showDescription)
+			sb.append("\nКонец дня: " + FormatXTime(TransSched.dayEnd, ":"));
+
 		if(busStop == null)
 			return sb.toString();
 
@@ -353,11 +366,10 @@ public class ScheduleBuilder
 	
 	public int UserDayType = DAY_AUTO;
 
-	private String GetUserDayTypeString()
+	private String GetUserDayTypeString(Calendar cal)
 	{
 		if(UserDayType == DAY_AUTO)
 		{
-			Calendar cal = GetCalendar();
 			switch (cal.get(Calendar.DAY_OF_WEEK))
 			{
 			case 1:

@@ -11,6 +11,7 @@ public class ScheduleLoader
 	public Bus[] buses;
 	public FilterDef[] filters;
 	private Vector schedules;
+	public int dayEnd;
 	
 	void Debug(String x)
 	{
@@ -160,6 +161,14 @@ public class ScheduleLoader
 		dis.close();
 	}
 	
+	void LoadSettings() throws Exception
+	{
+		// load 'settings'
+		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/settings"));
+		dayEnd = dis.readShort();
+		dis.close();
+	}
+
 	Bus FindBus(short id) throws Exception
 	{
 		for (int i = 0; i < buses.length; i++)
@@ -200,7 +209,8 @@ public class ScheduleLoader
 			LoadBuses();
 			LoadSchedules();
 			LoadDerivedSchedules();
-
+			LoadSettings();
+			
 			for (int i = 0; i < schedules.size(); i++)
 			{
 				Schedule sched = (Schedule)schedules.elementAt(i);
