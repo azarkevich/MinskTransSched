@@ -14,7 +14,7 @@ public class Images
 	public static Image transportGray = null;
 	public static Image busStopGray = null;
 	public static Image predefFilter = null;
-	public static Image customFilter = null;
+	public static Image monkey = null;
 
 	public static void load()
 	{
@@ -28,7 +28,7 @@ public class Images
 			transportGray = Image.createImage("/transport-gray.png");
 			busStopGray = Image.createImage("/busStop-gray.png");
 			predefFilter = Image.createImage("/builtin-filter.png");
-			customFilter = Image.createImage("/custom-filter.png");
+			monkey = Image.createImage("/monkey.png");
 		}
 		catch(IOException ex)
 		{

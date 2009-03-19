@@ -239,16 +239,12 @@ public class OptionsStoreManager
 			{
 				int id = dis.readShort();
 				fd.stops[j] = (BusStop)TransSched.id2stop.get(new Integer(id));
-				if(fd.stops[j] == null)
-				{
-					fd.stops[j] = null;
-				}
 			}
 		}
 		return fd;
 	}
 	
-	public static void SaveCustomFilterDefinitions(FilterDef fd)
+	public static void saveCustomFilterDefinitions(FilterDef fd)
 	{
 		try{
 			RecordStore filters = RecordStore.openRecordStore("filters", true);
@@ -258,16 +254,30 @@ public class OptionsStoreManager
 
 			dos.writeUTF(fd.name);
 			
-			dos.writeShort(fd.transport.length);
-			for (int i = 0; i < fd.transport.length; i++)
+			if(fd.transport == null)
 			{
-				dos.writeShort(fd.transport[i].id);
+				dos.writeShort(0);
+			}
+			else
+			{
+				dos.writeShort(fd.transport.length);
+				for (int i = 0; i < fd.transport.length; i++)
+				{
+					dos.writeShort(fd.transport[i].id);
+				}
 			}
 
-			dos.writeShort(fd.stops.length);
-			for (int i = 0; i < fd.stops.length; i++)
+			if(fd.stops == null)
 			{
-				dos.writeShort(fd.stops[i].id);
+				dos.writeShort(0);
+			}
+			else
+			{
+				dos.writeShort(fd.stops.length);
+				for (int i = 0; i < fd.stops.length; i++)
+				{
+					dos.writeShort(fd.stops[i].id);
+				}
 			}
 			
 			dos.flush();
@@ -278,6 +288,19 @@ public class OptionsStoreManager
 				fd.recordId = filters.addRecord(rec, 0, rec.length);
 			else
 				filters.setRecord(fd.recordId, rec, 0, rec.length);
+		}
+		catch(Exception e)
+		{
+		}
+	}
+	
+	public static void deleteCustomFilterDefinitions(FilterDef fd)
+	{
+		try{
+			RecordStore filters = RecordStore.openRecordStore("filters", true);
+
+			filters.deleteRecord(fd.recordId);
+			fd.recordId = -1;
 		}
 		catch(Exception e)
 		{

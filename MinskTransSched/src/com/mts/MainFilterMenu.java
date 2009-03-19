@@ -17,11 +17,8 @@ public class MainFilterMenu extends List implements CommandListener
 	int closeMenu = -1;
 	int favorites = -1;
 	
-	int predefFiltersStart = -1;
-	int predefFiltersEnd = -1;
-	
-	int customFiltersStart = -1;
-	int customFiltersEnd = -1;
+	int customFilters = -1;
+	int regionFilters = -1;
 
 	public MainFilterMenu(SchedulerCanvas schedBoard)
 	{
@@ -41,20 +38,9 @@ public class MainFilterMenu extends List implements CommandListener
 		favorites = append("По избранным", Images.hearts);
 		byBus = append("По транспорту", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
 		byBusStop = append("По остановкам", (schedBoard.filter.busStops == null) ? Images.busStopGray : Images.busStop);
-		
-		for (int i = 0; i < TransSched.predefinedFilters.length; i++)
-		{
-			predefFiltersEnd = append(TransSched.predefinedFilters[i].name, Images.predefFilter);
-			if(predefFiltersStart == -1)
-				predefFiltersStart = predefFiltersEnd;
-		}
-		
-		for (int i = 0; i < TransSched.customFilters.length; i++)
-		{
-			customFiltersEnd = append(TransSched.customFilters[i].name, Images.customFilter);
-			if(customFiltersStart == -1)
-				customFiltersStart = customFiltersEnd;
-		}
+
+		customFilters = append("Мои фильтры", Images.monkey);
+		regionFilters = append("Регионы", Images.predefFilter);
 	}
 
 	public void commandAction(Command c, Displayable d)
@@ -96,17 +82,13 @@ public class MainFilterMenu extends List implements CommandListener
 			{
 				TransSched.display.setCurrent(schedBoard);
 			}
-			else if(sel >= predefFiltersStart && sel <= predefFiltersEnd)
+			else if(sel == customFilters)
 			{
-				int index = sel - predefFiltersStart;
-				schedBoard.setFilter(TransSched.predefinedFilters[index]);
-				TransSched.display.setCurrent(schedBoard);
+				TransSched.display.setCurrent(new FilterMenu(true, this, schedBoard));
 			}
-			else if(sel >= customFiltersStart && sel <= customFiltersEnd)
+			else if(sel == regionFilters)
 			{
-				int index = sel - customFiltersStart; 
-				schedBoard.setFilter(TransSched.customFilters[index]);
-				TransSched.display.setCurrent(schedBoard);
+				TransSched.display.setCurrent(new FilterMenu(false, this, schedBoard));
 			}
 		}
 	}
