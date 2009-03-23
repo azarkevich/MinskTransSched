@@ -25,7 +25,7 @@ public class BusStopsFilter extends List implements CommandListener
 	SchedulerCanvas scheduleBoard;
 	BusStop[] busStops;
 	BusStop[] lastBusStopsList;
-	public BusStopsFilter(SchedulerCanvas board, boolean favoritesManager)
+	public BusStopsFilter(SchedulerCanvas board)
 	{
 		super(null, List.MULTIPLE);
 		
@@ -43,7 +43,7 @@ public class BusStopsFilter extends List implements CommandListener
 
 		addCommand(cmdSelectNone);
 		addCommand(cmdSelectAll);
-
+		
 		scheduleBoard = board;
 
 		commandAction(cmdShowCurrent, this);

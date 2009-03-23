@@ -155,7 +155,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	public void showBusStopsFilter()
 	{
-		TransSched.display.setCurrent(new BusStopsFilter(this, false));
+		TransSched.display.setCurrent(new BusStopsFilter(this));
 	}
 
 	public void commandAction(Command cmd, Displayable d)

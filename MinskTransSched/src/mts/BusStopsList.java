@@ -9,8 +9,6 @@ import ObjModel.BusStop;
 
 import resources.Images;
 
-
-
 public class BusStopsList extends List implements CommandListener
 {
 	SchedulerCanvas scheduleBoard;

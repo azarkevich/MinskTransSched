@@ -1,6 +1,9 @@
 package mts;
 import javax.microedition.lcdui.*;
 
+import ObjModel.Bus;
+import ObjModel.BusStop;
+
 import options.Options;
 
 import text.MultiLineText;
@@ -111,13 +114,48 @@ public class Help extends Canvas implements CommandListener
 
 	public String text; 
 	Displayable next;
+	
+	public Help(BusStop bs, Displayable next)
+	{
+		String info = bs.name + (bs.favorite ? " (*)" : "") + "\n" + bs.description;
+		init(info, next, false);
+	}
+
+	public Help(Bus b, Displayable next)
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(b.name);
+		if(b.favorite)
+		{
+			sb.append(" (*)");
+		}
+		if(b.startRoute != null && b.endRoute != null)
+		{
+			sb.append("\nОт: ");
+			sb.append(b.startRoute.name);
+			sb.append(" [ ");
+			sb.append(b.startRoute.description);
+			sb.append(" ]\nДо: ");
+			sb.append(b.endRoute.name);
+			sb.append(" [ ");
+			sb.append(b.endRoute.description);
+			sb.append(" ]");
+		}
+		init(sb.toString(), next, false);
+	}
+
 	public Help(String text, Displayable next)
+	{
+		init(text, next, Options.fullScreen);
+	}
+	
+	void init(String text, Displayable next, boolean fullScreen)
 	{
 		this.text = text;
 		this.next = next;
 		addCommand(TransSched.cmdBack);
 		setCommandListener(this);
-		setFullScreenMode(Options.fullScreen);
+		setFullScreenMode(fullScreen);
 	}
 	
 	public void paint(Graphics g)

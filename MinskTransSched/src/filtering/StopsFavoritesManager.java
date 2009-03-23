@@ -23,6 +23,8 @@ public class StopsFavoritesManager extends List implements CommandListener
 	static final Command cmdShowCurrent = new Command("Только текущие", Command.OK, 3);
 	static final Command cmdShowFavorites = new Command("Только избранные", Command.OK, 4);
 
+	static final Command cmdShowInfo = new Command("Info", Command.OK, 5);
+
 	SchedulerCanvas scheduleBoard;
 	Displayable next;
 	BusStop[] busStops;
@@ -39,7 +41,7 @@ public class StopsFavoritesManager extends List implements CommandListener
 
 		addCommand(cmdToggleFavorite);
 
-		addCommand(List.SELECT_COMMAND);
+		addCommand(cmdShowInfo);
 
 		scheduleBoard = board;
 
@@ -82,7 +84,15 @@ public class StopsFavoritesManager extends List implements CommandListener
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == TransSched.cmdBack)
+		if(cmd == cmdShowInfo)
+		{
+			int sel = getSelectedIndex();
+			if(sel == -1)
+				return;
+			
+			TransSched.display.setCurrent(new Help(busStops[sel], this));
+		}
+		else if(cmd == TransSched.cmdBack)
 		{
 			TransSched.display.setCurrent(next);
 		}
