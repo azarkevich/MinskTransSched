@@ -3,6 +3,7 @@ import javax.microedition.lcdui.*;
 
 import ObjModel.Bus;
 import ObjModel.BusStop;
+import ObjModel.FilterDef;
 
 import options.Options;
 
@@ -115,6 +116,42 @@ public class Help extends Canvas implements CommandListener
 	public String text; 
 	Displayable next;
 	
+	// display filter info
+	public Help(FilterDef fd, Displayable next)
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("Транспорт:");
+		if(fd.transport == null)
+		{
+			sb.append(" весь");
+		}
+		else
+		{
+			for(int i=0;i<fd.transport.length;i++)
+			{
+				Bus b = fd.transport[i];
+				sb.append(" ");
+				sb.append(b.name);
+			}
+		}
+		sb.append("\n\nОстановки:");
+		if(fd.stops == null)
+		{
+			sb.append(" все");
+		}
+		else
+		{
+			for(int i=0;i<fd.stops.length;i++)
+			{
+				BusStop bs = fd.stops[i];
+				sb.append("\n ");
+				sb.append(bs.name);
+			}
+		}
+
+		init(sb.toString(), next, false);
+	}
+
 	public Help(BusStop bs, Displayable next)
 	{
 		String info = bs.name + (bs.favorite ? " (*)" : "") + "\n" + bs.description;

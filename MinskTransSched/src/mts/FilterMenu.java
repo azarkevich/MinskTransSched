@@ -21,6 +21,7 @@ public class FilterMenu extends List implements CommandListener
 	public final static Command cmdUpdate = new Command("Обновить", Command.OK, 2);
 	public final static Command cmdDelete = new Command("Удалить", Command.OK, 3);
 	public final static Command cmdRename = new Command("Переименовать", Command.OK, 4);
+	public final static Command cmdInfo = new Command("Info", Command.OK, 5);
 
 	MainFilterMenu prevScreen;
 	FilterDef[] filters;
@@ -42,6 +43,7 @@ public class FilterMenu extends List implements CommandListener
 			addCommand(cmdDelete);
 			addCommand(cmdRename);
 		}
+		addCommand(cmdInfo);
 		
 		filters = customFilters ? TransSched.customFilters : TransSched.predefinedFilters;  
 		for (int i = 0; i < filters.length; i++)
@@ -55,6 +57,14 @@ public class FilterMenu extends List implements CommandListener
 		if(c == TransSched.cmdBack)
 		{
 			TransSched.display.setCurrent(prevScreen);
+		}
+		else if(c == cmdInfo)
+		{
+			int sel = getSelectedIndex();
+			if(sel == -1)
+				return;
+			
+			TransSched.display.setCurrent(new Help(filters[sel], this));
 		}
 		else if(c == TransSched.cmdSelect || c == List.SELECT_COMMAND)
 		{
