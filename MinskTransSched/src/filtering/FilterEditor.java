@@ -6,10 +6,13 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 
-import com.OM.FilterDef;
-import com.mts.FilterMenu;
-import com.mts.TransSched;
-import com.options.OptionsStoreManager;
+import mts.FilterMenu;
+import mts.TransSched;
+
+import om.FilterDef;
+import options.OptionsStoreManager;
+
+
 
 public class FilterEditor extends Form implements CommandListener
 {
