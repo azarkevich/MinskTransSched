@@ -5,8 +5,9 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
 
-import mts.BusStopsFilter;
-import mts.BusesFilter;
+import filtering.StopsFavoritesManager;
+import filtering.TransportFavoritesManager;
+
 import mts.SchedulerCanvas;
 import mts.TransSched;
 
@@ -59,10 +60,10 @@ public class OptionsMenu extends List implements CommandListener
 				TransSched.display.setCurrent(new ControlPrefs(this));
 				break;
 			case 2:
-				TransSched.display.setCurrent(new BusesFilter(schedBoard, true));
+				TransSched.display.setCurrent(new TransportFavoritesManager(schedBoard, this));
 				break;
 			case 3:
-				TransSched.display.setCurrent(new BusStopsFilter(schedBoard, true));
+				TransSched.display.setCurrent(new StopsFavoritesManager(schedBoard, this));
 				break;
 			}
 		}
@@ -76,11 +77,11 @@ public class OptionsMenu extends List implements CommandListener
 		}
 		else if(c == cmdFavBuses)
 		{
-			TransSched.display.setCurrent(new BusesFilter(schedBoard, true));
+			TransSched.display.setCurrent(new TransportFavoritesManager(schedBoard, this));
 		}
 		else if(c == cmdFavBusStops)
 		{
-			TransSched.display.setCurrent(new BusStopsFilter(schedBoard, true));
+			TransSched.display.setCurrent(new StopsFavoritesManager(schedBoard, this));
 		}
 	}
 }

@@ -8,11 +8,11 @@ import ObjModel.*;
 
 public class Filter
 {
-	BusStop[] busStops;
-	Hashtable busStopsFilter;
+	public BusStop[] busStops;
+	public Hashtable busStopsFilter;
 
-	Bus[] buses;
-	Hashtable busesFilter;
+	public Bus[] buses;
+	public Hashtable busesFilter;
 
 	public boolean isEmpty()
 	{

@@ -1,52 +1,49 @@
-package mts;
+package filtering;
 
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
 
+import mts.Help;
+import mts.SchedulerCanvas;
+import mts.TransSched;
+
 import ObjModel.BusStop;
 
 import resources.Images;
 
-public class BusStopsFilter extends List implements CommandListener
+public class StopsFavoritesManager extends List implements CommandListener
 {
+	static final Command cmdToggleFavorite = new Command("Изменить", Command.OK, 1);
+
 	static final Command cmdShowAll = new Command("Все", Command.OK, 2);
 	static final Command cmdShowCurrent = new Command("Только текущие", Command.OK, 3);
 	static final Command cmdShowFavorites = new Command("Только избранные", Command.OK, 4);
 
-	static final Command cmdSelectCurrent = new Command("Пом. текущие", Command.OK, 5);
-	static final Command cmdSelectAll = new Command("Пом. всё", Command.OK, 6);
-	static final Command cmdSelectNone = new Command("Пом. ничего", Command.OK, 7);
-
 	SchedulerCanvas scheduleBoard;
+	Displayable next;
 	BusStop[] busStops;
 	BusStop[] lastBusStopsList;
-	public BusStopsFilter(SchedulerCanvas board, boolean favoritesManager)
+	public StopsFavoritesManager(SchedulerCanvas board, Displayable next)
 	{
-		super(null, List.MULTIPLE);
+		super(null, List.IMPLICIT);
+
+		this.next = next;
 		
 		setCommandListener(this);
 		addCommand(TransSched.cmdBack);
 		addCommand(TransSched.cmdHelp);
 
-		addCommand(TransSched.cmdOK);
+		addCommand(cmdToggleFavorite);
 
-		addCommand(cmdShowCurrent);
-		addCommand(cmdShowFavorites);
-		addCommand(cmdShowAll);
-		
-		addCommand(cmdSelectCurrent);
-
-		addCommand(cmdSelectNone);
-		addCommand(cmdSelectAll);
+		addCommand(List.SELECT_COMMAND);
 
 		scheduleBoard = board;
 
-		commandAction(cmdShowCurrent, this);
+		commandAction(cmdShowAll, this);
 	}
 	
 	void createList()
@@ -85,43 +82,19 @@ public class BusStopsFilter extends List implements CommandListener
 	
 	public void commandAction(Command cmd, Displayable d)
 	{
-		if(cmd == TransSched.cmdOK)
+		if(cmd == TransSched.cmdBack)
 		{
-			Vector v = new Vector();
-			// add selected buses
-			for (int i = 0; i < this.size(); i++)
-			{
-				if(this.isSelected(i))
-				{
-					v.addElement(busStops[i]);
-				}
-			}
-			// copy to array
-			BusStop[] busStops = new BusStop[v.size()];
-			v.copyInto(busStops);
-			scheduleBoard.setBusStopsFilter(busStops);
+			TransSched.display.setCurrent(next);
 		}
-		else if(cmd == TransSched.cmdBack)
+		else if(cmd == cmdToggleFavorite || cmd == List.SELECT_COMMAND)
 		{
-			TransSched.display.setCurrent(scheduleBoard);
-		}
-		else if(cmd == cmdSelectCurrent)
-		{
-			selectCurrrent();
-		}
-		else if(cmd == cmdSelectNone)
-		{
-			for (int i = 0; i < size(); i++)
-			{
-				setSelectedIndex(i, false);
-			}
-		}
-		else if(cmd == cmdSelectAll)
-		{
-			for (int i = 0; i < size(); i++)
-			{
-				setSelectedIndex(i, true);
-			}
+			int sel = getSelectedIndex();
+			if(sel == -1)
+				return;
+			
+			BusStop bs = busStops[sel]; 
+			bs.toggleFavorite();
+			set(sel, bs.name, bs.favorite ? Images.heart : null);
 		}
 		else if(cmd == cmdShowCurrent)
 		{
@@ -143,7 +116,7 @@ public class BusStopsFilter extends List implements CommandListener
 		}
 		else if(cmd == TransSched.cmdHelp)
 		{
-			TransSched.display.setCurrent(new Help(Help.stopsHelp, this));
+			TransSched.display.setCurrent(new Help(Help.favManagerHelp, this));
 		}
 	}
 }
