@@ -9,9 +9,9 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
-import om.Bus;
-import om.BusStop;
-import om.FilterDef;
+import ObjModel.Bus;
+import ObjModel.BusStop;
+import ObjModel.FilterDef;
 import options.CmdDef;
 import options.KeyCommands;
 import options.Options;

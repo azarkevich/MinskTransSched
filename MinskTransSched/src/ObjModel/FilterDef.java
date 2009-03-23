@@ -1,4 +1,4 @@
-package OM;
+package ObjModel;
 
 public class FilterDef
 {

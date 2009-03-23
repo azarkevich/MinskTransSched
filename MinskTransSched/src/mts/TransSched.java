@@ -5,9 +5,9 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
-import om.Bus;
-import om.BusStop;
-import om.FilterDef;
+import ObjModel.Bus;
+import ObjModel.BusStop;
+import ObjModel.FilterDef;
 import options.*;
 
 import resources.Images;

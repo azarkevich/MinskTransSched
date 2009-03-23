@@ -7,9 +7,9 @@ import javax.microedition.rms.*;
 
 import mts.TransSched;
 
-import om.Bus;
-import om.BusStop;
-import om.FilterDef;
+import ObjModel.Bus;
+import ObjModel.BusStop;
+import ObjModel.FilterDef;
 
 
 

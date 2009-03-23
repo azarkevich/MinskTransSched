@@ -2,7 +2,7 @@ package resources;
 import java.io.*;
 import java.util.Vector;
 
-import om.*;
+import ObjModel.*;
 import options.OptionsStoreManager;
 
 

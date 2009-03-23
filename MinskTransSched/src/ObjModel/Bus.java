@@ -1,20 +1,20 @@
-package OM;
+package ObjModel;
 
 import javax.microedition.rms.RecordStore;
 
-public class BusStop
+public class Bus
 {
 	public short id;
 	public String name;
-	public String description;
-	public Schedule[] schedules;
+	public BusStop startRoute;
+	public BusStop endRoute;
 	public boolean favorite = false;
 	public int bookmarkRecord = -1;
 	
 	public void toggleFavorite()
 	{
 		try{
-			RecordStore bmBusStops = RecordStore.openRecordStore("bmBusStops", true);
+			RecordStore bmBusStops = RecordStore.openRecordStore("bmBuses", true);
 			byte[] rec = new byte[3];
 			rec[0] = (byte)(favorite ? 0 : 1);
 			rec[1] = (byte)(id / 256);

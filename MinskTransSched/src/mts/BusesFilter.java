@@ -8,7 +8,7 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
 
-import om.Bus;
+import ObjModel.Bus;
 
 import resources.Images;
 

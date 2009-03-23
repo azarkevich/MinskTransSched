@@ -9,7 +9,7 @@ import javax.microedition.lcdui.TextField;
 import mts.FilterMenu;
 import mts.TransSched;
 
-import om.FilterDef;
+import ObjModel.FilterDef;
 import options.OptionsStoreManager;
 
 

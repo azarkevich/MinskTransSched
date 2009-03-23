@@ -3,7 +3,7 @@ package mts;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import om.*;
+import ObjModel.*;
 
 
 public class Filter
