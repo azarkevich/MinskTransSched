@@ -6,9 +6,6 @@ import java.util.TimeZone;
 import ObjModel.*;
 import options.Options;
 
-
-
-
 public class ScheduleBuilder
 {
 	Filter filter;
@@ -43,25 +40,7 @@ public class ScheduleBuilder
 	
 	Calendar GetCalendar()
 	{
-		return Calendar.getInstance(TimeZone.getDefault());
-	}
-	
-	public boolean showDescription = false;
-	public boolean showTimeDiff = true;
-	public boolean showBusFlow = false;
-	public boolean showFull = false;
-	
-	boolean isShowTimeDiff()
-	{
-		return showTimeDiff;
-	}
-
-	public String GetScheduleText(BusStop busStop)
-	{
-		StringBuffer sb = new StringBuffer();
-
-		Calendar cal = GetCalendar();
-		
+		Calendar cal = Calendar.getInstance(TimeZone.getDefault());
 		int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 		if(now > 0 && now < TransSched.dayEnd)
 		{
@@ -72,10 +51,35 @@ public class ScheduleBuilder
 			
 			now += 24*60;
 		}
+		return cal;
+	}
+	
+	public boolean showDescription = false;
+	public boolean showTimeDiff = true;
+	
+	public static final int SCHEDULE_MODE_SIMPLE = 0; 
+	public static final int SCHEDULE_MODE_FLOW = 1; 
+	public static final int SCHEDULE_MODE_FULL = 2; 
+	public static final int SCHEDULE_MODE_DENSITY = 3; 
+	
+	public int mode = 0;
+
+	boolean isShowTimeDiff()
+	{
+		return showTimeDiff;
+	}
+
+	public String GetScheduleText(BusStop busStop)
+	{
+		Calendar cal = GetCalendar();
+		
+		int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
 		String busStopName = busStop == null ? "<нет остановки>" : busStop.name;  
+
+		StringBuffer sb = new StringBuffer();
 		sb.append(GetUserDayTypeString(cal));
 
 		sb.append(" ");
@@ -97,7 +101,11 @@ public class ScheduleBuilder
 		if(busStop == null)
 			return sb.toString();
 
-		if(showFull)
+		if(mode == SCHEDULE_MODE_DENSITY)
+		{
+			sb.append("\nПлотность транспорта");
+		}
+		else if(mode == SCHEDULE_MODE_FULL)
 		{
 			sb.append("\nПолное расписание\n");
 		}
@@ -121,6 +129,12 @@ public class ScheduleBuilder
 			sb.append("[" + FormatXTime(beginWindow, ":") + "; " + FormatXTime(endWindow, ":") + "]\n");
 		}
 		
+		if(mode == SCHEDULE_MODE_FLOW)
+		{
+			sb.append("flow:");
+		}
+
+		
 		if(schedShift != 0)
 		{
 			sb.append("Сдвиг расп.: ");
@@ -133,7 +147,12 @@ public class ScheduleBuilder
 		Schedule[] busOnStation = filter.FilterIt(busStop.schedules);
 		
 		// bus flow
-		if(showBusFlow)
+		if(mode == SCHEDULE_MODE_DENSITY)
+		{
+			sb.append("\n");
+			getDensityText(cal, busStop, sb);
+		}
+		else if(mode == SCHEDULE_MODE_FLOW)
 		{
 			int[] indexes = new int[busOnStation.length];
 			short[][] times = new short[busOnStation.length][];
@@ -170,10 +189,10 @@ public class ScheduleBuilder
 				// shift schedule
 				minTime += schedShift;
 
-				if(minTime < beginWindow && !showFull)
+				if(minTime < beginWindow && !(mode == SCHEDULE_MODE_FULL))
 					continue;
 
-				if(minTime <= endWindow || showFull)
+				if(minTime <= endWindow || (mode == SCHEDULE_MODE_FULL))
 				{
 					if(lastBus != b)
 					{
@@ -228,7 +247,7 @@ public class ScheduleBuilder
 				short[] times = GetSchedTimes(sched, cal);
 				calcFirstLastIndexes(times, beginWindow, endWindow);
 				
-				if(showFull)
+				if(mode == SCHEDULE_MODE_FULL)
 				{
 					int currentHour = -1;
 					for (int j = firstIndex; j < aboveLastIndex; j++)
@@ -264,11 +283,71 @@ public class ScheduleBuilder
 		return sb.toString();
 	}
 
+	public void getDensityText(Calendar cal, BusStop bs, StringBuffer sb)
+	{
+		if(bs == null)
+			return;
+		
+		Schedule[] busOnStation = filter.FilterIt(bs.schedules);
+
+		int[] density = new int[48];
+		for (int i = 0; i < busOnStation.length; i++)
+		{
+			Schedule sched = busOnStation[i];
+			short[] times = GetSchedTimes(sched, cal);
+
+			for (int t = 0; t < times.length; t++)
+			{
+				int hour = times[t] / 60;
+				density[hour]++;
+			}
+		}
+
+		int firstNonZero = -1;
+		int lastNonZero = -1;
+		for (int i = 0; i < density.length; i++)
+		{
+			if(firstNonZero == -1 && density[i] != 0)
+				firstNonZero = i;
+			if(density[i] != 0)
+				lastNonZero = i;
+		}
+		
+		if(firstNonZero == -1 || lastNonZero == -1)
+			return;
+		
+		boolean dataStarted = false;
+		for (int i = firstNonZero; i <= lastNonZero; i++)
+		{
+			if(density[i] == 0 && dataStarted == false)
+				continue;
+			dataStarted = true;
+			
+			sb.append("\n");
+			int hour = i % 24;
+			sb.append(FormatNum(hour));
+			sb.append(": ");
+			if(density[i] == 0)
+				sb.append("0");
+			else
+			{
+				sb.append(density[i]);
+				sb.append(" (каждые ");
+				int d1 = 60/density[i];
+				int d2 = 600/(10*density[i]) % 10;
+				sb.append(d1);
+				if(d2 != 0)
+					sb.append("." + d2);
+				sb.append(" мин.)");
+			}
+		}
+	}
+	
 	int firstIndex = 0;
 	int aboveLastIndex = 0;
 	void calcFirstLastIndexes(short[] times, int beginTime, int endTime)
 	{
-		if(showFull)
+		if(mode == SCHEDULE_MODE_FULL)
 		{
 			firstIndex = 0;
 			aboveLastIndex = times.length;

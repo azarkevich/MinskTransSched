@@ -327,9 +327,9 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			if(bs != null)
 				bs.toggleFavorite();
 		}
-		else if(cmd == CmdDef.cmdToggleFullSchedule)
+		else if(cmd == CmdDef.cmdToggleScheduleMode)
 		{
-			scheduleBuilder.showFull = !scheduleBuilder.showFull;  
+			scheduleBuilder.mode = (scheduleBuilder.mode + 1) % 4;  
 		}
 		else if(cmd == CmdDef.cmdScheduleReset)
 		{
@@ -337,7 +337,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			scheduleBuilder.WindowSize = Options.defWindowSize;
 			scheduleBuilder.UserDayType = ScheduleBuilder.DAY_AUTO;
 			scheduleBuilder.schedShift = 0;
-			scheduleBuilder.showFull = false;
+			scheduleBuilder.mode = 0;
 			scheduleBuilder.showTimeDiff = true;
 			scheduleBuilder.showDescription = false;
 		}
@@ -385,10 +385,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			scheduleBuilder.showTimeDiff = !scheduleBuilder.showTimeDiff;
 			RefreshScheduleText(true);
 			return;
-		}
-		else if(cmd == CmdDef.cmdToggleBusFlow)
-		{
-			scheduleBuilder.showBusFlow = !scheduleBuilder.showBusFlow;
 		}
 
 		RefreshScheduleText();
