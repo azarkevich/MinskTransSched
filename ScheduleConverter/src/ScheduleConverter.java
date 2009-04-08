@@ -29,6 +29,7 @@ public class ScheduleConverter
 				return -1;
 			}
 
+			String plainText = null; 
 			String outDir = null;
 
 			for (int i = 0; i < args.length; i++)
@@ -47,6 +48,15 @@ public class ScheduleConverter
 					if(i == args.length)
 						throw new Exception("Argument -o not supplied with parameter.");
 					outDir = args[i];
+					continue;
+				}
+				
+				if(arg.compareTo("-p") == 0)
+				{
+					i++;
+					if(i == args.length)
+						throw new Exception("Argument -o not supplied with parameter.");
+					plainText = args[i];
 					continue;
 				}
 			}
@@ -184,6 +194,80 @@ public class ScheduleConverter
 				WriteFilters(outDir + "/filters");
 				WriteSettings(outDir + "/settings");
 				System.out.println("DATA STORED.");
+			}
+			
+			// generate DB like text
+			if(plainText != null)
+			{
+				PrintWriter pw = new PrintWriter(plainText, "CP1251");
+				pw.println("День: 0 - все дни, 8 - рабочие дни, 9 - выходные дни. 1, 2-7 вс, пн-сб");
+				pw.println("Время: минуты от начала суток.");
+				pw.println(
+						"Остановка(id)"
+						+ ";Остановка(название)"
+						+ ";Остановка(описание)"
+						+ ";Автобус(id)"
+						+ ";Автобус(название)"
+						+ ";День"
+						+ ";Время"
+						+ ";Время(HH:MM)"
+						+ ";Базовая остановка(id)"
+						+ ";Базовая остановка(название)"
+						+ ";Сдвиг"
+					);
+
+				for (int schedIndex = 0; schedIndex < schedules.size(); schedIndex++)
+				{
+					Schedule sched = schedules.get(schedIndex);
+					
+					BusStop stop = FindBusStop(sched.busStop);
+					Bus bus = FindBus(sched.bus);
+					
+					for (int i = 0; i < sched.times.size(); i++)
+					{
+						int time = sched.times.get(i);
+						pw.println(
+								stop.id
+								+ ";" + stop.name
+								+ ";" + stop.description
+								+ ";" + bus.id
+								+ ";" + bus.name
+								+ ";" + sched.day
+								+ ";" + time
+								+ ";" + (time / 60)%24 + ":" + time % 60
+								+ ";"
+								+ ";"
+								+ ";"
+							);
+					}
+				}
+				for (int i = 0; i < derSchedules.size(); i++)
+				{
+					DerivedSchedule sched = derSchedules.get(i);
+					BusStop stop = FindBusStop(sched.busStop);
+					BusStop baseStop = FindBusStop(sched.baseBusStop);
+					Bus bus = FindBus(sched.bus);
+					int shift = sched.shift;
+
+					Schedule baseSched = FindSchedule(schedules, bus.id, sched.baseBusStop, sched.dayFrom);
+					for (int j = 0; j < baseSched.times.size(); j++)
+					{
+						int time = baseSched.times.get(j) + shift;
+						pw.println(
+								stop.id
+								+ ";" + stop.name
+								+ ";" + stop.description
+								+ ";" + bus.id
+								+ ";" + bus.name
+								+ ";" + sched.dayTo
+								+ ";" + time
+								+ ";" + (time / 60)%24 + ":" + time % 60
+								+ ";" + baseStop.id
+								+ ";" + baseStop.name
+								+ ";" + shift
+							);
+					}
+				}
 			}
 		}
 		catch(Exception ex)
@@ -547,6 +631,16 @@ public class ScheduleConverter
 				throw new Exception("Error in " + file + ":" + lineNo + "\n" + ex.getMessage(), ex);
 			}
 		}
+	}
+
+	Bus FindBus(int id) throws Exception
+	{
+		for (int i = 0; i < buses.size(); i++)
+		{
+			if(buses.get(i).id == id)
+				return buses.get(i);
+		}
+		throw new Exception("Can't find bus #" + id);
 	}
 
 	Bus FindBus(String busName) throws Exception
