@@ -110,19 +110,19 @@ public class TransportFavoritesManager extends List implements CommandListener
 		{
 			this.setTitle("Текущий фильтр");
 			
-			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : TransSched.allBusesArray;
+			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : TransSched.allTransportArray;
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)
 		{
 			this.setTitle("Избранный транспорт");
-			buses = scheduleBoard.filter.getFavorites(TransSched.allBusesArray);
+			buses = scheduleBoard.filter.getFavorites(TransSched.allTransportArray);
 			createList();
 		}
 		else if(cmd == cmdShowAll)
 		{
 			this.setTitle("Все остановки");
-			buses = TransSched.allBusesArray;
+			buses = TransSched.allTransportArray;
 			createList();
 		}
 		else if(cmd == TransSched.cmdHelp)

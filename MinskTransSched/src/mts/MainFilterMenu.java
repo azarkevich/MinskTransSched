@@ -13,6 +13,7 @@ public class MainFilterMenu extends List implements CommandListener
 	SchedulerCanvas schedBoard;
 	
 	int byBus = -1;
+	int byBus2 = -1;
 	int byBusStop = -1;
 	int clearFilter = -1;
 	int closeMenu = -1;
@@ -20,7 +21,36 @@ public class MainFilterMenu extends List implements CommandListener
 	
 	int customFilters = -1;
 	int regionFilters = -1;
-
+/*	
+	int changeModePos = -1;
+	int currentChangeMode = SchedulerCanvas.FILTER_CHANGE_MODE_REPLACE;
+	String getChangeModeName(int cm)
+	{
+		switch(cm)
+		{
+		case SchedulerCanvas.FILTER_CHANGE_MODE_REPLACE:
+			return "Заменить";
+		case SchedulerCanvas.FILTER_CHANGE_MODE_ADD:
+			return "Добавить";
+		case SchedulerCanvas.FILTER_CHANGE_MODE_REMOVE:
+			return "Убрать";
+		}
+		return "?";
+	}
+	Image getChangeModeImage(int cm)
+	{
+		switch(cm)
+		{
+		case SchedulerCanvas.FILTER_CHANGE_MODE_REPLACE:
+			return Images.fmc_replace;
+		case SchedulerCanvas.FILTER_CHANGE_MODE_ADD:
+			return Images.fmc_add;
+		case SchedulerCanvas.FILTER_CHANGE_MODE_REMOVE:
+			return Images.fmc_remove;
+		}
+		return null;
+	}
+*/
 	public MainFilterMenu(SchedulerCanvas schedBoard)
 	{
 		super("Фильтр", List.IMPLICIT);
@@ -36,7 +66,8 @@ public class MainFilterMenu extends List implements CommandListener
 			closeMenu = append("Вернуться", Images.undo);
 		else
 			clearFilter = append("Сбросить", Images.stop);
-		favorites = append("По избранным", Images.hearts);
+		favorites = append("Избранное", Images.hearts);
+		byBus2 = append("По транспорту+", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
 		byBus = append("По транспорту", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
 		byBusStop = append("По остановкам", (schedBoard.filter.busStops == null) ? Images.busStopGray : Images.busStop);
 
@@ -61,6 +92,10 @@ public class MainFilterMenu extends List implements CommandListener
 			{
 				schedBoard.showBusesFilter();
 			}
+			else if(sel == byBus2)
+			{
+				schedBoard.showBusFilter2();
+			}
 			else if(sel == byBusStop)
 			{
 				schedBoard.showBusStopsFilter();
@@ -77,6 +112,7 @@ public class MainFilterMenu extends List implements CommandListener
 				closeMenu = clearFilter;
 				clearFilter = -1;
 				set(byBus, "По транспорту", Images.transportGray);
+				set(byBus2, "По транспорту+", Images.transportGray);
 				set(byBusStop, "По остановкам", Images.busStopGray);
 			}
 			else if(sel == closeMenu)

@@ -5,8 +5,6 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
-import filtering.BusFilterEx;
-
 import ObjModel.Bus;
 import ObjModel.BusStop;
 import ObjModel.FilterDef;
@@ -25,7 +23,7 @@ public class TransSched extends MIDlet
 	public static BusStop[] allBusStopsArray;
 	public static Hashtable id2stop;
 	
-	public static Bus[] allBusesArray;
+	public static Bus[] allTransportArray;
 	public static Hashtable id2transport;
 
 	public static FilterDef[] customFilters;
@@ -139,11 +137,11 @@ public class TransSched extends MIDlet
 			id2stop.put(new Integer(allBusStopsArray[i].id), allBusStopsArray[i]);
 		}
 
-		allBusesArray = loader.buses;
-		id2transport = new Hashtable(allBusesArray.length);
-		for (int i = 0; i < allBusesArray.length; i++)
+		allTransportArray = loader.buses;
+		id2transport = new Hashtable(allTransportArray.length);
+		for (int i = 0; i < allTransportArray.length; i++)
 		{
-			id2transport.put(new Integer(allBusesArray[i].id), allBusesArray[i]);
+			id2transport.put(new Integer(allTransportArray[i].id), allTransportArray[i]);
 		}
 
 		loader.LoadFiltersPub();
@@ -164,7 +162,7 @@ public class TransSched extends MIDlet
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
 		
-		//display.setCurrent(new BusFilterEx(allBusesArray, scheduleBoard));
+//		display.setCurrent(new BusFilterEx(allBusesArray, scheduleBoard));
 	}
 
 	protected void destroyApp(boolean unconditional)

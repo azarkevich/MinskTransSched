@@ -9,6 +9,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
+import filtering.TransportFilterForm;
+
 import ObjModel.Bus;
 import ObjModel.BusStop;
 import ObjModel.FilterDef;
@@ -19,9 +21,6 @@ import options.OptionsListener;
 import options.OptionsMenu;
 
 import text.MultiLineText;
-
-
-
 
 public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
@@ -44,7 +43,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	boolean fullScreen = false;
 
 	public int foreColor = 255 << 8;
-	
 
 	public SchedulerCanvas()
 	{
@@ -86,7 +84,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	public void setFilterToFavorites()
 	{
-		Bus[] favBuses = filter.getFavorites(TransSched.allBusesArray);
+		Bus[] favBuses = filter.getFavorites(TransSched.allTransportArray);
 		if(favBuses.length > 0)
 		{
 			filter.setBusesFilter(favBuses);
@@ -156,6 +154,11 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	public void showBusStopsFilter()
 	{
 		TransSched.display.setCurrent(new BusStopsFilter(this));
+	}
+
+	public void showBusFilter2()
+	{
+		TransSched.display.setCurrent(new TransportFilterForm(this));
 	}
 
 	public void commandAction(Command cmd, Displayable d)
@@ -426,10 +429,15 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		RefreshScheduleText(true);
 	}
 
+	public static final int FILTER_CHANGE_MODE_REPLACE = 0; 
+	public static final int FILTER_CHANGE_MODE_ADD = 1; 
+	public static final int FILTER_CHANGE_MODE_REMOVE = 2;
+
 	public Filter filter = new Filter();
-	public void setBusesFilter(Bus[] f)
+	public void setBusesFilter(int fcm, Bus[] f)
 	{
-		filter.setBusesFilter(f);
+		filter.changeTransportFilter(fcm, f);
+		
 		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
 		TransSched.display.setCurrent(this);

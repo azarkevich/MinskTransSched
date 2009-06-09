@@ -16,6 +16,9 @@ public class Images
 	public static Image predefFilter = null;
 	public static Image monkey = null;
 
+	public static Image fmc_replace = null;
+	public static Image fmc_add = null;
+	public static Image fmc_remove = null;
 	public static void load()
 	{
 		try{
@@ -29,6 +32,9 @@ public class Images
 			busStopGray = Image.createImage("/busStop-gray.png");
 			predefFilter = Image.createImage("/builtin-filter.png");
 			monkey = Image.createImage("/monkey.png");
+			fmc_replace = Image.createImage("/fmc_replace.png");
+			fmc_add = Image.createImage("/fmc_add.png");
+			fmc_remove = Image.createImage("/fmc_remove.png");
 		}
 		catch(IOException ex)
 		{

@@ -3,6 +3,8 @@ package mts;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import filtering.Matcher;
+
 import ObjModel.*;
 
 
@@ -19,16 +21,114 @@ public class Filter
 		return busStops == null && buses == null;
 	}
 
+	public static Bus[] FilterByName(Bus[] all, String filter)
+	{
+		StringBuffer sb = new StringBuffer();
+		boolean wasStar = false;
+		for (int i = 0; i < filter.length(); i++)
+		{
+			char c = filter.charAt(i);
+			if(c == '*')
+			{
+				if(wasStar)
+					continue;
+				wasStar = true;
+			}
+			else
+			{
+				wasStar = false;
+			}
+			
+			sb.append(c);
+		}
+		filter = sb.toString();
+
+		// '*' or '' mean all
+		if(filter.compareTo("*") == 0 || filter.length() == 0)
+			return all;
+		
+		Vector vec = new Vector();
+
+		for (int i = 0; i < all.length; i++)
+		{
+			if(Matcher.Match(all[i].name, filter))
+				vec.addElement(all[i]);
+		}
+		
+		Bus[] ret = new Bus[vec.size()];
+		vec.copyInto(ret);
+		
+		return ret;
+	}
+	
+	// null mean 'all'
+	public void changeTransportFilter(int filterChangeMode, Bus[] transp)
+	{
+		if(filterChangeMode == SchedulerCanvas.FILTER_CHANGE_MODE_ADD)
+		{
+			// if already all added - skip
+			if(buses == null)
+				return;
+			
+			if(transp != null)
+			{
+				Vector vec = new Vector();
+				for (int i = 0; i < buses.length; i++)
+				{
+					vec.addElement(buses[i]);
+				}
+				for (int i = 0; i < transp.length; i++)
+				{
+					if(busesFilter.containsKey(transp[i]) == false)
+					{
+						vec.addElement(transp[i]);
+					}
+				}
+				transp = new Bus[vec.size()];
+				vec.copyInto(transp);
+			}
+		}
+		else if(filterChangeMode == SchedulerCanvas.FILTER_CHANGE_MODE_REMOVE)
+		{
+			if(transp == null)
+			{
+				// remove all
+				transp = new Bus[0];
+			}
+			else
+			{
+				Vector vec = new Vector();
+				
+				if(transp == null)
+					transp = TransSched.allTransportArray;
+				
+				Hashtable hash = new Hashtable(transp.length);
+				for (int i = 0; i < transp.length; i++)
+				{
+					if(!hash.containsKey(transp[i]))
+						hash.put(transp[i], transp[i]);
+				}
+
+				// add only not in transp array
+				for (int i = 0; i < buses.length; i++)
+				{
+					if(!hash.containsKey(buses[i]))
+						vec.addElement(buses[i]);
+				}
+				transp = new Bus[vec.size()];
+				vec.copyInto(transp);
+			}
+		}
+		setBusesFilter(transp);
+	}
+
 	public void setBusesFilter(Bus[] filter)
 	{
-		buses = filter;
 		filteredBusesHash = null;
-		if(buses == null || buses.length == 0)
-		{
-			busesFilter = null;
-			buses = null;
-			return;
-		}
+
+		buses = filter;
+		if(buses == null)
+			buses = TransSched.allTransportArray;
 		
 		busesFilter = new Hashtable(buses.length);
 		for (int i = 0; i < buses.length; i++)

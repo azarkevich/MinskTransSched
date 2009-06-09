@@ -92,7 +92,7 @@ public class BusesFilter extends List implements CommandListener
 			// select all == reset busstops filter
 			if(selectAll)
 			{
-				scheduleBoard.setBusesFilter(null);
+				scheduleBoard.setBusesFilter(SchedulerCanvas.FILTER_CHANGE_MODE_REPLACE, null);
 				return;
 			}
 			
@@ -101,10 +101,10 @@ public class BusesFilter extends List implements CommandListener
 			Vector v = new Vector();
 			if(selectFavorites)
 			{
-				for (int i = 0; i < TransSched.allBusesArray.length; i++)
+				for (int i = 0; i < TransSched.allTransportArray.length; i++)
 				{
-					if(TransSched.allBusesArray[i].favorite)
-						v.addElement(TransSched.allBusesArray[i]);
+					if(TransSched.allTransportArray[i].favorite)
+						v.addElement(TransSched.allTransportArray[i]);
 				}
 			}
 
@@ -119,7 +119,7 @@ public class BusesFilter extends List implements CommandListener
 			// copy to array
 			Bus[] buses = new Bus[v.size()];
 			v.copyInto(buses);
-			scheduleBoard.setBusesFilter(buses);
+			scheduleBoard.setBusesFilter(SchedulerCanvas.FILTER_CHANGE_MODE_REPLACE, buses);
 		}
 		else if(cmd == TransSched.cmdBack)
 		{
@@ -147,19 +147,19 @@ public class BusesFilter extends List implements CommandListener
 		{
 			this.setTitle("Текущий фильтр");
 			
-			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : TransSched.allBusesArray;
+			buses = scheduleBoard.filter.buses != null ? scheduleBoard.filter.buses : TransSched.allTransportArray;
 			createList();
 		}
 		else if(cmd == cmdShowFavorites)
 		{
 			this.setTitle("Избранный транспорт");
-			buses = scheduleBoard.filter.getFavorites(TransSched.allBusesArray);
+			buses = scheduleBoard.filter.getFavorites(TransSched.allTransportArray);
 			createList();
 		}
 		else if(cmd == cmdShowAll)
 		{
 			this.setTitle("Все остановки");
-			buses = TransSched.allBusesArray;
+			buses = TransSched.allTransportArray;
 			createList();
 		}
 		else if(cmd == TransSched.cmdHelp)
