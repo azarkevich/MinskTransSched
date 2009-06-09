@@ -60,7 +60,6 @@ public class ScheduleBuilder
 	public static final int SCHEDULE_MODE_SIMPLE = 0; 
 	public static final int SCHEDULE_MODE_FLOW = 1; 
 	public static final int SCHEDULE_MODE_FULL = 2; 
-	public static final int SCHEDULE_MODE_DENSITY = 3; 
 	
 	public int mode = 0;
 
@@ -101,11 +100,7 @@ public class ScheduleBuilder
 		if(busStop == null)
 			return sb.toString();
 
-		if(mode == SCHEDULE_MODE_DENSITY)
-		{
-			sb.append("\nПлотность транспорта");
-		}
-		else if(mode == SCHEDULE_MODE_FULL)
+		if(mode == SCHEDULE_MODE_FULL)
 		{
 			sb.append("\nПолное расписание\n");
 		}
@@ -147,12 +142,7 @@ public class ScheduleBuilder
 		Schedule[] busOnStation = filter.FilterIt(busStop.schedules);
 		
 		// bus flow
-		if(mode == SCHEDULE_MODE_DENSITY)
-		{
-			sb.append("\n");
-			getDensityText(cal, busStop, sb);
-		}
-		else if(mode == SCHEDULE_MODE_FLOW)
+		if(mode == SCHEDULE_MODE_FLOW)
 		{
 			int[] indexes = new int[busOnStation.length];
 			short[][] times = new short[busOnStation.length][];
@@ -281,66 +271,6 @@ public class ScheduleBuilder
 		}
 		
 		return sb.toString();
-	}
-
-	public void getDensityText(Calendar cal, BusStop bs, StringBuffer sb)
-	{
-		if(bs == null)
-			return;
-		
-		Schedule[] busOnStation = filter.FilterIt(bs.schedules);
-
-		int[] density = new int[48];
-		for (int i = 0; i < busOnStation.length; i++)
-		{
-			Schedule sched = busOnStation[i];
-			short[] times = GetSchedTimes(sched, cal);
-
-			for (int t = 0; t < times.length; t++)
-			{
-				int hour = times[t] / 60;
-				density[hour]++;
-			}
-		}
-
-		int firstNonZero = -1;
-		int lastNonZero = -1;
-		for (int i = 0; i < density.length; i++)
-		{
-			if(firstNonZero == -1 && density[i] != 0)
-				firstNonZero = i;
-			if(density[i] != 0)
-				lastNonZero = i;
-		}
-		
-		if(firstNonZero == -1 || lastNonZero == -1)
-			return;
-		
-		boolean dataStarted = false;
-		for (int i = firstNonZero; i <= lastNonZero; i++)
-		{
-			if(density[i] == 0 && dataStarted == false)
-				continue;
-			dataStarted = true;
-			
-			sb.append("\n");
-			int hour = i % 24;
-			sb.append(FormatNum(hour));
-			sb.append(": ");
-			if(density[i] == 0)
-				sb.append("0");
-			else
-			{
-				sb.append(density[i]);
-				sb.append(" (каждые ");
-				int d1 = 60/density[i];
-				int d2 = 600/(10*density[i]) % 10;
-				sb.append(d1);
-				if(d2 != 0)
-					sb.append("." + d2);
-				sb.append(" мин.)");
-			}
-		}
 	}
 	
 	int firstIndex = 0;

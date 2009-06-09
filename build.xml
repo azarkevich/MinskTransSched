@@ -12,25 +12,21 @@
 		    classname="org.tigris.subversion.svnant.SvnTask" />
 
 	<target name="getversion">
-			<property file=".version" />
-
-			<!-- read SVN revision-->
+		<!-- read SVN revision
 			<svn>
 				<wcVersion path="${basedir}" />
 			</svn>
 
 			<property name="version.revision.max" value="${revision.max}" />
+		-->
+
+			<property name="version.revision.max" value="-unk-" />
 
 			<!-- generate jar version -->
-			<property name="version.jar" value="${version.major}.${version.minor}.${version.publish}" />
+			<property name="version.jar" value="${version.major}.${version.minor}" />
 	</target>
 
 	<target name="publish" depends="build">
-			<!-- increase publish number -->
-			<propertyfile file=".version" comment="version properties">
-				<entry key="version.publish" default="0" type="int" operation="+" value="1"/>
-			</propertyfile>
-			
 			<delete>
 				<fileset dir="c:\Apache-2.0.59\htdocs\mt\" includes="*.jad"/>
 				<fileset dir="c:\Apache-2.0.59\htdocs\mt\" includes="*.jar"/>

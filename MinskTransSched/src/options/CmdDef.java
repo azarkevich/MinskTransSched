@@ -285,7 +285,7 @@ public class CmdDef
 			CmdDef.KEY_ACTION_PRESS_FIRST,
 			'0');
 	
-	public static CmdDef cmdToggleScheduleMode = new CmdDef(
+	public static CmdDef cmdToggleFullSchedule = new CmdDef(
 			13,
 			"Режим",
 			"Переключат режим отображения расписания",
@@ -351,12 +351,12 @@ public class CmdDef
 			"Отобр. 'Осталось'",
 			"Отображать или нет сколько осталось(или прошло) до автобуса");
 	
-//	public static CmdDef cmdToggleBusFlow = new CmdDef(
-//			23,
-//			"Bus Flow",
-//			"Отображать автобусы в порядке проезда по остановке",
-//			CmdDef.KEY_ACTION_PRESS,
-//			'#');
+	public static CmdDef cmdToggleBusFlow = new CmdDef(
+			23,
+			"Bus Flow",
+			"Отображать автобусы в порядке проезда по остановке",
+			CmdDef.KEY_ACTION_PRESS,
+			'#');
 	
 	// action type
 	public static final short KEY_ACTION_PRESS = 0;

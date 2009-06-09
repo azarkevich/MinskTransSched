@@ -327,9 +327,19 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 			if(bs != null)
 				bs.toggleFavorite();
 		}
-		else if(cmd == CmdDef.cmdToggleScheduleMode)
+		else if(cmd == CmdDef.cmdToggleFullSchedule)
 		{
-			scheduleBuilder.mode = (scheduleBuilder.mode + 1) % 4;  
+			if(scheduleBuilder.mode != ScheduleBuilder.SCHEDULE_MODE_FULL)
+				scheduleBuilder.mode = ScheduleBuilder.SCHEDULE_MODE_FULL;
+			else
+				scheduleBuilder.mode = ScheduleBuilder.SCHEDULE_MODE_SIMPLE;
+		}
+		else if(cmd == CmdDef.cmdToggleBusFlow)
+		{
+			if(scheduleBuilder.mode != ScheduleBuilder.SCHEDULE_MODE_FLOW)
+				scheduleBuilder.mode = ScheduleBuilder.SCHEDULE_MODE_FLOW;
+			else
+				scheduleBuilder.mode = ScheduleBuilder.SCHEDULE_MODE_SIMPLE;
 		}
 		else if(cmd == CmdDef.cmdScheduleReset)
 		{

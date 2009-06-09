@@ -5,6 +5,8 @@ import javax.microedition.lcdui.*;
 import javax.microedition.midlet.*;
 import javax.microedition.rms.*;
 
+import filtering.BusFilterEx;
+
 import ObjModel.Bus;
 import ObjModel.BusStop;
 import ObjModel.FilterDef;
@@ -161,6 +163,8 @@ public class TransSched extends MIDlet
 			display.setCurrent(scheduleBoard);
 		
 		optionsListeners = new OptionsListener[] { scheduleBoard };
+		
+		//display.setCurrent(new BusFilterEx(allBusesArray, scheduleBoard));
 	}
 
 	protected void destroyApp(boolean unconditional)
