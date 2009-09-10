@@ -10,6 +10,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 import filtering.TransportFilterForm;
+import filtering.TransportOnStop;
 
 import ObjModel.Bus;
 import ObjModel.BusStop;
@@ -28,7 +29,11 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	static final Command cmdFilter = new Command("Фильтр", Command.OK, 2); 
 	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 3);
 	final static Command cmdAbout = new Command("О программе", Command.EXIT, 4);
-	final static Command cmdExit = new Command("Выход", Command.EXIT, 5);
+
+	final static Command cmdBusesOnStop = new Command("Автобусы", Command.OK, 5);
+	final static Command cmdStopsOfBus = new Command("Остановки", Command.OK, 6);
+
+	final static Command cmdExit = new Command("Выход", Command.EXIT, 7);
 
 	BusStop[] busStops = null;
 	int currentBusStopIndex = 0;
@@ -60,6 +65,9 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		addCommand(cmdOptions);
 		addCommand(cmdShowBusStopsList);
 		addCommand(cmdFilter);
+		
+		addCommand(cmdBusesOnStop);
+		addCommand(cmdStopsOfBus);
 		
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
@@ -133,7 +141,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		}
 	}
 
-	BusStop getCurrentBusStop()
+	public BusStop getCurrentBusStop()
 	{
 		if(currentBusStopIndex >= busStops.length)
 			return null;
@@ -144,11 +152,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 	{
 		BusStopsList list = new BusStopsList("Остановки", busStops, this, getCurrentBusStop()); 
 		TransSched.display.setCurrent(list);
-	}
-
-	public void showBusesFilter()
-	{
-		TransSched.display.setCurrent(new BusesFilter(this));
 	}
 
 	public void showBusStopsFilter()
@@ -187,6 +190,15 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		{
 			TransSched.display.setCurrent(new About(this));
 		}
+		else if(cmd == cmdBusesOnStop)
+		{
+			// select buses for current bus stop
+			TransSched.display.setCurrent(new TransportOnStop(this));
+		}
+		else if(cmd == cmdStopsOfBus)
+		{
+			// select bus and then busstop (list in follow order)
+		}
 	}
 
 	public void resetFilter()
@@ -208,7 +220,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		multiLineText.Draw(g);
 	}
 	
-	private void RefreshScheduleText()
+	public void RefreshScheduleText()
 	{
 		RefreshScheduleText(false);
 	}

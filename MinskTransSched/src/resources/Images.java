@@ -19,6 +19,10 @@ public class Images
 	public static Image fmc_replace = null;
 	public static Image fmc_add = null;
 	public static Image fmc_remove = null;
+
+	public static Image visible = null;
+	public static Image invisible = null;
+	
 	public static void load()
 	{
 		try{
@@ -35,6 +39,9 @@ public class Images
 			fmc_replace = Image.createImage("/fmc_replace.png");
 			fmc_add = Image.createImage("/fmc_add.png");
 			fmc_remove = Image.createImage("/fmc_remove.png");
+			
+			visible = fmc_add;
+			invisible = fmc_remove;
 		}
 		catch(IOException ex)
 		{

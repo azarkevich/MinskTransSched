@@ -13,7 +13,6 @@ public class MainFilterMenu extends List implements CommandListener
 	SchedulerCanvas schedBoard;
 	
 	int byBus = -1;
-	int byBus2 = -1;
 	int byBusStop = -1;
 	int clearFilter = -1;
 	int closeMenu = -1;
@@ -67,7 +66,6 @@ public class MainFilterMenu extends List implements CommandListener
 		else
 			clearFilter = append("Сбросить", Images.stop);
 		favorites = append("Избранное", Images.hearts);
-		byBus2 = append("По транспорту+", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
 		byBus = append("По транспорту", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
 		byBusStop = append("По остановкам", (schedBoard.filter.busStops == null) ? Images.busStopGray : Images.busStop);
 
@@ -90,10 +88,6 @@ public class MainFilterMenu extends List implements CommandListener
 			
 			if(sel == byBus)
 			{
-				schedBoard.showBusesFilter();
-			}
-			else if(sel == byBus2)
-			{
 				schedBoard.showBusFilter2();
 			}
 			else if(sel == byBusStop)
@@ -112,7 +106,6 @@ public class MainFilterMenu extends List implements CommandListener
 				closeMenu = clearFilter;
 				clearFilter = -1;
 				set(byBus, "По транспорту", Images.transportGray);
-				set(byBus2, "По транспорту+", Images.transportGray);
 				set(byBusStop, "По остановкам", Images.busStopGray);
 			}
 			else if(sel == closeMenu)

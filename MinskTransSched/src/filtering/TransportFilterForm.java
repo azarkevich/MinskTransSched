@@ -9,6 +9,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 
+import com.sun.midp.midlet.Selector;
+
 import resources.Images;
 
 import mts.Filter;
