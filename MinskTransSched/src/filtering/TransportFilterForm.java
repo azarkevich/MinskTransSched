@@ -159,6 +159,8 @@ public class TransportFilterForm extends Form implements CommandListener, Runnab
 		tfFilter = new TextField("Фильтр", "", 6, TextField.PHONENUMBER);
 		append(tfFilter);
 		
+		TransSched.display.setCurrentItem(tfFilter);
+		
 		thread = new Thread(this);
 		thread.start();
 	}
