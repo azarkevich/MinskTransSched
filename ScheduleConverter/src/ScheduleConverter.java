@@ -268,6 +268,7 @@ public class ScheduleConverter
 							);
 					}
 				}
+				generateSQL();
 			}
 		}
 		catch(Exception ex)
@@ -276,6 +277,111 @@ public class ScheduleConverter
 			return -2;
 		}
 		return 0;
+	}
+
+	private void generateSQL() throws FileNotFoundException,
+			UnsupportedEncodingException, Exception
+	{
+		// create SQL
+		PrintWriter t = new PrintWriter("data.sql", "UTF-8");
+		t.println("DELETE FROM [times]");
+		t.println("DELETE FROM [schedules]");
+		t.println("DELETE FROM [base_schedules]");
+		t.println("DELETE FROM [transport]");
+		t.println("DELETE FROM [stops]");
+		t.println("");
+
+		t.println("-- stops --");
+
+		// create stops
+		for (int i = 0; i < stops.size(); i++)
+		{
+			BusStop bs = stops.get(i);
+			
+			t.println("INSERT INTO [stops]([id], [name], [note]) VALUES (" 
+					+ bs.id + ", "
+					+ "N'" + bs.name.replaceAll("'", "''") + "', "
+					+ "N'" + bs.description.replaceAll("'", "''") + "'"
+					+ ")");
+		}
+		t.println("");
+		
+		t.println("-- transport --");
+		for (int i = 0; i < buses.size(); i++)
+		{
+			Bus b = buses.get(i);
+			
+			BusStop start_stop = FindBusStop(b.startRoute);
+			BusStop end_stop = FindBusStop(b.endRoute);
+
+			t.println("INSERT INTO [transport]([id],[transport_type],[name],[first_stop_id],[last_stop_id]) VALUES(" 
+					+ b.id + ", "
+					+ "1, "
+					+ "N'" + b.name.replaceAll("'", "''") + "', "
+					+ start_stop.id + ", "
+					+ end_stop.id
+					+ ")");
+		}
+		t.println("");
+
+		t.println("-- base_schedules --");
+		for (int schedIndex = 0; schedIndex < schedules.size(); schedIndex++)
+		{
+			Schedule sched = schedules.get(schedIndex);
+			
+			Bus bus = FindBus(sched.bus);
+			
+			sched.base_sched_id = 10*schedIndex + sched.day;
+			
+			t.println("INSERT INTO [base_schedules]([id], [transport_id]) VALUES("+ sched.base_sched_id + "," + bus.id + ")");
+
+			for (int i = 0; i < sched.times.size(); i++)
+			{
+				int time = sched.times.get(i);
+				
+				t.println("INSERT INTO [times]([base_schedule_id], [time]) VALUES("+ sched.base_sched_id + "," + time + ")");
+			}
+		}
+		t.println("");
+
+		t.println("-- schedules --");
+		for (int schedIndex = 0; schedIndex < schedules.size(); schedIndex++)
+		{
+			Schedule sched = schedules.get(schedIndex);
+
+			BusStop stop = FindBusStop(sched.busStop);
+			Bus bus = FindBus(sched.bus);
+			
+			t.println("INSERT INTO [schedules]([day],[stop_id],[transport_id],[base_schedule_id],[time_shift],[note]) VALUES(" 
+					+ sched.day + ","
+					+ stop.id + ","
+					+ bus.id + ","
+					+ sched.base_sched_id + ","
+					+ "0,"
+					+ "'from site'"
+					+ ")");
+		}
+
+		t.println("-- derived schedules --");
+		for (int i = 0; i < derSchedules.size(); i++)
+		{
+			DerivedSchedule sched = derSchedules.get(i);
+			BusStop stop = FindBusStop(sched.busStop);
+			Bus bus = FindBus(sched.bus);
+			int shift = sched.shift;
+
+			Schedule baseSched = FindSchedule(schedules, bus.id, sched.baseBusStop, sched.dayFrom);
+			
+			t.println("INSERT INTO [schedules]([day],[stop_id],[transport_id],[base_schedule_id],[time_shift],[note]) VALUES(" 
+					+ sched.dayTo + ","
+					+ stop.id + ","
+					+ bus.id + ","
+					+ baseSched.base_sched_id + ","
+					+ "+" + shift + ","
+					+ "'shift'"
+					+ ")");
+		}
+		t.close();
 	}
 
 	private void LoadSchedules(String[] args) throws Exception

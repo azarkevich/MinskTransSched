@@ -29,4 +29,6 @@ public class Schedule implements Comparable<Schedule>
 	public static final byte SCHED_FROM_BUSSTOP = 2; 
 
 	public Vector<Integer> times = new Vector<Integer>(50);
+	
+	public int base_sched_id = -1;
 }

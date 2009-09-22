@@ -65,9 +65,9 @@ public class MainFilterMenu extends List implements CommandListener
 			closeMenu = append("Вернуться", Images.undo);
 		else
 			clearFilter = append("Сбросить", Images.stop);
-		favorites = append("Избранное", Images.hearts);
 		byBus = append("По транспорту", (schedBoard.filter.buses == null) ? Images.transportGray : Images.transport);
 		byBusStop = append("По остановкам", (schedBoard.filter.busStops == null) ? Images.busStopGray : Images.busStop);
+		favorites = append("Избранное", Images.hearts);
 
 		customFilters = append("Мои фильтры", Images.monkey);
 		regionFilters = append("Регионы", Images.predefFilter);

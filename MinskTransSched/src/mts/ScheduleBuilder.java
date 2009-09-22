@@ -68,11 +68,24 @@ public class ScheduleBuilder
 		return showTimeDiff;
 	}
 
+	private int lastGenTime = -1;
+	private String lastGenString = null;
+	
+	public void ClearCache()
+	{
+		lastGenTime = -1;
+	}
+
 	public String GetScheduleText(BusStop busStop)
 	{
 		Calendar cal = GetCalendar();
 		
 		int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+
+		// save cpu & power
+		if(lastGenTime == now)
+			return lastGenString;
+		
 		int beginWindow = now + WindowShift;
 		int endWindow = beginWindow + WindowSize;
 
@@ -98,7 +111,11 @@ public class ScheduleBuilder
 			sb.append("\nКонец дня: " + FormatXTime(TransSched.dayEnd, ":"));
 
 		if(busStop == null)
-			return sb.toString();
+		{
+			lastGenString = sb.toString();
+			lastGenTime = now;
+			return lastGenString;
+		}
 
 		if(mode == SCHEDULE_MODE_FULL)
 		{
@@ -270,7 +287,9 @@ public class ScheduleBuilder
 			}
 		}
 		
-		return sb.toString();
+		lastGenString = sb.toString();
+		lastGenTime = now;
+		return lastGenString;
 	}
 	
 	int firstIndex = 0;

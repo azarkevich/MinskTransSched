@@ -22,4 +22,6 @@ public class Options
 	public static boolean showAboutCommand = true;
 	
 	public static boolean showStopsListOnStartup = false;
+
+	public static boolean showFavSymbolInStopList = false;
 }

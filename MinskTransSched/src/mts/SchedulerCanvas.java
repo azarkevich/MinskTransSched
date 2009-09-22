@@ -232,6 +232,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		else
 			savedViewportTop = 0;
 
+		scheduleBuilder.ClearCache();
+
 		multiLineText.SetTextPar(0, 0, getWidth(), getHeight(),
 				Font.getFont(Options.fontFace, Options.fontStyle, Options.fontSize),
 				scheduleBuilder.GetScheduleText(getCurrentBusStop()));
@@ -452,6 +454,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		
 		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
+		scheduleBuilder.ClearCache();
 		TransSched.display.setCurrent(this);
 	}
 
@@ -460,6 +463,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		filter.setBusStopsFilter(f);
 		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
+		scheduleBuilder.ClearCache();
 		TransSched.display.setCurrent(this);
 	}
 	
@@ -469,6 +473,7 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		filter.setBusStopsFilter(fd.stops);
 		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
 		setForeColor();
+		scheduleBuilder.ClearCache();
 		TransSched.display.setCurrent(this);
 	}
 

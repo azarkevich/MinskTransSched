@@ -5,6 +5,8 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.List;
 
+import options.Options;
+
 import ObjModel.BusStop;
 
 import resources.Images;
@@ -25,7 +27,7 @@ public class BusStopsList extends List implements CommandListener
 		
 		for (int i = 0; i < busStops.length; i++)
 		{
-			append(busStops[i].name, busStops[i].favorite ? Images.heart : null);
+			append(busStops[i].name, (Options.showFavSymbolInStopList && busStops[i].favorite) ? Images.heart : null);
 			if(busStops[i] == sel)
 				setSelectedIndex(i, true);
 		}
