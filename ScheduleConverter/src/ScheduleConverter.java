@@ -969,10 +969,10 @@ public class ScheduleConverter
 	{
 		DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, false));
 		
-		if(derSchedules.size() > Byte.MAX_VALUE)
+		if(derSchedules.size() > Short.MAX_VALUE)
 			throw new Exception("derSchedules.size() exceed store size");
 		
-		dos.writeByte(derSchedules.size());
+		dos.writeShort(derSchedules.size());
 
 		for (int i = 0; i < derSchedules.size(); i++)
 		{

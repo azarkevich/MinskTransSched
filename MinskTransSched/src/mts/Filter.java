@@ -47,6 +47,8 @@ public class Filter
 		if(filter.compareTo("*") == 0 || filter.length() == 0)
 			return all;
 		
+		filter = filter + "*";
+			
 		Vector vec = new Vector();
 
 		for (int i = 0; i < all.length; i++)

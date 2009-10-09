@@ -110,7 +110,7 @@ public class ScheduleLoader
 	{
 		// load 'dscheds'
 		DataInputStream dis = new DataInputStream(getClass().getResourceAsStream("/dscheds"));
-		int count = dis.readByte();
+		int count = dis.readShort();
 		for (int i = 0; i < count; i++)
 		{
 			// read data
@@ -120,7 +120,7 @@ public class ScheduleLoader
 			int dayTo = dis.readByte();
 			short baseBusStop = dis.readByte();
 			short shift = dis.readByte();
-			
+
 			// src
 			Schedule srcSched = FindSchedule(bus, baseBusStop);
 
