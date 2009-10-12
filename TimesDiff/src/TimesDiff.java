@@ -25,6 +25,8 @@ public class TimesDiff
 		System.out.println("	First block - base, follow - derived.");
 	}
 
+	Vector< Vector<Integer> > allTimes = new Vector< Vector<Integer> >();  
+	Vector<String> timeNames = new Vector<String>();  
 	int Convert(String[] args)
 	{
 		try{
@@ -34,7 +36,6 @@ public class TimesDiff
 				return -1;
 			}
 
-			Vector< Vector<Integer> > allTimes = new Vector< Vector<Integer> >();  
 			for (int i = 0; i < args.length; i++)
 			{
 				LoadTimes(args[i], allTimes);
@@ -50,7 +51,7 @@ public class TimesDiff
 			{
 				Vector<Integer> deriv = allTimes.get(i);
 				
-				CalcShift(base, deriv);
+				CalcShift(base, deriv, timeNames.get(0), timeNames.get(i));
 			}
 		}
 		catch(Exception ex)
@@ -61,14 +62,14 @@ public class TimesDiff
 		return 0;
 	}
 	
-	void CalcShift(Vector<Integer> base, Vector<Integer> deriv)
+	void CalcShift(Vector<Integer> base, Vector<Integer> deriv, String baseName, String derivName)
 	{
 		if(base.size() != deriv.size())
 		{
 			System.out.println("!!!BASE=" + base.size() + "; DERIV=" + deriv.size());
 		}
-		Vector<Integer> Ms = new Vector<Integer>(); 
-		Vector<Integer> Disps = new Vector<Integer>();
+		Vector<Double> Ms = new Vector<Double>(); 
+		Vector<Double> Disps = new Vector<Double>();
 		
 		Integer[] shifts = {0};
 		for(int s=0; s<shifts.length; s++)
@@ -101,7 +102,7 @@ public class TimesDiff
 				diffsSquareSum += diff*diff; 
 				diffsCount++;
 
-				System.out.println(FormatTime(btime) + " - " + FormatTime(dtime) + " = " + diff);
+				System.out.println(FormatTime(btime) + "(" + btime + ") - " + FormatTime(dtime) + "(" + dtime + ") = " + diff);
 			}
 			
 			Double M = round2(diffsSum / diffsCount);
@@ -113,9 +114,13 @@ public class TimesDiff
 			Double MSquare = round2(diffsSquareSum / diffsCount);
 			Double Disp = round2(MSquare - M*M);
 			
+			Ms.add(M);
+			Disps.add(Disp);
+			
 			System.out.println(shift + "	SHIFT=" + Math.round(M) + "	M=" + M + "	D=" + Disp);
 			System.out.println();
 		}
+		System.out.println("\\derive " + derivName + ";" + baseName + ";+?;w h");
 		System.out.println();
 		System.out.println();
 		System.out.println();
@@ -146,8 +151,7 @@ public class TimesDiff
 		String line;
 		int previousTime = -1;
 		int timeShift = 0;
-		Vector<Integer> curTimes = new Vector<Integer>();
-		allTimes.add(curTimes);
+		Vector<Integer> curTimes = null;
 		while((line = lnr.readLine()) != null)
 		{
 			try{
@@ -158,12 +162,16 @@ public class TimesDiff
 				if(line.startsWith("#"))
 					continue;
 				
-				if(line.equals("@"))
+				char ch = line.charAt(0); 
+				if(ch < '0' || ch > '9')
 				{
+					if(curTimes != null && curTimes.size() == 0)
+						continue;
 					curTimes = new Vector<Integer>();
 					allTimes.add(curTimes);
 					timeShift = 0;
 					previousTime = 0;
+					timeNames.add(line);
 					continue;
 				}
 
@@ -206,7 +214,7 @@ public class TimesDiff
 					int curTime = hour*60 + minute + timeShift;
 					if(curTime < previousTime)
 					{
-						timeShift += 24*60*60;
+						timeShift += 24*60;
 						curTime = hour*60 + minute + timeShift; 
 					}
 					previousTime = curTime;
