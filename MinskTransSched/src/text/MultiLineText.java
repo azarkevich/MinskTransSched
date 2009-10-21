@@ -2,6 +2,8 @@ package text;
 import java.util.Vector;
 import javax.microedition.lcdui.*;
 
+import options.Options;
+
 public class MultiLineText
 {
 	public int viewportTop;
@@ -71,7 +73,7 @@ public class MultiLineText
 		regionHeight=height;
 		font = f;
 		vecLines.removeAllElements();
-		lineHeight = font.getHeight();
+		lineHeight = font.getHeight() + Options.lineSpacing;
 		viewportTop=0;
 
 		int parBegin = 0;

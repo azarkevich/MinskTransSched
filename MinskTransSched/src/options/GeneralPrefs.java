@@ -37,6 +37,8 @@ public class GeneralPrefs extends Form implements CommandListener
 
 	ChoiceGroup startWithStopsList = null;
 
+	TextField tfLineSpacing = null;
+
 	Displayable next;
 
 	public GeneralPrefs(Displayable next)
@@ -104,6 +106,9 @@ public class GeneralPrefs extends Form implements CommandListener
 
 		lastFontFace = FontExample.fontFace;
 		lastFontSize = FontExample.fontSize;
+		
+		tfLineSpacing = new TextField("Межстр. интервал", "", 6, TextField.NUMERIC);
+		append(tfLineSpacing);
 		
 		LoadSettings();
 
@@ -182,6 +187,8 @@ public class GeneralPrefs extends Form implements CommandListener
 		
 		startWithStopsList.setSelectedIndex(0, !Options.showStopsListOnStartup);
 		startWithStopsList.setSelectedIndex(1, Options.showStopsListOnStartup);
+		
+		tfLineSpacing.setString("" + Options.lineSpacing);
 	}
 	
 	int GetFontSize()
@@ -227,6 +234,8 @@ public class GeneralPrefs extends Form implements CommandListener
 		Options.showAboutCommand = addExitMenuCG.isSelected(2); 
 		
 		Options.showStopsListOnStartup = startWithStopsList.isSelected(1); 
+
+		Options.lineSpacing = Byte.parseByte(tfLineSpacing.getString());
 
 		OptionsStoreManager.SaveSettings();
 		

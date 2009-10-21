@@ -52,6 +52,11 @@ public class OptionsStoreManager
 				Options.showAboutCommand = dis.readBoolean();
 				
 				Options.showStopsListOnStartup = dis.readBoolean();
+
+				if(dis.available() != 0)
+				{
+					Options.lineSpacing = dis.readByte();
+				}
 			}
 			catch(InvalidRecordIDException ex)
 			{
@@ -128,6 +133,8 @@ public class OptionsStoreManager
 				dos.writeBoolean(Options.showAboutCommand);
 
 				dos.writeBoolean(Options.showStopsListOnStartup);
+				
+				dos.writeByte(Options.lineSpacing);
 				
 				dos.flush();
 

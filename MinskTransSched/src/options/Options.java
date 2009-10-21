@@ -24,4 +24,6 @@ public class Options
 	public static boolean showStopsListOnStartup = false;
 
 	public static boolean showFavSymbolInStopList = false;
+	
+	public static byte lineSpacing = 0;
 }
