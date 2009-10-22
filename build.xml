@@ -28,6 +28,15 @@
 	</target>
 
 	<target name="deploy" depends="build">
+		<scp
+				todir="${sourceforge.user}:${sourceforge.password}@frs.sourceforge.net:/home/frs/project/m/mi/minsktranssched/"
+				trust="yes"
+			>
+				
+			<fileset file="bin/${city}TransSched-${version.jar}.jad" />
+			<fileset file="bin/${city}TransSched-${version.jar}.jar" />
+		</scp>
+	
 		<copy file="bin/${city}TransSched-${version.jar}.jad" tofile="bin/mts.jad" />
 		
 		<ftp server="ftp.t35.com" userid="${t35.user}" password="${t35.password}" remotedir="/" verbose="yes" >
