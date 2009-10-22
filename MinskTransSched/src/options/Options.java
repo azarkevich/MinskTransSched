@@ -26,4 +26,7 @@ public class Options
 	public static boolean showFavSymbolInStopList = false;
 	
 	public static byte lineSpacing = 0;
+	
+	public static int textColor = 255 << 16 | 255 << 8 | 255;
+	public static int favoritesColor = 0 << 16 | 255 << 8 | 0;
 }

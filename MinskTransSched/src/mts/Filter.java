@@ -18,7 +18,7 @@ public class Filter
 
 	public boolean isEmpty()
 	{
-		return busStops == null && buses == null;
+		return busStops == null && buses == TransSched.allTransportArray;
 	}
 
 	public static Bus[] FilterByName(Bus[] all, String filter)

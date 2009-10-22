@@ -17,6 +17,7 @@ import resources.Images;
 public class OptionsMenu extends List implements CommandListener
 {
 	static final Command cmdGeneral = new Command("Основные", Command.OK, 2); 
+	static final Command cmdStyle = new Command("Оформление", Command.OK, 2); 
 	static final Command cmdControl = new Command("Управление", Command.OK, 2); 
 	static final Command cmdFavBuses = new Command("Трансп. избранное", Command.OK, 2); 
 	static final Command cmdFavBusStops = new Command("Останов. избранное", Command.OK, 2); 
@@ -34,9 +35,11 @@ public class OptionsMenu extends List implements CommandListener
 		addCommand(TransSched.cmdBack);
 		addCommand(TransSched.cmdSelect);
 		addCommand(cmdGeneral);
+		addCommand(cmdStyle);
 		addCommand(cmdControl);
 		
 		append(cmdGeneral.getLabel(), null);
+		append(cmdStyle.getLabel(), null);
 		append(cmdControl.getLabel(), null);
 
 		append(cmdFavBuses.getLabel(), Images.hearts);
@@ -57,12 +60,15 @@ public class OptionsMenu extends List implements CommandListener
 				TransSched.display.setCurrent(new GeneralPrefs(this));
 				break;
 			case 1:
-				TransSched.display.setCurrent(new ControlPrefs(this));
+				TransSched.display.setCurrent(new StylePrefs(this));
 				break;
 			case 2:
-				TransSched.display.setCurrent(new TransportFavoritesManager(schedBoard, this));
+				TransSched.display.setCurrent(new ControlPrefs(this));
 				break;
 			case 3:
+				TransSched.display.setCurrent(new TransportFavoritesManager(schedBoard, this));
+				break;
+			case 4:
 				TransSched.display.setCurrent(new StopsFavoritesManager(schedBoard, this));
 				break;
 			}
@@ -70,6 +76,10 @@ public class OptionsMenu extends List implements CommandListener
 		else if(c == cmdGeneral)
 		{
 			TransSched.display.setCurrent(new GeneralPrefs(this));
+		}
+		else if(c == cmdStyle)
+		{
+			TransSched.display.setCurrent(new StylePrefs(this));
 		}
 		else if(c == cmdControl)
 		{

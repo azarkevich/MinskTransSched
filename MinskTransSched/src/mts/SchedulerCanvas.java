@@ -423,6 +423,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		scheduleBuilder.WindowSize = Options.defWindowSize;
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
+		
+		setForeColor();
 
 		try{
 			removeCommand(cmdExit);
@@ -479,9 +481,9 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	void setForeColor()
 	{
-		if(filter.busesFilter == null && filter.busStopsFilter == null)
-			foreColor = 255 << 16 | 255 << 8 | 255;
+		if(filter.buses == TransSched.allTransportArray && filter.busStopsFilter == null)
+			foreColor = Options.textColor;
 		else
-			foreColor = 0 << 16 | 255 << 8 | 0;
+			foreColor = Options.favoritesColor;
 	}
 }

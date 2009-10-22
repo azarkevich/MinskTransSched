@@ -13,9 +13,6 @@ import options.*;
 import resources.Images;
 import resources.ScheduleLoader;
 
-
-
-
 public class TransSched extends MIDlet
 {
 	public static int dayEnd;

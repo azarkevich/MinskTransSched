@@ -53,10 +53,10 @@ public class OptionsStoreManager
 				
 				Options.showStopsListOnStartup = dis.readBoolean();
 
-				if(dis.available() != 0)
-				{
-					Options.lineSpacing = dis.readByte();
-				}
+				Options.lineSpacing = dis.readByte();
+
+				Options.textColor = dis.readInt();
+				Options.favoritesColor = dis.readInt();
 			}
 			catch(InvalidRecordIDException ex)
 			{
@@ -135,7 +135,10 @@ public class OptionsStoreManager
 				dos.writeBoolean(Options.showStopsListOnStartup);
 				
 				dos.writeByte(Options.lineSpacing);
-				
+
+				dos.writeInt(Options.textColor);
+				dos.writeInt(Options.favoritesColor);
+
 				dos.flush();
 
 				byte[] rec = baos.toByteArray();
