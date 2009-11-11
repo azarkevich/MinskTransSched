@@ -15,11 +15,11 @@ cat tmp/index | while read l; do
 	mkdir -p tmp/route-$route
 	echo -n $bus > tmp/route-$route/name
 
+	echo "Route: $route"
+
 	for day in $days; do
-		wget -O tmp/route-$route/sched.$day "http://minsktrans.by/scity.php?day=$day&route=$route"
+		wget -q -O tmp/route-$route/sched.$day "http://minsktrans.by/scity.php?day=$day&route=$route"
 	done
-	
-	break
 
 done
 

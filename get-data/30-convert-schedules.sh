@@ -5,6 +5,22 @@ for r in tmp/route-*; do
 	
 	for s in $r/sched.*; do
 		./31-convert-sched.sh $s
+		rm $s
 	done
 	
+	for s in $r/fwd-sched.*; do
+		sed -nre '/\\busstop/ {
+			s/\\busstop +//
+			p
+		}' $s > $r/order-fwd
+		break
+	done
+
+	for s in $r/bwd-sched.*; do
+		sed -nre '/\\busstop/ {
+			s/\\busstop +//
+			p
+		}' $s > $r/order-bwd
+		break
+	done
 done

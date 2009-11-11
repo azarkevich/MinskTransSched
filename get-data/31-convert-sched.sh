@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# forward & backward file paths
+f=$(dirname $1)/fwd-$(basename $1)
+b=$(dirname $1)/bwd-$(basename $1)
+
 cat $1 | sed -nre '
 /Контрольные пункты/ {
 	s/<table/\n<table/g
@@ -14,19 +18,16 @@ cat $1 | sed -nre '
 }
 '> $(dirname $1)/a~
 
-cat $(dirname $1)/a~ | sed -nre '1,/Обратное следование/ p' > $(dirname $1)/fwd-$(basename $1)
-cat $(dirname $1)/a~ | sed -re  '1,/Обратное следование/ d' > $(dirname $1)/bwd-$(basename $1)
+cat $(dirname $1)/a~ | sed -nre '1,/Обратное следование/ p' > $f
+cat $(dirname $1)/a~ | sed -re  '1,/Обратное следование/ d' > $b~
 
 rm $(dirname $1)/a~
 
-f=$(dirname $1)/bwd-$(basename $1)
+# revert backward file
+./32-revert-file.py $b~ > $b
+rm $b~
 
-# revert !
-#cat $(dirname $1)/bwd-$(basename $1) | while read l1; read l2; do
-#	echo -n x
-#done
-
-for s in $(dirname $1)/*-$(basename $1); do
+for s in $f $b; do
 	cat $s | sed -re '
 s/<tr/\n<tr/g
 ' | sed -re '
@@ -38,5 +39,3 @@ s/<[^>]*>//g
 	rm $s
 	mv $s+ $s
 done
-
-	
