@@ -9,8 +9,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 
-import com.sun.midp.midlet.Selector;
-
 import resources.Images;
 
 import mts.Filter;
@@ -63,7 +61,7 @@ public class TransportFilterForm extends Form implements CommandListener, Runnab
     				// filter:
     				lastValue = newValue;
 
-    				current = Filter.FilterByName(baseItems, lastValue);
+    				current = Filter.FilterTransportByName(baseItems, lastValue);
 
     				if(busListIndex != -1)
     				{

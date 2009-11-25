@@ -13,9 +13,6 @@ public class MainFilterMenu extends List implements CommandListener
 	SchedulerCanvas schedBoard;
 	
 	int byBus = -1;
-	int byBusStop = -1;
-	int clearFilter = -1;
-	int closeMenu = -1;
 	int favorites = -1;
 	
 	int customFilters = -1;
@@ -61,12 +58,7 @@ public class MainFilterMenu extends List implements CommandListener
 		addCommand(TransSched.cmdBack);
 		addCommand(TransSched.cmdSelect);
 		
-		if(schedBoard.filter.isEmpty())
-			closeMenu = append("Вернуться", Images.undo);
-		else
-			clearFilter = append("Сбросить", Images.stop);
-		byBus = append("По транспорту", (schedBoard.filter.buses == TransSched.allTransportArray) ? Images.transportGray : Images.transport);
-		byBusStop = append("По остановкам", (schedBoard.filter.busStops == null) ? Images.busStopGray : Images.busStop);
+		byBus = append("По транспорту", Images.transport);
 		favorites = append("Избранное", Images.hearts);
 
 		customFilters = append("Мои фильтры", Images.monkey);
@@ -88,28 +80,11 @@ public class MainFilterMenu extends List implements CommandListener
 			
 			if(sel == byBus)
 			{
-				schedBoard.showBusFilter2();
-			}
-			else if(sel == byBusStop)
-			{
-				schedBoard.showBusStopsFilter();
+				schedBoard.showBusFilter();
 			}
 			else if(sel == favorites)
 			{
 				schedBoard.setFilterToFavorites();
-				TransSched.display.setCurrent(schedBoard);
-			}
-			else if(sel == clearFilter)
-			{
-				schedBoard.resetFilter();
-				set(clearFilter, "Вернуться", Images.undo);
-				closeMenu = clearFilter;
-				clearFilter = -1;
-				set(byBus, "По транспорту", Images.transportGray);
-				set(byBusStop, "По остановкам", Images.busStopGray);
-			}
-			else if(sel == closeMenu)
-			{
 				TransSched.display.setCurrent(schedBoard);
 			}
 			else if(sel == customFilters)

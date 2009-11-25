@@ -3,10 +3,7 @@ package mts;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import filtering.Matcher;
-
 import ObjModel.*;
-
 
 public class Filter
 {
@@ -21,48 +18,40 @@ public class Filter
 		return busStops == null && buses == TransSched.allTransportArray;
 	}
 
-	public static Bus[] FilterByName(Bus[] all, String filter)
+	public static Bus[] FilterTransportByName(Bus[] all, String filter)
 	{
-		StringBuffer sb = new StringBuffer();
-		boolean wasStar = false;
-		for (int i = 0; i < filter.length(); i++)
-		{
-			char c = filter.charAt(i);
-			if(c == '*')
-			{
-				if(wasStar)
-					continue;
-				wasStar = true;
-			}
-			else
-			{
-				wasStar = false;
-			}
-			
-			sb.append(c);
-		}
-		filter = sb.toString();
-
-		// '*' or '' mean all
-		if(filter.compareTo("*") == 0 || filter.length() == 0)
-			return all;
+		if(filter.length() == 0)
+			return new Bus[0];
 		
-		filter = filter + "*";
-			
 		Vector vec = new Vector();
 
+		int filterLength = filter.length();
+		
 		for (int i = 0; i < all.length; i++)
 		{
-			if(Matcher.Match(all[i].name, filter))
-				vec.addElement(all[i]);
+			Bus b = all[i];
+			
+			if(b.name.startsWith(filter) == false)
+				continue;
+
+			// if after filter part exist digit - not match.
+			// 1 match 1, 1a, 1b but not 14, 113 ...
+			if(b.name.length() > filterLength)
+				System.out.println(Character.isDigit(b.name.charAt(filterLength)));
+
+			if(b.name.length() > filterLength && Character.isDigit(b.name.charAt(filterLength)))
+				continue;
+			
+			vec.addElement(b);
+			System.out.println("add - " + b.name);
 		}
-		
+
 		Bus[] ret = new Bus[vec.size()];
 		vec.copyInto(ret);
 		
 		return ret;
 	}
-	
+
 	// null mean 'all'
 	public void changeTransportFilter(int filterChangeMode, Bus[] transp)
 	{
