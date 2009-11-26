@@ -455,15 +455,6 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		TransSched.display.setCurrent(this);
 	}
 
-	public void setBusStopsFilter(BusStop[] f)
-	{
-		filter.setBusStopsFilter(f);
-		setBusStops(filter.FilterIt(TransSched.allBusStopsArray), getCurrentBusStop());
-		setForeColor();
-		scheduleBuilder.ClearCache();
-		TransSched.display.setCurrent(this);
-	}
-	
 	public void setFilter(FilterDef fd)
 	{
 		filter.setBusesFilter(fd.transport);

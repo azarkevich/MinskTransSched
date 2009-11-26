@@ -115,6 +115,8 @@ public class TransportFilterForm extends Form implements CommandListener, Runnab
 			
 			int fcm = mode.getSelectedIndex();
 
+			board.filter.setBusStopsFilter(null);
+
 			board.setBusesFilter(fcm, current);
 		}
 		else if(cmd == TransSched.cmdCancel)
