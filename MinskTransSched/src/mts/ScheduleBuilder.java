@@ -61,7 +61,7 @@ public class ScheduleBuilder
 	public static final int SCHEDULE_MODE_FLOW = 1; 
 	public static final int SCHEDULE_MODE_FULL = 2; 
 	
-	public int mode = 0;
+	public int mode = 1;
 
 	boolean isShowTimeDiff()
 	{
