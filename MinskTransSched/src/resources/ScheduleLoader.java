@@ -123,6 +123,8 @@ public class ScheduleLoader
 
 			// src
 			Schedule srcSched = FindSchedule(bus, baseBusStop);
+			if(srcSched == null)
+				continue;
 
 			// dst
 			Schedule dstSched = FindSchedule(bus, busStop);
