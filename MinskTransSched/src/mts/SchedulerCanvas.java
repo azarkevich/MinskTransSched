@@ -25,13 +25,17 @@ import text.MultiLineText;
 
 public class SchedulerCanvas extends Canvas implements OptionsListener, CommandListener
 {
-	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 1); 
+	static final Command cmdShowBusStopsList = new Command("Остановки", Command.OK, 1);
 	static final Command cmdFilter = new Command("Фильтр", Command.OK, 2); 
 	final static Command cmdOptions = new Command("Настройки", Command.SCREEN, 3);
 	final static Command cmdAbout = new Command("О программе", Command.EXIT, 4);
 
 	final static Command cmdBusesOnStop = new Command("Автобусы", Command.OK, 5);
 	final static Command cmdStopsOfBus = new Command("Остановки", Command.OK, 6);
+
+	//#ifdef DEVTOOLS
+	final static Command cmdTimePoint = new Command("TimePoint", Command.OK, 6);
+	//#endif
 
 	final static Command cmdExit = new Command("Выход", Command.EXIT, 7);
 
@@ -68,7 +72,11 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		
 		addCommand(cmdBusesOnStop);
 		addCommand(cmdStopsOfBus);
-		
+
+		//#ifdef DEVTOOLS
+		addCommand(cmdTimePoint);
+		//#endif
+
 		fullScreen = Options.fullScreen;
 		setFullScreenMode(fullScreen);
 		
@@ -194,6 +202,12 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		{
 			// select bus and then busstop (list in follow order)
 		}
+		//#ifdef DEVTOOLS
+		else if(cmd == cmdTimePoint)
+		{
+			TransSched.display.setCurrent(new tools.TimePointsForm(this));
+		}
+		//#endif
 	}
 
 	public void resetFilter()
