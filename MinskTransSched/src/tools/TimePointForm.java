@@ -1,8 +1,6 @@
 package tools;
 
 //#ifdef DEVTOOLS
-import java.util.Calendar;
-
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -38,21 +36,21 @@ public class TimePointForm extends Form implements CommandListener
 		
 		transport = new ChoiceGroup(null, ChoiceGroup.POPUP);
 		transport.append("<none>", null);
-		StringWithID[] arr = TimePointsManager.GetInstance().transport; 
+		
+		stops = new ChoiceGroup(null, ChoiceGroup.POPUP);
+		stops.append("<none>", null);
+
+		StringWithID[] arr = TimePointsManager.GetInstance().swids; 
 		for(int i=0;i<arr.length;i++)
 		{
-			transport.append(arr[i].str, null);
+			if(arr[i].SwIdType == StringWithID.SWID_TYPE_TRANSPORT)
+				transport.append(arr[i].str, null);
+			else if(arr[i].SwIdType == StringWithID.SWID_TYPE_STOP)
+				stops.append(arr[i].str, null);
 		}
 		transport.setSelectedIndex(0, true);
 		append(transport);
 		
-		stops = new ChoiceGroup(null, ChoiceGroup.POPUP);
-		stops.append("<none>", null);
-		arr = TimePointsManager.GetInstance().stops; 
-		for(int i=0;i<arr.length;i++)
-		{
-			stops.append(arr[i].str, null);
-		}
 		stops.setSelectedIndex(0, true);
 		append(stops);
 	}
@@ -65,6 +63,7 @@ public class TimePointForm extends Form implements CommandListener
 		}
 		else if(cmd == TransSched.cmdOK)
 		{
+			tp.Save();
 			TimePointsManager.GetInstance().Add(tp);
 			TransSched.display.setCurrent(next);
 		}
