@@ -2,4 +2,4 @@
 
 mkdir -p tmp
 echo "Get index"
-wget -q http://minsktrans.by/scity.php -O - > tmp/index.html
+wget -q http://www.minsktrans.by/city/#minsk/bus -O - > tmp/index.html

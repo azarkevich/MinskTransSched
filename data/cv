@@ -1,0 +1,21 @@
+#!/bin/bash
+
+function source
+{
+	cat /dev/clipboard
+}
+
+function nice_fmt
+{
+	sed -re 's/^([0-9]) /0\1 /'
+}
+
+echo "\\day w"
+source | gawk -F "\t" '{ print $1, $2 }' | nice_fmt
+echo
+
+echo "\\day h"
+source | gawk -F "\t" '{ print $3, $4 }' | nice_fmt
+echo
+
+
