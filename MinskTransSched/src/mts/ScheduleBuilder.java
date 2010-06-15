@@ -179,7 +179,7 @@ public class ScheduleBuilder
 				Bus b = null;
 				for (int i = 0; i < indexes.length; i++)
 				{
-					if(indexes[i] != -1 && times[i][indexes[i]] < minTime)
+					if(indexes[i] != -1 && times[i].length > indexes[i] && times[i][indexes[i]] < minTime)
 					{
 						minTime = times[i][indexes[i]];
 						minIndex = i;

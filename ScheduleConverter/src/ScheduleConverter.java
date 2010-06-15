@@ -173,11 +173,16 @@ public class ScheduleConverter
 			}
 			
 			// day border. at day border begin new day. 
-			dayEnd = (maxTime + 1) % (24 * 60);
-			
-			if(dayEnd > minTime)
+			int daylen = 24 * 60;
+			dayEnd = maxTime;
+			if(dayEnd > daylen)
 			{
-				throw new Exception("Mim/Max times overlapped. Can't guess day end");
+				dayEnd = (maxTime + 1) % daylen;
+				
+				if(dayEnd > minTime)
+				{
+					throw new Exception("Mim/Max times overlapped. Can't guess day end");
+				}
 			}
 			
 			System.out.println("Day end: " + (dayEnd / 60) + "." + (dayEnd % 60));
