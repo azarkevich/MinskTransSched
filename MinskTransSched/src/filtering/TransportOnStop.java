@@ -85,7 +85,7 @@ public class TransportOnStop extends List implements CommandListener
 				Bus b = s.bus;
 				
 				Image img = Images.invisible;
-				if(board.filter.busesFilter.containsKey(b))
+				if(board.filter.busesFilter != null && board.filter.busesFilter.containsKey(b))
 					img = Images.visible;
 				append(b.name, img);
 			}

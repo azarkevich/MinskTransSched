@@ -70,7 +70,7 @@ public class Filter
 				}
 				for (int i = 0; i < transp.length; i++)
 				{
-					if(busesFilter.containsKey(transp[i]) == false)
+					if(busesFilter != null && busesFilter.containsKey(transp[i]) == false)
 					{
 						vec.addElement(transp[i]);
 					}
@@ -101,10 +101,13 @@ public class Filter
 				}
 
 				// add only not in transp array
-				for (int i = 0; i < buses.length; i++)
+				if(buses != null)
 				{
-					if(!hash.containsKey(buses[i]))
-						vec.addElement(buses[i]);
+					for (int i = 0; i < buses.length; i++)
+					{
+						if(!hash.containsKey(buses[i]))
+							vec.addElement(buses[i]);
+					}
 				}
 				transp = new Bus[vec.size()];
 				vec.copyInto(transp);
