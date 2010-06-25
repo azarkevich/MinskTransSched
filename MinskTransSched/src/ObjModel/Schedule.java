@@ -12,9 +12,26 @@ public class Schedule
 	short[][] m_times = new short[10][];
 	String[] m_from = new String[10];
 	
+	short[] m_zeroTimes = new short[0];
 	public short[] getTimes(int day)
 	{
-		return m_times[day];
+		short[] times = m_times[day];
+		
+		if(times == null)
+		{
+			if(day == Calendar.SATURDAY || day == Calendar.SUNDAY)
+				times = m_times[Schedule.HOLIDAY];
+			else
+				times = m_times[Schedule.WORKDAY];
+		}
+		
+		if(times == null)
+			times = m_times[Schedule.ALLDAY];
+		
+		if(times == null)
+			times = m_zeroTimes;
+		
+		return times;
 	}
 
 	public void setTimes(int day, short[] times)
@@ -35,7 +52,7 @@ public class Schedule
 	{
 		m_from[day] = schedFrom;
 	}
-
+/*
 	static final int[] workdayIndexes = new int[] { 
 			Schedule.WORKDAY,
 			Calendar.MONDAY,
@@ -90,28 +107,8 @@ public class Schedule
 			holidayTimes = m_times[Schedule.ALLDAY];
 			holidayFrom = m_from[Schedule.ALLDAY];
 		}
-
-		// fill empty workdays
-		for (int i = 0; i < workdayIndexes.length; i++)
-		{
-			if(m_times[workdayIndexes[i]] == null)
-			{
-				m_times[workdayIndexes[i]] = workTimes;
-				m_from[workdayIndexes[i]] = workFrom; 
-			}
-		}
-
-		// fill empty holidays
-		for (int i = 0; i < holidayIndexes.length; i++)
-		{
-			if(m_times[holidayIndexes[i]] == null)
-			{
-				m_times[holidayIndexes[i]] = holidayTimes;
-				m_from[holidayIndexes[i]] = holidayFrom; 
-			}
-		}
 	}
-	
+	*/
 	public static final int ALLDAY = 0;
 	public static final int WORKDAY = 8;
 	public static final int HOLIDAY = 9;

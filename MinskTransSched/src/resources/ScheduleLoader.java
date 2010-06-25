@@ -217,7 +217,7 @@ public class ScheduleLoader
 			for (int i = 0; i < schedules.size(); i++)
 			{
 				Schedule sched = (Schedule)schedules.elementAt(i);
-				sched.NormalizeDays();
+				//sched.NormalizeDays();
 			}
 			
 			// link scheds to busstops

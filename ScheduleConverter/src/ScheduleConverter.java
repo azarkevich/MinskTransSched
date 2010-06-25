@@ -184,6 +184,10 @@ public class ScheduleConverter
 					throw new Exception("Mim/Max times overlapped. Can't guess day end");
 				}
 			}
+			else
+			{
+				dayEnd = 1;
+			}
 			
 			System.out.println("Day end: " + (dayEnd / 60) + "." + (dayEnd % 60));
 
