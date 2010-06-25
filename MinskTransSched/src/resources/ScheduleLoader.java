@@ -214,12 +214,6 @@ public class ScheduleLoader
 			LoadDerivedSchedules();
 			LoadSettings();
 			
-			for (int i = 0; i < schedules.size(); i++)
-			{
-				Schedule sched = (Schedule)schedules.elementAt(i);
-				//sched.NormalizeDays();
-			}
-			
 			// link scheds to busstops
 			for (int bs = 0; bs < busStops.length; bs++)
 			{
