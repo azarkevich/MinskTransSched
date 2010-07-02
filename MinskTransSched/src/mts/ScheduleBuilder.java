@@ -146,7 +146,6 @@ public class ScheduleBuilder
 			sb.append("flow:");
 		}
 
-		
 		if(schedShift != 0)
 		{
 			sb.append("Сдвиг расп.: ");
@@ -243,7 +242,7 @@ public class ScheduleBuilder
 					sb.append(sched.bus.endRoute == null ? "неизв." : sched.bus.endRoute.name);
 					
 					String schedFrom = GetSchedFrom(sched, cal);
-					if(schedFrom.compareTo("") != 0)
+					if(schedFrom != null && schedFrom.compareTo("") != 0)
 					{
 						sb.append("\nРасп.: ");
 						sb.append(schedFrom);

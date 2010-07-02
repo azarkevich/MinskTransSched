@@ -572,7 +572,7 @@ public class ScheduleConverter
 	{
 		int bus = -1;
 		int busStop = -1;
-		int day = -1;	// work days by default
+		int[] days = null;
 
 		LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(file), c));
 		String line;
@@ -589,7 +589,7 @@ public class ScheduleConverter
 				if(line.startsWith("\\busstop"))
 				{
 					// reset day
-					day = -1;
+					days = null;
 					
 					String busStopName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
 					BusStop bs = FindBusStop(busStopName);
@@ -601,7 +601,7 @@ public class ScheduleConverter
 				{
 					// reset busStop & day
 					busStop = -1;
-					day = -1;
+					days = null;
 					
 					String busName = line.replaceAll("^\\\\\\S+\\s+", "").trim();
 					Bus b = FindBus(busName);
@@ -611,7 +611,13 @@ public class ScheduleConverter
 				
 				if(line.startsWith("\\day"))
 				{
-					day = ParseDay(line.replaceAll("^\\\\\\S+\\s+", "").trim());
+					String daysStr = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+					String[] daysStrA = daysStr.split(" ");
+					days = new int[daysStrA.length];
+					for (int i = 0; i < daysStrA.length; i++)
+					{
+						days[i] = ParseDay(daysStrA[i]);
+					}
 					continue;
 				}
 				
@@ -653,7 +659,7 @@ public class ScheduleConverter
 
 					// reset busstop and day
 					busStop = -1;
-					day = -1;
+					days = null;
 					
 					continue;
 				}
@@ -661,30 +667,36 @@ public class ScheduleConverter
 				if(busStop == -1)
 					throw new Exception("No bus stop specified");
 
-				if(day == -1)
+				if(days == null)
 					throw new Exception("No day specified");
 
 				if(line.startsWith("\\from"))
 				{
-					Schedule sched = FindSchedule(schedules, bus, busStop, day);
-					String from = line.replaceAll("^\\\\\\S+\\s+", "").trim();
-					if(from.equalsIgnoreCase("site"))
+					for (int i = 0; i < days.length; i++)
 					{
-						sched.schedFrom = Schedule.SCHED_FROM_MINSK_TRANS_SITE;
-					}
-					else if(from.equalsIgnoreCase("busstop"))
-					{
-						sched.schedFrom = Schedule.SCHED_FROM_BUSSTOP;
-					}
-					else
-					{
-						throw new Exception("Unknonwn 'from' value:" + from);
+						Schedule sched = FindSchedule(schedules, bus, busStop, days[i]);
+						String from = line.replaceAll("^\\\\\\S+\\s+", "").trim();
+						if(from.equalsIgnoreCase("site"))
+						{
+							sched.schedFrom = Schedule.SCHED_FROM_MINSK_TRANS_SITE;
+						}
+						else if(from.equalsIgnoreCase("busstop"))
+						{
+							sched.schedFrom = Schedule.SCHED_FROM_BUSSTOP;
+						}
+						else
+						{
+							throw new Exception("Unknonwn 'from' value:" + from);
+						}
 					}
 					continue;
 				}
 				
-				Schedule sched = FindSchedule(schedules, bus, busStop, day);
-				ParseTimeLine(sched, line);
+				for (int i = 0; i < days.length; i++)
+				{
+					Schedule sched = FindSchedule(schedules, bus, busStop, days[i]);
+					ParseTimeLine(sched, line);
+				}
 			}
 			catch(Exception ex)
 			{
@@ -828,7 +840,10 @@ public class ScheduleConverter
 		else if(s.compareTo("h") == 0)
 			return Schedule.HOLIDAY;
 
-		return Short.parseShort(s);
+		int ruDay = Short.parseShort(s);
+		
+		// convert russian days to english
+		return (short)((ruDay % 7) + 1); 
 	}
 	
 	Short ParseDirection(String s) throws Exception

@@ -1,5 +1,6 @@
 package resources;
 import java.io.*;
+import java.util.Calendar;
 import java.util.Vector;
 
 import ObjModel.*;
@@ -33,13 +34,18 @@ public class ScheduleLoader
 			buses[i] = new Bus();
 			buses[i].id = dis.readByte();
 			buses[i].name = dis.readUTF();
-			//System.out.println("Do:" + buses[i].name);
 			byte startRoute = dis.readByte();
 			if(startRoute != -1)
 				buses[i].startRoute = FindBusStop(startRoute);
 			byte endRoute = dis.readByte();
 			if(endRoute != -1)
 				buses[i].endRoute = FindBusStop(endRoute);
+/*
+			System.out.println("Loaded bus." 
+				+ " BusId:" + buses[i].id 
+				+ " Bus:" + buses[i].name 
+			);
+*/			
 		}
 		dis.close();
 	}
@@ -56,8 +62,12 @@ public class ScheduleLoader
 			busStops[i].id = dis.readByte();
 			busStops[i].name = dis.readUTF();
 			busStops[i].description = dis.readUTF();
-			
-			//System.out.println("Read bs:" + busStops[i].id);
+/*			
+			System.out.println("Loaded stop." 
+				+ " StopId:" + busStops[i].id 
+				+ " Stop:" + busStops[i].name 
+			);
+*/			
 		}
 		dis.close();
 	}
@@ -102,6 +112,14 @@ public class ScheduleLoader
 			}
 
 			sched.setTimes(day, times);
+/*			
+			System.out.println("Loaded times." 
+					+ " Bus:" + sched.bus.name
+					+ " Stop:" + sched.busStop.name
+					+ " Day:" + day 
+					+ " Times:" + times.length 
+			);
+*/			
 		}
 		dis.close();
 	}
@@ -124,7 +142,10 @@ public class ScheduleLoader
 			// src
 			Schedule srcSched = FindSchedule(bus, baseBusStop);
 			if(srcSched == null)
+			{
+				System.out.println("Can't fijnd source schedule. Bus=" + bus + " Stop=" + baseBusStop);
 				continue;
+			}
 
 			// dst
 			Schedule dstSched = FindSchedule(bus, busStop);
@@ -136,21 +157,83 @@ public class ScheduleLoader
 				dstSched.busStop = FindBusStop(busStop);
 				schedules.addElement(dstSched);
 			}
-			
+/*			
+			System.out.println("\nLoaded derive:"
+					+ " Bus:" + srcSched.bus.name 
+					+ " Stop:" + srcSched.busStop.name 
+					+ " dayFrom:" + Schedule.getDayName(dayFrom) 
+					+ " dayTo:" + Schedule.getDayName(dayTo) 
+				);
+			srcSched.LogTimes();
+*/
 			// generate times:
-			short[] srcTimes = srcSched.getTimes(dayFrom);
+			CopyTimes(srcSched, dstSched, dayFrom, dayTo, shift);
+		}
+		dis.close();
+	}
+	
+	private void CopyTimes(Schedule srcSched, Schedule dstSched, int dayFrom,
+			int dayTo, short shift)
+	{
+/*		System.out.println("> Copy times:"
+				+ " Bus:" + srcSched.bus.name + "->" + dstSched.bus.name  
+				+ " Stop:" + srcSched.busStop.name + "->" + dstSched.busStop.name 
+				+ " dayFrom:" + dayFrom 
+				+ " dayTo:" + dayTo 
+			);
+		*/
+		
+		if(dstSched.getTimesRaw(dayTo) != null)
+		{
+			//System.out.println("Day " + dayTo + " already set");
+			return;
+		}
+	
+		// copy this day
+		short[] srcTimes = srcSched.getTimesRaw(dayFrom);
+
+		if(srcTimes != null)
+		{
 			short[] dstTimes = new short[srcTimes.length];
 			for (int j = 0; j < srcTimes.length; j++)
 			{
 				dstTimes[j] = (short)(srcTimes[j] + shift);
 			}
-
+	
 			dstSched.setTimes(dayTo, dstTimes);
 			dstSched.setFrom(dayTo, srcSched.busStop.name + " +" + shift + "m");
+/*	
+			System.out.println("Copy times:"
+				+ " Bus:" + srcSched.bus.name + "->" + dstSched.bus.name  
+				+ " Stop:" + srcSched.busStop.name + "->" + dstSched.busStop.name 
+				+ " dayFrom:" + Schedule.getDayName(dayFrom) 
+				+ " dayTo:" + Schedule.getDayName(dayTo) 
+				+ " times:" + dstTimes.length
+			);
+*/			
 		}
-		dis.close();
+		
+		// copy other possible days
+		if(dayFrom == Schedule.ALLDAY)
+		{
+			CopyTimes(srcSched, dstSched, Schedule.HOLIDAY, Schedule.HOLIDAY, shift);
+			CopyTimes(srcSched, dstSched, Schedule.WORKDAY, Schedule.WORKDAY, shift);
+		}
+		else if(dayFrom == Schedule.HOLIDAY)
+		{
+			CopyTimes(srcSched, dstSched, Calendar.SATURDAY, Calendar.SATURDAY, shift);
+			CopyTimes(srcSched, dstSched, Calendar.SUNDAY, Calendar.SUNDAY, shift);
+		}
+		else if(dayFrom == Schedule.WORKDAY)
+		{
+			CopyTimes(srcSched, dstSched, Calendar.MONDAY, Calendar.MONDAY, shift);
+			CopyTimes(srcSched, dstSched, Calendar.TUESDAY, Calendar.TUESDAY, shift);
+			CopyTimes(srcSched, dstSched, Calendar.WEDNESDAY, Calendar.WEDNESDAY, shift);
+			CopyTimes(srcSched, dstSched, Calendar.THURSDAY, Calendar.THURSDAY, shift);
+			CopyTimes(srcSched, dstSched, Calendar.FRIDAY, Calendar.FRIDAY, shift);
+		}
 	}
-	
+
 	void LoadFilters() throws Exception
 	{
 		// load 'filters'
