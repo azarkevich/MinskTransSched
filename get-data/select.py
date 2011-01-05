@@ -100,9 +100,6 @@ def print_stop(stop, is_dump, output):
 		if 'sn' in output:
 			print '\tName:', unicode(get_name(stop.id, stop.name), 'utf-8')
 
-def name_in_rx(name):
-	options.route_names_rx
-			
 def select(root, froutes, fstops, ftrans, is_dump, output):
 	all_routes = root["routes"]
 	all_stops = root["stops"]
@@ -128,7 +125,7 @@ def select(root, froutes, fstops, ftrans, is_dump, output):
 				print_timetable(route, stop, is_dump)
 
 def main():
-	op = optparse.OptionParser(usage='%prog [cmd] [options]')
+	op = optparse.OptionParser()
 
 	opts = optparse.OptionGroup(op, 'Select conditions', 'Used for select entities from DB. Use \',\' separator for specify multiple conditions by OR, or specify condition multiple times')
 	opts.add_option('-r', '--route', action='append', dest='route_ids', metavar='IDs', help='Specify route id')
@@ -152,7 +149,7 @@ default=ri,si,rn,rd,rt,s
 	op.add_option('-m', '--map-name', nargs=2, action='append', dest='names_mapping', help='Specify ID and new Name for this entity', default = [])
 	op.add_option_group(opts)
 
-	op.add_option('-d', '--dump', action='store_true', dest='is_dump', default=False, help='Show data for MinskTransSched')
+	op.add_option('-d', '--dump', action='store_true', dest='is_dump', default=False, help='Dump data for MinskTransSched')
 
 	global options
 	(options, args) = op.parse_args()
