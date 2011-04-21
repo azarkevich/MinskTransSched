@@ -39,6 +39,8 @@ public class TransSched extends MIDlet
 	
 	public static OptionsListener[] optionsListeners;
 
+	public long LastUserActivity;
+
 	protected void pauseApp()
 	{
 	}

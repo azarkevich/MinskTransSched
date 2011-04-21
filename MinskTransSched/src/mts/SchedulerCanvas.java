@@ -84,6 +84,10 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 		{
 			public void run()
 			{
+				// auto exit after 5 minutes after last user activity
+				if(System.currentTimeMillis() - TransSched.midlet.LastUserActivity > 1000 * 60 * 10) 
+					TransSched.midlet.destroyApp(true);
+				
 				RefreshScheduleText(true);
 			}
 		};
@@ -273,6 +277,8 @@ public class SchedulerCanvas extends Canvas implements OptionsListener, CommandL
 
 	void handleKeyEvent(int keyCode, boolean released, boolean repeated)
 	{
+		TransSched.midlet.LastUserActivity = System.currentTimeMillis();
+		
 		CmdDef cmd = KeyCommands.getCommand(keyCode, released, repeated);
 		if(cmd == null)
 			return;

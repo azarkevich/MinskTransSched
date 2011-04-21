@@ -1,0 +1,12 @@
+Build:
+
+1. WTK
+2. ANT
+3. Additional tasks for ANT:	svnjavahl.jar svnant.jar svnClientAdapter.jar
+4. Antenna
+
+Development:
+5. eclipseme
+
+Run
+C:\WTK2.5.2_01\bin\emulator.exe -Xdescriptor:MinskTransSched-2.1.jad 
