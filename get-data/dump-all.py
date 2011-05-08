@@ -38,15 +38,11 @@ def dump(root):
 	all_stops = root["stops"]
 
 	for (rid, route) in all_routes.by_id.items():
-		print 'rec=route;transport=' + route.trans + ';id=' + rid + ';route=' + route.route + ';name=' + route.name
 		for sid in route.stops:
 			stop = all_stops[sid]
-			print 'rec=stop;id=' + str(sid) + ';name=' + stop.name + ';street=' + stop.street
 			for (days, tt) in route.timetables[sid].items():
-				times = gen_rawtimetable(tt)
-				print 'rec=timetable;days=' + days + ';times=' + times
-
-	return
+				print 'tr=%s;rid=%s;route=%s;rname=%s;sid=%d;sname=%s;street=%s;days=%s;times=%s' % \
+					(route.trans, rid, route.route, route.name, sid, stop.name, stop.street, days, gen_rawtimetable(tt))
 
 def main():
 	# set default encoding
