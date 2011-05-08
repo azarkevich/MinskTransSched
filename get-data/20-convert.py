@@ -57,7 +57,7 @@ def convert_stop(stop):
 def read_routes():
 	global routes
 
-	f = codecs.open('tmp/routes.txt', 'rb', 'utf-8-sig')
+	f = codecs.open('.tmp/routes.txt', 'rb', 'utf-8-sig')
 	
 	text = f.read().replace('\r', '<CR>')
 	lines = filter(lambda x: x.strip() != '', text.split('\n'))
@@ -104,7 +104,7 @@ def read_routes():
 def read_stops():
 	global stops
 
-	f = codecs.open('tmp/stops.txt', 'rb', 'utf-8-sig')
+	f = codecs.open('.tmp/stops.txt', 'rb', 'utf-8-sig')
 	
 	text = f.read().replace('\r', '<CR>')
 	lines = filter(lambda x: x.strip() != '', text.split('\n'))
@@ -194,7 +194,7 @@ def fix_deltas(deltas):
 # read times file
 def read_times():
 
-	f = codecs.open('tmp/times.txt', 'rb', 'utf-8-sig')
+	f = codecs.open('.tmp/times.txt', 'rb', 'utf-8-sig')
 	
 	text = f.read().replace('\r', '<CR>')
 	lines = filter(lambda x: x.strip() != '', text.split('\n'))
@@ -270,5 +270,5 @@ root = {}
 root["stops"] = stops
 root["routes"] = routes
 
-f = open("tmp/data.bin", 'wb')
+f = open(".tmp/data.bin", 'wb')
 cPickle.dump(root, f)

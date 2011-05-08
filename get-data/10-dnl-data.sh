@@ -1,7 +1,7 @@
 #!/bin/bash
 
-mkdir -p tmp
-cd tmp
+mkdir -p .tmp
+cd .tmp
 
 rm -f *
 
