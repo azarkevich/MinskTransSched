@@ -1,26 +1,9 @@
 <project name="MinskTransSched" default="build" basedir=".">
 
+	<property file=".local.properties" />
 	<property file="build.properties" />
-	<property file="auth.properties" />
-
-	<path id="project.classpath">
-		<pathelement location="svnjavahl.jar" /> 
-		<pathelement location="svnant.jar" />
-		<pathelement location="svnClientAdapter.jar" />
-	</path>
-  
-	<taskdef name="svn" classpathref="project.classpath"
-		    classname="org.tigris.subversion.svnant.SvnTask" />
 
 	<target name="getversion">
-		<!-- read SVN revision
-			<svn>
-				<wcVersion path="${basedir}" />
-			</svn>
-
-			<property name="version.revision.max" value="${revision.max}" />
-		-->
-
 			<property name="version.revision.max" value="-unk-" />
 
 			<!-- generate jar version -->
