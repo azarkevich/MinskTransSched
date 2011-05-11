@@ -1,0 +1,9 @@
+Version: 2.2.r-unk-.b${version.build}
+MIDlet-1: BusSched,icon.png,mts.TransSched
+MIDlet-Jar-URL: MinskTransSched.jar
+MIDlet-Icon: icon.png
+MicroEdition-Configuration: CLDC-1.0
+MIDlet-Version: 2.3
+MIDlet-Name: Minsk transport
+MIDlet-Vendor: Sergey Azarkevich
+MicroEdition-Profile: MIDP-2.0
