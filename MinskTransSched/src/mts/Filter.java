@@ -90,9 +90,6 @@ public class Filter
 			{
 				Vector vec = new Vector();
 				
-				if(transp == null)
-					transp = TransSched.allTransportArray;
-				
 				Hashtable hash = new Hashtable(transp.length);
 				for (int i = 0; i < transp.length; i++)
 				{
