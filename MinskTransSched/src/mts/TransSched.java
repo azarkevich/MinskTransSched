@@ -39,7 +39,7 @@ public class TransSched extends MIDlet
 	
 	public static OptionsListener[] optionsListeners;
 
-	public long LastUserActivity;
+	public long LastUserActivity = System.currentTimeMillis();
 
 	protected void pauseApp()
 	{
