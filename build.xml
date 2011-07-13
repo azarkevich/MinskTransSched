@@ -16,15 +16,15 @@
 				trust="yes"
 			>
 				
-			<fileset file="bin/${city}TransSched-${version.jar}.jad" />
+			<!--fileset file="bin/${city}TransSched-${version.jar}.jad" /-->
 			<fileset file="bin/${city}TransSched-${version.jar}.jar" />
 		</scp>
 	
-		<copy file="bin/${city}TransSched-${version.jar}.jad" tofile="bin/mts.jad" />
+		<!--copy file="bin/${city}TransSched-${version.jar}.jad" tofile="bin/mts.jad" /-->
 		
 		<ftp server="ftp.t35.com" userid="${t35.user}" password="${t35.password}" remotedir="/" verbose="yes" >
 			<fileset file="bin/${city}TransSched-${version.jar}.jar" />
-			<fileset file="bin/mts.jad" />
+			<!--fileset file="bin/mts.jad" /-->
 		</ftp>
 	</target>
 
@@ -34,7 +34,7 @@
 				<entry key="version.build" default="0" type="int" operation="+" value="1"/>
 			</propertyfile>
 
-			<copy file="MinskTransSched/MinskTransSched.jad" tofile="MinskTransSched/MinskTransSched.jad~" />
+			<!--copy file="MinskTransSched/MinskTransSched.jad" tofile="MinskTransSched/MinskTransSched.jad~" />
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="MIDlet-Version:.*"
                          replace="MIDlet-Version: ${version.jar}"
@@ -43,31 +43,31 @@
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="^Version:.*"
                          replace="Version: ${version.jar}.r${version.revision.max}.b${version.build}"
-                         byline="true"/>
+                         byline="true"/-->
 
 			<ant antfile="build.xml" target="build-project" dir="ScheduleConverter" />
 			<ant antfile="build.xml" target="run" dir="ScheduleConverter" />
 
 			<ant antfile="build.xml" target="jar" dir="MinskTransSched" />
 
-			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
+			<!--move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
 
-			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched-${version.jar}.jad" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched-${version.jar}.jad" /-->
 			<move file="bin/MinskTransSched.jar" tofile="bin/${city}TransSched-${version.jar}.jar" />
 			
-			<replaceregexp file="bin/${city}TransSched-${version.jar}.jad"
+			<!--replaceregexp file="bin/${city}TransSched-${version.jar}.jad"
                          match="MIDlet-Jar-URL:.*"
                          replace="MIDlet-Jar-URL: ${city}TransSched-${version.jar}.jar"
-                         byline="true"/>
+                         byline="true"/-->
 	</target>
 
 	<target name="build" depends="-initialize,getversion">
 			<!-- increase build number -->
-			<propertyfile file=".version">
+			<!--propertyfile file=".version">
 				<entry key="version.build" default="0" type="int" operation="+" value="1"/>
-			</propertyfile>
+			</propertyfile-->
 
-			<copy file="MinskTransSched/MinskTransSched.jad" tofile="MinskTransSched/MinskTransSched.jad~" />
+			<!--copy file="MinskTransSched/MinskTransSched.jad" tofile="MinskTransSched/MinskTransSched.jad~" />
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="MIDlet-Version:.*"
                          replace="MIDlet-Version: ${version.jar}"
@@ -76,22 +76,22 @@
 			<replaceregexp file="MinskTransSched/MinskTransSched.jad"
                          match="^Version:.*"
                          replace="Version: ${version.jar}.r${version.revision.max}.b${version.build}"
-                         byline="true"/>
+                         byline="true"/-->
 
 			<ant antfile="build.xml" target="build-project" dir="ScheduleConverter" />
 			<ant antfile="build.xml" target="run" dir="ScheduleConverter" />
 
 			<ant antfile="build.xml" target="deployable" dir="MinskTransSched" />
 
-			<move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
+			<!--move file="MinskTransSched/MinskTransSched.jad~" tofile="MinskTransSched/MinskTransSched.jad" />
 
-			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched-${version.jar}.jad" />
+			<move file="bin/MinskTransSched.jad" tofile="bin/${city}TransSched-${version.jar}.jad" /-->
 			<move file="bin/MinskTransSched.jar" tofile="bin/${city}TransSched-${version.jar}.jar" />
 			
-			<replaceregexp file="bin/${city}TransSched-${version.jar}.jad"
+			<!--replaceregexp file="bin/${city}TransSched-${version.jar}.jad"
                          match="MIDlet-Jar-URL:.*"
                          replace="MIDlet-Jar-URL: ${city}TransSched-${version.jar}.jar"
-                         byline="true"/>
+                         byline="true"/-->
 	</target>
 
 	<target name="-initialize" description="Initializes the build environment">

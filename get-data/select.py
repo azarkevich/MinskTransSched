@@ -173,7 +173,7 @@ default=ri,si,rn,rd,rt,s
 	global names_mapping
 	names_mapping = dict([(int(id), name) for (id, name) in options.names_mapping])
 
-	with open("tmp/data.bin") as f:
+	with open(".tmp/data.bin") as f:
 		root = cPickle.load(f)
 
 	select(root, options.route_ids, options.stop_ids, options.trans_names, options.is_dump, options.output)

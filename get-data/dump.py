@@ -108,7 +108,7 @@ def main():
 		enc = options.encoding
 	sys.stdout = codecs.getwriter(enc)(sys.stdout, errors='replace')
 
-	with open("tmp/data.bin") as f:
+	with open(".tmp/data.bin") as f:
 		root = cPickle.load(f)
 
 	for a in args:
