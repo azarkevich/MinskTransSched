@@ -1,7 +1,7 @@
 # MinskTransSched
 
-Steps marked with * are necassary only for develop project in Eclipse IDE. For only build project perform steps without *
-
+Build
+---
 -  Install JDK (JRE not enough)
 -  Install git
 -  Chekout project at any location
@@ -9,17 +9,20 @@ Steps marked with * are necassary only for develop project in Eclipse IDE. For o
 -  Install Ant
 -  Install Antenna (http://antenna.sourceforge.net/) for build j2me applications with Ant
 -  Install Proguard
-- *Install Eclipse
-- *Setup using JDK in Eclipse
-- *Install MTJ plugin (from http://www.eclipse.org/mtj/)
-- *Setup global options for MTJ: 
+
+Develop in Eclipse
+---
+- Install Eclipse
+- Setup using JDK in Eclipse
+- Install MTJ plugin (from http://www.eclipse.org/mtj/)
+- Setup global options for MTJ: 
 	Antenna JAR
 	WTK root
 	Proguard dir
 	Install all available devices in WTK
 	Setup preverification (use project device configuration, default preverifier + specify path to preverifier in WTK)
-- *Run Eclipse, specify chekout folder as workspace. Appeared empty workspace.
-- *Import TSM project(existing project into workspace). Change settings for imported project:
+- Run Eclipse, specify chekout folder as workspace. Appeared empty workspace.
+- Import TSM project(existing project into workspace). Change settings for imported project:
 	Change JavaME settings if them differ from global
 	Set for Java Compiler specific settings:
 		.class compatibility CLDC 1.1
